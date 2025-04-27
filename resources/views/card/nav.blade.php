@@ -28,7 +28,7 @@
                         <a href="{{route('home')}}" class="nav-link no-wrap">Trang chủ</a>
                     </li>
                     <li class="nav-item dropdown submenu">
-                        <a href="demo-fashion-store-shop.html" class="nav-link no-wrap">Cửa Hàng</a>
+                        <a href="shop" class="nav-link no-wrap">Cửa Hàng</a>
                         <i class="fa-solid fa-angle-down dropdown-toggle" id="navbarDropdownMenuLink1" role="button" data-bs-toggle="dropdown" aria-expanded="false"></i>
                         <div class="dropdown-menu submenu-content" aria-labelledby="navbarDropdownMenuLink1">
                             <div class="d-lg-flex mega-menu m-auto flex-column">
