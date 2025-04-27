@@ -1,0 +1,6 @@
+// Phải @use trước!
+@use 'variables' as *;
+@use 'bootstrap/scss/bootstrap';
+
+// Sau đó mới @import font
+@import url('https://fonts.bunny.net/css?family=Nunito');
