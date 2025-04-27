@@ -5,8 +5,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 
-Auth::routes();
-
+Route::middleware(['cache'])->group(function () {
+    Auth::routes();
+});
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('google',[HomeController::class,'google'])->name('auth.google');
