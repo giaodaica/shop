@@ -31,7 +31,7 @@
                     <form action="{{ route('login') }}" method="post">
                         @csrf
                         <div>
-                            <label class="text-dark-gray mb-10px fw-500" for="email">{{ __('Email Address') }}<span
+                            <label class="text-dark-gray mb-10px fw-500" for="email">{{ __('Email') }}<span
                                     class="text-red">*</span></label>
                             <input id="email"
                                 class="mb-20px bg-very-light-gray form-control required @error('email') is-invalid @enderror"
@@ -74,7 +74,7 @@
                             bạn và cho các mục đích khác được mô tả trong <a href="#"
                                 class="text-dark-gray text-decoration-line-bottom fw-500">chính sách bảo mật</a> của chúng
                             tôi.</span>
-                        <input type="hidden" name="redirect" value="">
+                            <a href="{{route('register')}}" class="text-primary">Chưa có tài khoản đăng ký ngay</a>
                         <button class="btn btn-medium btn-round-edge btn-dark-gray btn-box-shadow w-100"
                             type="submit">Đăng nhập</button>
                         <div class="form-results mt-20px d-none"></div>

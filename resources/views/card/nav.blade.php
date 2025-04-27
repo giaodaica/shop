@@ -25,7 +25,7 @@
             <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
                 <ul class="navbar-nav alt-font navbar-left justify-content-end">
                     <li class="nav-item">
-                        <a href="demo-fashion-store.html" class="nav-link no-wrap">Trang chủ</a>
+                        <a href="{{route('home')}}" class="nav-link no-wrap">Trang chủ</a>
                     </li>
                     <li class="nav-item dropdown submenu">
                         <a href="demo-fashion-store-shop.html" class="nav-link no-wrap">Cửa Hàng</a>
@@ -206,9 +206,9 @@
                 </div>
                 <div class="widget-text icon alt-font">
                     @if(Auth::check())
-                    <a href="demo-fashion-store-account.html"><i class="feather icon-feather-user d-inline-block me-5px"></i><span class="d-none d-xxl-inline-block">Chào bạn {{ Auth::user()->name }}</span></a>
+                    <a href="{{Route('info')}}"><i class="feather icon-feather-user d-inline-block me-5px"></i><span class="d-none d-xxl-inline-block">{{ Auth::user()->name }}</span></a>
                     @else
-                    <a href="demo-fashion-store-account.html"><i class="feather icon-feather-user d-inline-block me-5px"></i><span class="d-none d-xxl-inline-block">Đăng nhập</span></a>
+                    <a href="{{route('login')}}"><i class="feather icon-feather-user d-inline-block me-5px"></i><span class="d-none d-xxl-inline-block">Đăng nhập</span></a>
                     @endif
                 </div>
                 <div class="header-cart-icon icon">

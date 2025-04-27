@@ -25,4 +25,7 @@ class HomeController extends Controller
     {
         return view('pages.shop.index');
     }
+    public function info_customer(){
+        return view('pages.shop.account');
+    }
 }

@@ -6,6 +6,7 @@
         white-space: nowrap;
     }
 </style>
+@vite(['resources/js/app.js'])
     <body data-mobile-nav-style="classic">
         <!-- start header -->
         <header class="header-with-topbar">
