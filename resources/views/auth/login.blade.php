@@ -45,7 +45,7 @@
                         </div>
 
                         <div>
-                            <label for="password" class="text-dark-gray mb-F10px fw-500">{{ __('Password') }}<span
+                            <label for="password" class="text-dark-gray mb-F10px fw-500">{{ __('Mật khẩu') }}<span
                                     class="text-red">*</span></label>
                             <input id="password"
                                 class="mb-20px bg-very-light-gray form-control required @error('password') is-invalid @enderror"

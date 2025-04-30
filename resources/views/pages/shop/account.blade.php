@@ -1,723 +1,862 @@
 @extends('layouts.layout')
-<style>
+@section('cdn-custom')
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+@endsection
+@section('js-page-custom')
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    // Lấy ngày hiện tại và định dạng
+    const currentDate = new Date();
+    const currentDateString = currentDate.toLocaleDateString('en-GB'); // Định dạng dd/mm/yyyy
 
+    // Cập nhật placeholder với khoảng thời gian
+    document.getElementById('daterange').placeholder = `01/01/2022-${currentDateString}`;
+
+    // Khởi tạo flatpickr
+    flatpickr("#daterange", {
+        mode: "range",  // Cho phép chọn một khoảng thời gian
+        dateFormat: "Y-m-d",  // Định dạng ngày
+        minDate: "2022-01-01",  // Giới hạn ngày bắt đầu là 1/1/2022
+        maxDate: currentDate,  // Giới hạn ngày kết thúc là ngày hiện tại
+        locale: {
+            firstDayOfWeek: 1, // Đặt ngày đầu tuần là thứ 2
+        },
+        onClose: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length === 2) {
+                instance.input.value = selectedDates[0].toLocaleDateString() + " - " + selectedDates[1].toLocaleDateString();
+            }
+        }
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        // Kiểm tra xem tab đã được lưu trong localStorage chưa
+        const selectedTab = localStorage.getItem("selectedTab");
+
+        if (selectedTab) {
+            // Nếu có tab đã chọn, chọn tab đó
+            const tabToActivate = document.querySelector(`[href="${selectedTab}"]`);
+            if (tabToActivate) {
+                // Xóa lớp active của tất cả các tab và nội dung
+                const allTabs = document.querySelectorAll('.nav-link');
+                const allTabContents = document.querySelectorAll('.tab-pane');
+                allTabs.forEach(tab => tab.classList.remove('active'));
+                allTabContents.forEach(content => content.classList.remove('show', 'active'));
+
+                // Thêm lớp active vào tab đã chọn
+                tabToActivate.classList.add('active');
+
+                // Hiển thị nội dung của tab đã chọn
+                const tabContentToShow = document.querySelector(selectedTab);
+                if (tabContentToShow) {
+                    tabContentToShow.classList.add('show', 'active');
+                }
+            }
+        }
+
+        // Lắng nghe sự kiện khi tab được chuyển
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function () {
+                // Lưu lại tab đã chọn trong localStorage
+                localStorage.setItem("selectedTab", link.getAttribute('href'));
+            });
+        });
+    });
+</script>
+@endsection
+<style>
+    .nav-item-date{
+        width: 230px;
+        justify-content: center;
+    }
+    input#daterange {
+    text-align: center;
+}
 </style>
 @section('content')
+        <!-- start page title -->
+        <section class="page-title-center-alignment cover-background top-space-padding" style="background-image: url({{asset('assets/images/demo-decor-store-title-bg.jpg')}})">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center position-relative page-title-extra-large">
+                    </div>
+                    <div class="col-12 breadcrumb breadcrumb-style-01 d-flex justify-content-center">
+                        <ul>
 
-            <!-- start section -->
-            <section class="top-space-margin half-section bg-gradient-very-light-gray">
-                <div class="container">
-                    <div class="row align-items-center justify-content-center" data-anime='{ "el": "childs", "translateY": [-15, 0], "opacity": [0,1], "duration": 300, "delay": 0, "staggervalue": 200, "easing": "easeOutQuad" }'>
-                        <div class="col-12 col-xl-8 col-lg-10 text-center position-relative page-title-extra-large">
-                            <h1 class="alt-font fw-600 text-dark-gray mb-10px">FAQs</h1>
-                        </div>
-                        <div class="col-12 breadcrumb breadcrumb-style-01 d-flex justify-content-center">
-                            <ul>
-                                <li><a href="demo-fashion-store.html">Home</a></li>
-                                <li>Faqs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- end page title -->
+        <!-- start section -->
+        <section class="position-relative">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-3 col-lg-4 tab-style-07 md-mb-50px sm-mb-35px" data-anime='{ "translate": [50, 0], "opacity": [0,1], "duration": 600, "delay":100, "staggervalue": 150, "easing": "easeOutQuad" }'>
+                        <div class="position-sticky top-50px">
+                            <ul class="nav nav-tabs justify-content-center border-0 fw-500 text-left alt-font bg-very-light-gray border-radius-6px overflow-hidden">
+                                <li class="nav-item">
+                                    <a data-bs-toggle="tab" href="#tab_seven1" class="nav-link active">
+                                        <span>
+                                            <span class="me-5px"><i class="bi bi-file-text"></i></span>
+                                            <span>General</span>
+                                        </span>
+                                        <span class="bg-hover bg-base-color"></span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_seven2">
+                                        <span>
+                                            <span class="me-5px"><i class="bi bi-bag-plus"></i></span>
+                                            <span>Shopping information</span>
+                                        </span>
+                                        <span class="bg-hover bg-base-color"></span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_seven3">
+                                        <span>
+                                            <span class="me-5px"><i class="bi bi-credit-card-2-back"></i></span>
+                                            <span>Payment information</span>
+                                        </span>
+                                        <span class="bg-hover bg-base-color"></span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_seven4">
+                                        <span>
+                                            <span class="me-5px"><i class="bi bi-box"></i></span>
+                                            <span>Orders and returns</span>
+                                        </span>
+                                        <span class="bg-hover bg-base-color"></span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_seven5">
+                                        <span>
+                                            <span class="me-5px"><i class="bi bi-cart"></i></span>
+                                            <span>Ordering from crafto</span>
+                                        </span>
+                                        <span class="bg-hover bg-base-color"></span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_seven6">
+                                        <span>
+                                            <span class="me-5px"><i class="bi bi-info-circle"></i></span>
+                                            <span>Help and support</span>
+                                        </span>
+                                        <span class="bg-hover bg-base-color"></span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
-                </div>
-            </section>
-            <!-- end section -->
-            <!-- start section -->
-            <section class="pt-0">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-xl-3 col-lg-4 tab-style-07 md-mb-20px" data-anime='{ "el": "childs", "translateY": [30, 0], "opacity": [0,1], "duration": 300, "delay": 200, "staggervalue": 300, "easing": "easeOutQuad" }'>
-                            <ul class="nav nav-tabs justify-content-center border-0 text-left alt-font fw-500">
-                                <li class="nav-item">
-                                    <a data-bs-toggle="tab" href="#tab_seven1" class="nav-link fs-18 active">
-                                        <span>General</span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link fs-18" data-bs-toggle="tab" href="#tab_seven2">
-                                        <span>Shopping information</span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link fs-18" data-bs-toggle="tab" href="#tab_seven3">
-                                        <span>Payment information</span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link fs-18" data-bs-toggle="tab" href="#tab_seven4">
-                                        <span>Orders and returns</span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link fs-18" data-bs-toggle="tab" href="#tab_seven5">
-                                        <span>Ordering from crafto</span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link fs-18" data-bs-toggle="tab" href="#tab_seven6">
-                                        <span>Help and support</span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <form class="nav-item" action="{{route('logout')}}" method="post">
-                                        @csrf
-                                        <button class="nav-link " data-bs-toggle="" href="">
-                                            <span>Đăng xuất</span>
-                                            <span class=""></span>
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-
-                        </div>
-
-                        <div class="col-lg-8 offset-xl-1 lg-ps-50px md-ps-15px">
-                            <div class="tab-content h-100">
-                                <!-- start tab content -->
-                                <div class="tab-pane fade in active show" id="tab_seven1">
-                                    <div class="row">
-                                        <div class="col-12" data-anime='{ "el": "childs", "translateY": [30, 0], "opacity": [0,1], "duration": 300, "delay": 400, "staggervalue": 300, "easing": "easeOutQuad" }'>
-                                            <div class="accordion accordion-style-02" id="accordion-style-01" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item active-accordion">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-01" aria-expanded="true" data-bs-parent="#accordion-style-01">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-minus"></i><span class="fw-500 fs-18">Can i order over the phone?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-01-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                    <div class="col-lg-8 offset-xl-1 lg-ps-50px md-ps-15px" data-anime='{ "translateX": [0, 0], "opacity": [0,1], "duration": 600, "delay":150, "staggervalue": 150, "easing": "easeOutQuad" }'>
+                        <div class="tab-content h-100">
+                            <!-- start tab content -->
+                            <div class="tab-pane fade in active show" id="tab_seven1">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="accordion accordion-style-02" id="accordion-style-01" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item active-accordion">
+                                                <div class="accordion-header border-bottom border-color-extra-medium-gray pt-0">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-01" aria-expanded="true" data-bs-parent="#accordion-style-01">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-minus"></i><span class="fw-500 fs-18">Can i order over the phone?</span>
                                                         </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-01-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-01">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
                                                     </div>
                                                 </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-02" aria-expanded="false" data-bs-parent="#accordion-style-01">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">I am having difficulty placing an order?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-01-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-03" aria-expanded="false" data-bs-parent="#accordion-style-01">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What payment methods does accept?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-01-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-04" aria-expanded="false" data-bs-parent="#accordion-style-01">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">Can i amend my order once placed?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-01-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-05" aria-expanded="false" data-bs-parent="#accordion-style-01">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">How do i know if my order was successful?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-01-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-transparent">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-06" aria-expanded="false" data-bs-parent="#accordion-style-01">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What if my order is incorrect?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-01-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
                                             </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-extra-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-02" aria-expanded="false" data-bs-parent="#accordion-style-01">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">I am having difficulty placing an order?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-01-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-03" aria-expanded="false" data-bs-parent="#accordion-style-01">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What payment methods does accept?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-01-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-04" aria-expanded="false" data-bs-parent="#accordion-style-01">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Can i amend my order once placed?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-01-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-05" aria-expanded="false" data-bs-parent="#accordion-style-01">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">How do i know if my order was successful?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-01-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-transparent">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-06" aria-expanded="false" data-bs-parent="#accordion-style-01">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my order is incorrect?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-01-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
                                         </div>
                                     </div>
                                 </div>
-                                <!-- end tab content -->
-                                <!-- start tab content -->
-                                <div class="tab-pane fade in h-100" id="tab_seven2">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="accordion accordion-style-02" id="accordion-style-02" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item active-accordion">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-02-01" aria-expanded="true" data-bs-parent="#accordion-style-02">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-minus"></i><span class="fw-500 fs-18">Can i order over the phone?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-02-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-02">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-02-02" aria-expanded="false" data-bs-parent="#accordion-style-02">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">I am having difficulty placing an order?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-02-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-02">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-02-03" aria-expanded="false" data-bs-parent="#accordion-style-02">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What payment methods does accept?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-02-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-02">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-02-04" aria-expanded="false" data-bs-parent="#accordion-style-02">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">Can i amend my order once placed?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-02-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-02">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-02-05" aria-expanded="false" data-bs-parent="#accordion-style-02">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">How do i know if my order was successful?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-02-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-02">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-transparent">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-02-06" aria-expanded="false" data-bs-parent="#accordion-style-02">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What if my order is incorrect?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-02-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-02">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- end tab content -->
-                                <!-- start tab content -->
-                                <div class="tab-pane fade in h-100" id="tab_seven3">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="accordion accordion-style-02" id="accordion-style-03" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item active-accordion">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-01" aria-expanded="true" data-bs-parent="#accordion-style-03">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-minus"></i><span class="fw-500 fs-18">Can I return my order?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-03-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-02" aria-expanded="false" data-bs-parent="#accordion-style-03">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What if my item is damaged or faulty?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-03-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-03" aria-expanded="false" data-bs-parent="#accordion-style-03">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">How long will it take to process a return?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-03-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-04" aria-expanded="false" data-bs-parent="#accordion-style-03">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">Why does the refund amount exclude delivery?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-03-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-05" aria-expanded="false" data-bs-parent="#accordion-style-03">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">Need more help?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-03-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-transparent">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-06" aria-expanded="false" data-bs-parent="#accordion-style-03">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What if my item is damaged or faulty?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-03-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- end tab content -->
-                                <!-- start tab content -->
-                                <div class="tab-pane fade in h-100" id="tab_seven4">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="accordion accordion-style-02" id="accordion-style-04" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item active-accordion">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-01" aria-expanded="true" data-bs-parent="#accordion-style-04">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-minus"></i><span class="fw-500 fs-18">Can i order over the phone?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-04-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-02" aria-expanded="false" data-bs-parent="#accordion-style-04">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">I am having difficulty placing an order?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-04-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-03" aria-expanded="false" data-bs-parent="#accordion-style-04">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What payment methods does accept?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-04-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-04" aria-expanded="false" data-bs-parent="#accordion-style-04">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">Can i amend my order once placed?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-04-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-05" aria-expanded="false" data-bs-parent="#accordion-style-04">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">How do i know if my order was successful?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-04-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-transparent">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-06" aria-expanded="false" data-bs-parent="#accordion-style-04">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What if my order is incorrect?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-04-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- end tab content -->
-                                <!-- start tab content -->
-                                <div class="tab-pane fade in h-100" id="tab_seven5">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="accordion accordion-style-02" id="accordion-style-05" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item active-accordion">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-01" aria-expanded="true" data-bs-parent="#accordion-style-05">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-minus"></i><span class="fw-500 fs-18">Can i order over the phone?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-05-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-02" aria-expanded="false" data-bs-parent="#accordion-style-05">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">I am having difficulty placing an order?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-05-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-03" aria-expanded="false" data-bs-parent="#accordion-style-05">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What payment methods does accept?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-05-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-04" aria-expanded="false" data-bs-parent="#accordion-style-05">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">Can i amend my order once placed?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-05-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-05" aria-expanded="false" data-bs-parent="#accordion-style-05">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">How do i know if my order was successful?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-05-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-transparent">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-06" aria-expanded="false" data-bs-parent="#accordion-style-05">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What if my order is incorrect?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-05-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- end tab content -->
-                                <!-- start tab content -->
-                                <div class="tab-pane fade in h-100" id="tab_seven6">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="accordion accordion-style-02" id="accordion-style-06" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item active-accordion">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-01" aria-expanded="true" data-bs-parent="#accordion-style-06">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-minus"></i><span class="fw-500 fs-18">Can i order over the phone?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-06-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-02" aria-expanded="false" data-bs-parent="#accordion-style-06">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">I am having difficulty placing an order?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-06-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-03" aria-expanded="false" data-bs-parent="#accordion-style-06">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What payment methods does accept?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-06-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-04" aria-expanded="false" data-bs-parent="#accordion-style-06">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">Can i amend my order once placed?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-06-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-05" aria-expanded="false" data-bs-parent="#accordion-style-06">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">How do i know if my order was successful?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-06-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-extra-medium-gray">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                                <!-- start accordion item -->
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header border-bottom border-color-transparent">
-                                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-06" aria-expanded="false" data-bs-parent="#accordion-style-06">
-                                                            <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                                <i class="feather icon-feather-plus"></i><span class="fw-500 fs-18">What if my order is incorrect?</span>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                    <div id="accordion-style-06-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
-                                                            <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end accordion item -->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- end tab content -->
                             </div>
+                            <!-- end tab content -->
+                            <!-- start tab content -->
+                            <div class="tab-pane fade in h-100" id="tab_seven2">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="col tab-style-03">
+                                            <ul class="nav justify-content-center text-center fw-500 border-color-light-medium-gray mb-7 gap-2">
+                                                <li class="nav-item-date">
+                                                    Chọn khoảng thời gian<input type="text" name="daterange" id="daterange"/>
+                                                </li>
+                                            </ul>
+                                            <ul class="nav justify-content-center text-center fw-500 border-color-light-medium-gray mb-7 gap-2">
+                                                <li class="nav-item"><a class="nav-link active border text-black rounded" data-bs-toggle="tab" href="#tab_third1">Tất cả</a></li>
+                                                <li class="nav-item"><a class="nav-link border text-black rounded" data-bs-toggle="tab" href="#tab_third2">Chờ xác nhận</a></li>
+                                                <li class="nav-item"><a class="nav-link border text-black rounded" data-bs-toggle="tab" href="#tab_third3">Đã xác nhận</a></li>
+                                                <li class="nav-item"><a class="nav-link border text-black rounded" data-bs-toggle="tab" href="#tab_third4">Đang vận chuyển</a></li>
+                                                <li class="nav-item"><a class="nav-link border text-black rounded" data-bs-toggle="tab" href="#tab_third5">Đã giao hàng</a></li>
+                                                <li class="nav-item"><a class="nav-link border text-black rounded" data-bs-toggle="tab" href="#tab_third6">Đã hủy</a></li>
+                                            </ul>
+                                            <div class="tab-content">
+                                                <!-- start tab content -->
+                                                <div class="tab-pane fade in active show" id="tab_third1">
+                                                    <div class="row align-items-center justify-content-center g-0">
+                                                        <div class="col-lg-6 col-md-11 position-relative md-mb-30px" data-anime='{ "el": "childs", "translateY": [30, 0], "opacity": [0,1], "duration": 600, "delay": 0, "staggervalue": 200, "easing": "easeOutQuad" }'>
+                                                            <figure class="mb-0">
+                                                                <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
+                                                                <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px sm-right-minus-20px xs-right-minus-10px xs-w-140px">
+                                                                    <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
+                                                                </figcaption>
+                                                            </figure>
+                                                        </div>
+                                                        <div class="col-lg-5 col-md-11 offset-lg-1" data-anime='{ "el": "childs", "translateY": [30, 0], "opacity": [0,1], "duration": 600, "delay": 0, "staggervalue": 200, "easing": "easeOutQuad" }'>
+                                                            <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Spa massage therapy</span>
+                                                            <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">Spa salon refresh hot round stone massage.</h3>
+                                                            <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
+                                                            <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
+                                                                <span>
+                                                                    <span class="btn-double-text" data-text="Explore more">Explore more</span>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- end tab content -->
+                                                <!-- start tab content -->
+                                                <div class="tab-pane fade in" id="tab_third2">
+                                                    <div class="row align-items-center justify-content-center g-0">
+                                                        <div class="col-lg-6 col-md-11 position-relative md-mb-30px">
+                                                            <figure class="mb-0">
+                                                                <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
+                                                                <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px xs-right-minus-15px xs-w-140px">
+                                                                    <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
+                                                                </figcaption>
+                                                            </figure>
+                                                        </div>
+                                                        <div class="col-lg-5 col-md-11 offset-lg-1">
+                                                            <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Swimming pool</span>
+                                                            <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">The best place with a good swimming pool.</h3>
+                                                            <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
+                                                            <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
+                                                                <span>
+                                                                    <span class="btn-double-text" data-text="Explore more">Explore more</span>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- end tab content -->
+                                                <!-- start tab content -->
+                                                <div class="tab-pane fade in" id="tab_third3">
+                                                    <div class="row align-items-center justify-content-center g-0">
+                                                        <div class="col-lg-6 col-md-11 position-relative md-mb-30px">
+                                                            <figure class="mb-0">
+                                                                <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
+                                                                <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px xs-right-minus-15px xs-w-140px">
+                                                                    <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
+                                                                </figcaption>
+                                                            </figure>
+                                                        </div>
+                                                        <div class="col-lg-5 col-md-11 offset-lg-1">
+                                                            <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Private beach</span>
+                                                            <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">The best luxury beach for spa massage.</h3>
+                                                            <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
+                                                            <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
+                                                                <span>
+                                                                    <span class="btn-double-text" data-text="Explore more">Explore more</span>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- end tab content -->
+                                                <!-- start tab content -->
+                                                <div class="tab-pane fade in" id="tab_third4">
+                                                    <div class="row align-items-center justify-content-center g-0">
+                                                        <div class="col-lg-6 col-md-11 position-relative md-mb-30px">
+                                                            <figure class="mb-0">
+                                                                <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
+                                                                <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px sm-right-minus-20px xs-right-minus-10px xs-w-140px">
+                                                                    <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
+                                                                </figcaption>
+                                                            </figure>
+                                                        </div>
+                                                        <div class="col-lg-5 col-md-11 offset-lg-1">
+                                                            <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Sauna bath</span>
+                                                            <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">Saunas improve your health and wellness.</h3>
+                                                            <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
+                                                            <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
+                                                                <span>
+                                                                    <span class="btn-double-text" data-text="Explore more">Explore more</span>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- end tab content -->
+                                                     <!-- start tab content -->
+                                                     <div class="tab-pane fade in" id="tab_third5">
+                                                        <div class="row align-items-center justify-content-center g-0">
+                                                            <div class="col-lg-6 col-md-11 position-relative md-mb-30px">
+                                                                <figure class="mb-0">
+                                                                    <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
+                                                                    <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px sm-right-minus-20px xs-right-minus-10px xs-w-140px">
+                                                                        <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
+                                                                    </figcaption>
+                                                                </figure>
+                                                            </div>
+                                                            <div class="col-lg-5 col-md-11 offset-lg-1">
+                                                                <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Sauna bath</span>
+                                                                <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">Saunas improve your health and wellness.</h3>
+                                                                <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
+                                                                <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
+                                                                    <span>
+                                                                        <span class="btn-double-text" data-text="Explore more">Explore more</span>
+                                                                    </span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- end tab content -->
+                                                         <!-- start tab content -->
+                                                <div class="tab-pane fade in" id="tab_third6">
+                                                    <div class="row align-items-center justify-content-center g-0">
+                                                        <div class="col-lg-6 col-md-11 position-relative md-mb-30px">
+                                                            <figure class="mb-0">
+                                                                <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
+                                                                <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px sm-right-minus-20px xs-right-minus-10px xs-w-140px">
+                                                                    <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
+                                                                </figcaption>
+                                                            </figure>
+                                                        </div>
+                                                        <div class="col-lg-5 col-md-11 offset-lg-1">
+                                                            <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Sauna bath</span>
+                                                            <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">Saunas improve your health and wellness.</h3>
+                                                            <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
+                                                            <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
+                                                                <span>
+                                                                    <span class="btn-double-text" data-text="Explore more">Explore more</span>
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- end tab content -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end tab content -->
+                            <!-- start tab content -->
+                            <div class="tab-pane fade in h-100" id="tab_seven3">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="accordion accordion-style-02" id="accordion-style-03" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item active-accordion">
+                                                <div class="accordion-header border-bottom border-color-extra-medium-gray pt-0">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-01" aria-expanded="true" data-bs-parent="#accordion-style-03">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-minus"></i><span class="fw-500 fs-17">Can I return my order?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-03-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-03">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-extra-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-02" aria-expanded="false" data-bs-parent="#accordion-style-03">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my item is damaged or faulty?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-03-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-03" aria-expanded="false" data-bs-parent="#accordion-style-03">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">How long will it take to process a return?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-03-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-04" aria-expanded="false" data-bs-parent="#accordion-style-03">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Why does the refund amount exclude delivery?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-03-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-05" aria-expanded="false" data-bs-parent="#accordion-style-03">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Need more help?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-03-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-transparent">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-06" aria-expanded="false" data-bs-parent="#accordion-style-03">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my item is damaged or faulty?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-03-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end tab content -->
+                            <!-- start tab content -->
+                            <div class="tab-pane fade in h-100" id="tab_seven4">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="accordion accordion-style-02" id="accordion-style-04" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item active-accordion">
+                                                <div class="accordion-header border-bottom border-color-extra-medium-gray pt-0">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-01" aria-expanded="true" data-bs-parent="#accordion-style-04">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-minus"></i><span class="fw-500 fs-17">Can i order over the phone?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-04-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-04">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-extra-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-02" aria-expanded="false" data-bs-parent="#accordion-style-04">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">I am having difficulty placing an order?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-04-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-03" aria-expanded="false" data-bs-parent="#accordion-style-04">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What payment methods does accept?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-04-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-04" aria-expanded="false" data-bs-parent="#accordion-style-04">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Can i amend my order once placed?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-04-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-05" aria-expanded="false" data-bs-parent="#accordion-style-04">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">How do i know if my order was successful?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-04-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-transparent">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-06" aria-expanded="false" data-bs-parent="#accordion-style-04">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my order is incorrect?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-04-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end tab content -->
+                            <!-- start tab content -->
+                            <div class="tab-pane fade in h-100" id="tab_seven5">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="accordion accordion-style-02" id="accordion-style-05" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item active-accordion">
+                                                <div class="accordion-header border-bottom border-color-extra-medium-gray pt-0">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-01" aria-expanded="true" data-bs-parent="#accordion-style-05">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-minus"></i><span class="fw-500 fs-17">Can i order over the phone?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-05-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-05">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-extra-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-02" aria-expanded="false" data-bs-parent="#accordion-style-05">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">I am having difficulty placing an order?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-05-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-03" aria-expanded="false" data-bs-parent="#accordion-style-05">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What payment methods does accept?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-05-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-04" aria-expanded="false" data-bs-parent="#accordion-style-05">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Can i amend my order once placed?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-05-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-05" aria-expanded="false" data-bs-parent="#accordion-style-05">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">How do i know if my order was successful?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-05-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-transparent">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-06" aria-expanded="false" data-bs-parent="#accordion-style-05">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my order is incorrect?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-05-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end tab content -->
+                            <!-- start tab content -->
+                            <div class="tab-pane fade in h-100" id="tab_seven6">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="accordion accordion-style-02" id="accordion-style-06" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item active-accordion">
+                                                <div class="accordion-header border-bottom border-color-extra-medium-gray pt-0">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-01" aria-expanded="true" data-bs-parent="#accordion-style-06">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-minus"></i><span class="fw-500 fs-17">Can i order over the phone?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-06-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-06">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-extra-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-02" aria-expanded="false" data-bs-parent="#accordion-style-06">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">I am having difficulty placing an order?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-06-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-03" aria-expanded="false" data-bs-parent="#accordion-style-06">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What payment methods does accept?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-06-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-04" aria-expanded="false" data-bs-parent="#accordion-style-06">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Can i amend my order once placed?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-06-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-05" aria-expanded="false" data-bs-parent="#accordion-style-06">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">How do i know if my order was successful?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-06-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                            <!-- start accordion item -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header border-bottom border-color-transparent">
+                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-06" aria-expanded="false" data-bs-parent="#accordion-style-06">
+                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
+                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my order is incorrect?</span>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <div id="accordion-style-06-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
+                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
+                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- end accordion item -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end tab content -->
                         </div>
                     </div>
                 </div>
-            </section>
-            <!-- end section -->
+            </div>
+        </section>
+        <!-- end section -->
 @endsection
+
