@@ -27,39 +27,81 @@
             }
         }
     });
+
     document.addEventListener("DOMContentLoaded", function () {
-        // Kiểm tra xem tab đã được lưu trong localStorage chưa
         const selectedTab = localStorage.getItem("selectedTab");
+        const selectedSubTab = localStorage.getItem("selectedSubTab");
 
+        // Bật tab cha
         if (selectedTab) {
-            // Nếu có tab đã chọn, chọn tab đó
             const tabToActivate = document.querySelector(`[href="${selectedTab}"]`);
-            if (tabToActivate) {
-                // Xóa lớp active của tất cả các tab và nội dung
-                const allTabs = document.querySelectorAll('.nav-link');
-                const allTabContents = document.querySelectorAll('.tab-pane');
-                allTabs.forEach(tab => tab.classList.remove('active'));
-                allTabContents.forEach(content => content.classList.remove('show', 'active'));
+            const tabContentToShow = document.querySelector(selectedTab);
 
-                // Thêm lớp active vào tab đã chọn
+            if (tabToActivate && tabContentToShow) {
+                document.querySelectorAll('.nav-link').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(content => content.classList.remove('show', 'active'));
+
                 tabToActivate.classList.add('active');
+                tabContentToShow.classList.add('show', 'active');
 
-                // Hiển thị nội dung của tab đã chọn
-                const tabContentToShow = document.querySelector(selectedTab);
-                if (tabContentToShow) {
-                    tabContentToShow.classList.add('show', 'active');
+                // Nếu là tab_seven2 → xử lý tab con
+                if (selectedTab === "#tab_seven2") {
+                    let subTabToActivate, subTabContentToShow;
+
+                    if (selectedSubTab) {
+                        subTabToActivate = document.querySelector(`[href="${selectedSubTab}"]`);
+                        subTabContentToShow = document.querySelector(selectedSubTab);
+                    } else {
+                        // Không có localStorage → bật tab_third1
+                        subTabToActivate = document.querySelector('#tab_seven2 .nav-link[href="#tab_third1"]');
+                        subTabContentToShow = document.querySelector('#tab_third1');
+                    }
+
+                    if (subTabToActivate && subTabContentToShow) {
+                        document.querySelectorAll('#tab_seven2 .nav-link').forEach(tab => tab.classList.remove('active'));
+                        document.querySelectorAll('#tab_seven2 .tab-pane').forEach(content => content.classList.remove('show', 'active'));
+
+                        subTabToActivate.classList.add('active');
+                        subTabContentToShow.classList.add('show', 'active');
+                    }
                 }
             }
         }
 
-        // Lắng nghe sự kiện khi tab được chuyển
+        // Lưu tab cha
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function () {
-                // Lưu lại tab đã chọn trong localStorage
-                localStorage.setItem("selectedTab", link.getAttribute('href'));
+                const href = link.getAttribute('href');
+                localStorage.setItem("selectedTab", href);
+
+                if (href !== '#tab_seven2') {
+                    localStorage.removeItem("selectedSubTab");
+                } else {
+                    // Khi click tab_seven2 thì bật luôn tab_third1 và nội dung
+                    const subTabToActivate = document.querySelector('#tab_seven2 .nav-link[href="#tab_third1"]');
+                    const subTabContentToShow = document.querySelector('#tab_third1');
+
+                    if (subTabToActivate && subTabContentToShow) {
+                        document.querySelectorAll('#tab_seven2 .nav-link').forEach(tab => tab.classList.remove('active'));
+                        document.querySelectorAll('#tab_seven2 .tab-pane').forEach(content => content.classList.remove('show', 'active'));
+
+                        subTabToActivate.classList.add('active');
+                        subTabContentToShow.classList.add('show', 'active');
+                    }
+                }
+            });
+        });
+
+        // Lưu tab con
+        document.querySelectorAll('#tab_seven2 .nav-link').forEach(link => {
+            link.addEventListener('click', function () {
+                const href = this.getAttribute('href');
+                localStorage.setItem("selectedSubTab", href);
+                localStorage.setItem("selectedTab", "#tab_seven2");
             });
         });
     });
+
 </script>
 @endsection
 <style>
@@ -69,6 +111,26 @@
     }
     input#daterange {
     text-align: center;
+}
+.order-status.success {
+    background-color: rgba(0, 171, 85, .078);
+    color: #007b55;
+}
+.order-status.pending {
+    background-color: rgba(255, 193, 7, .13); /* vàng nhạt */
+    color: #b78103;
+}
+.order-status.confirmed {
+    background-color: rgba(24, 144, 255, .10); /* xanh dương nhạt */
+    color: #1769aa;
+}
+.order-status.shipping {
+    background-color: rgba(0, 184, 217, .10); /* xanh cyan nhạt */
+    color: #006c9c;
+}
+.order-status.cancelled {
+    background-color: rgba(255, 72, 66, .10); /* đỏ nhạt */
+    color: #b72136;
 }
 </style>
 @section('content')
@@ -98,7 +160,7 @@
                                     <a data-bs-toggle="tab" href="#tab_seven1" class="nav-link active">
                                         <span>
                                             <span class="me-5px"><i class="bi bi-file-text"></i></span>
-                                            <span>General</span>
+                                            <span>Trang chủ</span>
                                         </span>
                                         <span class="bg-hover bg-base-color"></span>
                                     </a>
@@ -107,7 +169,7 @@
                                     <a class="nav-link" data-bs-toggle="tab" href="#tab_seven2">
                                         <span>
                                             <span class="me-5px"><i class="bi bi-bag-plus"></i></span>
-                                            <span>Shopping information</span>
+                                            <span>Lịch sử mua hàng</span>
                                         </span>
                                         <span class="bg-hover bg-base-color"></span>
                                     </a>
@@ -280,25 +342,95 @@
                                             <div class="tab-content">
                                                 <!-- start tab content -->
                                                 <div class="tab-pane fade in active show" id="tab_third1">
-                                                    <div class="row align-items-center justify-content-center g-0">
-                                                        <div class="col-lg-6 col-md-11 position-relative md-mb-30px" data-anime='{ "el": "childs", "translateY": [30, 0], "opacity": [0,1], "duration": 600, "delay": 0, "staggervalue": 200, "easing": "easeOutQuad" }'>
-                                                            <figure class="mb-0">
-                                                                <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
-                                                                <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px sm-right-minus-20px xs-right-minus-10px xs-w-140px">
-                                                                    <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
-                                                                </figcaption>
-                                                            </figure>
+                                                    <div class="bg-white border border-dark p-35px border-radius-6px mt-9 position-relative">
+                                                        <!-- Thời gian góc trên phải -->
+                                                        <span class="position-absolute top-0 end-0 mt-2 me-3 text-secondary small">01/05/2025</span>
+                                                        <div class="row align-items-center justify-content-center justify-content-lg-start">
+                                                            <div class="col-5 col-sm-3 sm-mb-20px text-center">
+                                                                <img src="{{asset('assets/images/shop/product1.png')}}" alt=""/>
+                                                            </div>
+                                                            <div class="col-md-9 text-center text-md-start ps-3">
+                                                                <div class="mb-2">
+                                                                    <span class="fw-bold fs-5 d-block">Tên sản phẩm: Áo thun nam basic</span>
+                                                                    <span class="order-status pending px-3 py-2 rounded">Chờ xác nhận</span>
+                                                                    <span class="text-danger fw-bold fs-5 d-block">Giá: 350.000₫</span>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-lg-5 col-md-11 offset-lg-1" data-anime='{ "el": "childs", "translateY": [30, 0], "opacity": [0,1], "duration": 600, "delay": 0, "staggervalue": 200, "easing": "easeOutQuad" }'>
-                                                            <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Spa massage therapy</span>
-                                                            <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">Spa salon refresh hot round stone massage.</h3>
-                                                            <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
-                                                            <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
-                                                                <span>
-                                                                    <span class="btn-double-text" data-text="Explore more">Explore more</span>
-                                                                </span>
-                                                            </a>
+                                                        <!-- Nút chi tiết góc dưới phải -->
+                                                        <a href="#" class="btn btn-sm border border-danger text-danger bg-white position-absolute bottom-0 end-0 mb-3 me-3">Chi tiết</a>
+                                                    </div>
+                                                    <div class="bg-white border border-dark p-35px border-radius-6px mt-9 position-relative">
+                                                        <!-- Thời gian góc trên phải -->
+                                                        <span class="position-absolute top-0 end-0 mt-2 me-3 text-secondary small">01/05/2025</span>
+                                                        <div class="row align-items-center justify-content-center justify-content-lg-start">
+                                                            <div class="col-5 col-sm-3 sm-mb-20px text-center">
+                                                                <img src="https://placehold.co/233x237" alt=""/>
+                                                            </div>
+                                                            <div class="col-md-9 text-center text-md-start ps-3">
+                                                                <div class="mb-2">
+                                                                    <span class="fw-bold fs-5 d-block">Tên sản phẩm: Áo thun nam basic</span>
+                                                                    <span class="order-status confirmed px-3 py-2 rounded">Đã xác nhận</span>
+                                                                    <span class="text-danger fw-bold fs-5 d-block">Giá: 350.000₫</span>
+                                                                </div>
+                                                            </div>
                                                         </div>
+                                                        <!-- Nút chi tiết góc dưới phải -->
+                                                        <a href="#" class="btn btn-sm border border-danger text-danger bg-white position-absolute bottom-0 end-0 mb-3 me-3">Chi tiết</a>
+                                                    </div>
+                                                    <div class="bg-white border border-dark p-35px border-radius-6px mt-9 position-relative">
+                                                        <!-- Thời gian góc trên phải -->
+                                                        <span class="position-absolute top-0 end-0 mt-2 me-3 text-secondary small">01/05/2025</span>
+                                                        <div class="row align-items-center justify-content-center justify-content-lg-start">
+                                                            <div class="col-5 col-sm-3 sm-mb-20px text-center">
+                                                                <img src="https://placehold.co/233x237" alt=""/>
+                                                            </div>
+                                                            <div class="col-md-9 text-center text-md-start ps-3">
+                                                                <div class="mb-2">
+                                                                    <span class="fw-bold fs-5 d-block">Áo thun nam basic</span>
+                                                                    <span class="order-status shipping px-3 py-2 rounded">Đang giao hàng</span>
+                                                                    <span class="text-danger fw-bold fs-5 d-block">Giá: 350.000₫</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Nút chi tiết góc dưới phải -->
+                                                        <a href="#" class="btn btn-sm border border-danger text-danger bg-white position-absolute bottom-0 end-0 mb-3 me-3">Chi tiết</a>
+                                                    </div>
+                                                    <div class="bg-white border border-dark p-35px border-radius-6px mt-9 position-relative">
+                                                        <!-- Thời gian góc trên phải -->
+                                                        <span class="position-absolute top-0 end-0 mt-2 me-3 text-secondary small">01/05/2025</span>
+                                                        <div class="row align-items-center justify-content-center justify-content-lg-start">
+                                                            <div class="col-5 col-sm-3 sm-mb-20px text-center">
+                                                                <img src="https://placehold.co/233x237" alt=""/>
+                                                            </div>
+                                                            <div class="col-md-9 text-center text-md-start ps-3">
+                                                                <div class="mb-2">
+                                                                    <span class="fw-bold fs-5 d-block">Tên sản phẩm: Áo thun nam basic</span>
+                                                                    <span class="order-status success px-3 py-2 rounded">Đã giao hàng</span>
+                                                                    <span class="text-danger fw-bold fs-5 d-block">Giá: 350.000₫</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Nút chi tiết góc dưới phải -->
+                                                        <a href="#" class="btn btn-sm border border-danger text-danger bg-white position-absolute bottom-0 end-0 mb-3 me-3">Chi tiết</a>
+                                                    </div>
+                                                    <div class="bg-white border border-dark p-35px border-radius-6px mt-9 position-relative">
+                                                        <!-- Thời gian góc trên phải -->
+                                                        <span class="position-absolute top-0 end-0 mt-2 me-3 text-secondary small">01/05/2025</span>
+                                                        <div class="row align-items-center justify-content-center justify-content-lg-start">
+                                                            <div class="col-5 col-sm-3 sm-mb-20px text-center">
+                                                                <img src="https://placehold.co/233x237" alt=""/>
+                                                            </div>
+                                                            <div class="col-md-9 text-center text-md-start ps-3">
+                                                                <div class="mb-2">
+                                                                    <span class="fw-bold fs-5 d-block">Tên sản phẩm: Áo thun nam basic</span>
+                                                                    <span class="order-status cancelled px-3 py-2 rounded">Đã hủy đơn</span>
+                                                                    <span class="text-danger fw-bold fs-5 d-block">Giá: 350.000₫</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Nút chi tiết góc dưới phải -->
+                                                        <a href="#" class="btn btn-sm border border-danger text-danger bg-white position-absolute bottom-0 end-0 mb-3 me-3">Chi tiết</a>
                                                     </div>
                                                 </div>
                                                 <!-- end tab content -->
