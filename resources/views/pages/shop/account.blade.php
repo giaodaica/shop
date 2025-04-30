@@ -210,6 +210,17 @@
                                         <span class="bg-hover bg-base-color"></span>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <form class="nav-link" data-bs-toggle="tab" action="{{route('logout')}}" method="POST">
+                                        @csrf
+                                        <span>
+                                            <span class="me-5px"><i class="bi bi-power"></i></span>
+                                        </span>
+                                        <span>
+                                            <button class="btn" type="submit">Đăng xuất</button>
+                                        </span>
+                                    </form>
+                                </li>
                             </ul>
                         </div>
                     </div>
