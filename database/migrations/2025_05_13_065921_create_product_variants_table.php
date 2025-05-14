@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('product_id');
             $table->string('sku')->unique();
-            $table->float('price',10.2);
+            $table->decimal('price',10,2);
             $table->integer('quantity');
             $table->string('image');
             $table->enum('status',[0,1])->default(1);
