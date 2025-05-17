@@ -2,19 +2,20 @@
     Crafto - Fashion store
 ====================================== */
 /* font */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;900&display=swap&subset=vietnamese');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap&subset=vietnamese');
+
 /* variable */
-:root {     
-    --base-color: #fee300; 
-    --alt-font: 'Outfit', sans-serif;
-    --primary-font: 'Figtree', sans-serif;
+:root {
+    --base-color: #fee300;
+    --alt-font: 'Roboto', sans-serif;
+    --primary-font: 'Open Sans', sans-serif;
     --medium-gray: #828282;
 }
 /* reset */
 body {
     font-size: 17px;
-    line-height: 32px; 
+    line-height: 32px;
 }
 a:hover {
     color: var(--dark-gray);
@@ -81,7 +82,7 @@ header .widget {
     min-width: 150px;
 }
 /* btn */
-.btn.btn-large { 
+.btn.btn-large {
     padding: 15px 30px;
 }
 .btn {
@@ -132,11 +133,11 @@ header .widget {
 }
 /* progress bar 02 */
 .progress-bar-style-02 .progress {
-    height: 10px; 
+    height: 10px;
 }
 /* footer */
 .footer-dark, .footer-dark p, .footer-dark a {
-    color: var(--medium-gray); 
+    color: var(--medium-gray);
 }
 footer .footer-logo img {
     max-height: 34px;

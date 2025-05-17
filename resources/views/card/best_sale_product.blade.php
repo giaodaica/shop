@@ -15,7 +15,7 @@
                     <li class="grid-item">
                         <div class="shop-box mb-10px">
                             <div class="shop-image mb-20px">
-                                <a href="demo-fashion-store-single-product.html">
+                                <a href="aonam/dung-slug-nhe">
                                     <img src="{{asset('assets/images/shop/demo-fashion-store-product-01.jpg')}}" alt="">
                                     <span class="lable new">New</span>
                                     <div class="shop-overlay bg-gradient-gray-light-dark-transparent"></div>

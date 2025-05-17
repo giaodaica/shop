@@ -1,5 +1,40 @@
 @extends('layouts.layout')
 @section('cdn-custom')
+<style>
+    .gap-2 {
+    gap: 4.5px !important
+    }
+
+    .nav-item-date{
+        width: 230px;
+        justify-content: center;
+    }
+    input#daterange {
+    text-align: center;
+}
+.order-status.success {
+    background-color: rgba(0, 171, 85, .078);
+    color: #007b55;
+}
+.order-status.pending {
+    background-color: rgba(255, 193, 7, .13); /* vàng nhạt */
+    color: #b78103;
+}
+.order-status.confirmed {
+    background-color: rgba(24, 144, 255, .10); /* xanh dương nhạt */
+    color: #1769aa;
+}
+.order-status.shipping {
+    background-color: rgba(0, 184, 217, .10); /* xanh cyan nhạt */
+    color: #006c9c;
+}
+.order-status.cancelled {
+    background-color: rgba(255, 72, 66, .10); /* đỏ nhạt */
+    color: #b72136;
+}
+
+
+</style>
 <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
 @endsection
 @section('js-page-custom')
@@ -104,35 +139,6 @@
 
 </script>
 @endsection
-<style>
-    .nav-item-date{
-        width: 230px;
-        justify-content: center;
-    }
-    input#daterange {
-    text-align: center;
-}
-.order-status.success {
-    background-color: rgba(0, 171, 85, .078);
-    color: #007b55;
-}
-.order-status.pending {
-    background-color: rgba(255, 193, 7, .13); /* vàng nhạt */
-    color: #b78103;
-}
-.order-status.confirmed {
-    background-color: rgba(24, 144, 255, .10); /* xanh dương nhạt */
-    color: #1769aa;
-}
-.order-status.shipping {
-    background-color: rgba(0, 184, 217, .10); /* xanh cyan nhạt */
-    color: #006c9c;
-}
-.order-status.cancelled {
-    background-color: rgba(255, 72, 66, .10); /* đỏ nhạt */
-    color: #b72136;
-}
-</style>
 @section('content')
         <!-- start page title -->
         <section class="page-title-center-alignment cover-background top-space-padding" style="background-image: url({{asset('assets/images/demo-decor-store-title-bg.jpg')}})">
