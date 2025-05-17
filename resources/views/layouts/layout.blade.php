@@ -6,6 +6,8 @@
         white-space: nowrap;
     }
 </style>
+    @yield('cdn-custom')
+
 {{-- @vite(['resources/js/app.js']) --}}
     <body data-mobile-nav-style="classic">
         <!-- start header -->
@@ -87,5 +89,6 @@
         <!-- end scroll progress -->
         <!-- javascript libraries -->
         @include('card.js')
+@yield('js-page-custom')
     </body>
 </html>

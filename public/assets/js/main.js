@@ -3393,15 +3393,22 @@ if ($.fn.countdown !== undefined && $.fn.countdown !== null) {
      Quantity input
      ====================================== */
 
-    $('.qty-plus').click(function () {
-        var th = $(this).closest('.quantity').find('.qty-text');
-        th.val(+th.val() + 1);
-    });
-    $('.qty-minus').click(function () {
-        var th = $(this).closest('.quantity').find('.qty-text');
-        if (th.val() > 1)
-            th.val(+th.val() - 1);
-    });
+  $('.qty-plus').click(function () {
+    var th = $(this).closest('.quantity').find('.qty-text');
+    th.val(+th.val() + 1);
+    updateCartTotals(); // Cập nhật tổng giá sau khi tăng
+});
+
+$('.qty-minus').click(function () {
+    var th = $(this).closest('.quantity').find('.qty-text');
+    if (th.val() > 1)
+        th.val(+th.val() - 1);
+    updateCartTotals(); // Cập nhật tổng giá sau khi giảm
+});
+$('.qty-text').on('input', function () {
+    updateCartTotals();
+});
+
 
     /* ===================================
      Infinite looping animation
@@ -3781,3 +3788,24 @@ function initMap() {
         }
     });
 }
+function updateCartTotals() {
+    let total = 0;
+
+    $('table.cart-products tbody tr').each(function () {
+        const price = parseFloat($(this).find('.product-price').text().replace('$', ''));
+        const qty = parseInt($(this).find('.qty-text').val());
+        const subtotal = price * qty;
+
+        // Cập nhật tổng cho từng dòng
+        $(this).find('.product-subtotal').text(`$${subtotal.toFixed(2)}`);
+
+        total += subtotal;
+    });
+
+    // Cập nhật Subtotal (dòng đầu)
+    $('.total-price-table tr:first td').text(`$${total.toFixed(2)}`);
+
+    // Cập nhật Total (trong thẻ h6)
+    $('.total-amount h6').text(`$${total.toFixed(2)}`);
+}
+

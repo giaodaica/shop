@@ -10,9 +10,9 @@
                 </div>
             </div>
             <a class="navbar-brand" href="demo-fashion-store.html">
-                <img src="{{asset('assets/images/demo-fashion-store-logo-black.png')}}" data-at2x="{{asset('assets/images/demo-fashion-store-logo-black@2x.png')}}" alt="" class="default-logo">
-                <img src="{{asset('assets/images/demo-fashion-store-logo-black.png')}}" data-at2x="{{asset('assets/images/demo-fashion-store-logo-black@2x.png')}}" alt="" class="alt-logo">
-                <img src="{{asset('assets/images/demo-fashion-store-logo-black.png')}}" data-at2x="{{asset('assets/images/demo-fashion-store-logo-black@2x.png')}}" alt="" class="mobile-logo">
+                <img src="{{asset('assets/images/logooutfitly.png')}}" data-at2x="{{asset('assets/images/logooutfitly.png')}}" alt="" class="default-logo">
+                <img src="{{asset('assets/images/logooutfitly.png')}}" data-at2x="{{asset('assets/images/logooutfitly.png')}}" alt="" class="alt-logo">
+                <img src="{{asset('assets/images/logooutfitly.png')}}" data-at2x="{{asset('assets/images/logooutfitly.png')}}" alt="" class="mobile-logo">
             </a>
         </div>
         <div class="col-auto col-xxl-6 col-lg-8 menu-order">
@@ -206,7 +206,7 @@
                 </div>
                 <div class="widget-text icon alt-font">
                     @if(Auth::check())
-                    <a href="{{Route('info')}}"><i class="feather icon-feather-user d-inline-block me-5px"></i><span class="d-none d-xxl-inline-block">{{ Auth::user()->name }}</span></a>
+                    <a href="{{Route('home.info')}}"><i class="feather icon-feather-user d-inline-block me-5px"></i><span class="d-none d-xxl-inline-block">{{ Auth::user()->name }}</span></a>
                     @else
                     <a href="{{route('login')}}"><i class="feather icon-feather-user d-inline-block me-5px"></i><span class="d-none d-xxl-inline-block">Đăng nhập</span></a>
                     @endif

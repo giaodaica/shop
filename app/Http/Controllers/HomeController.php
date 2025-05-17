@@ -28,4 +28,7 @@ class HomeController extends Controller
     public function info_customer(){
         return view('pages.shop.account');
     }
+    public function show($id){
+        return view('pages.shop.show');
+    }
 }
