@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -9,7 +11,13 @@ Route::middleware(['cache'])->group(function () {
     Auth::routes();
 });
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('shop', [HomeController::class, 'shop'])->name('home.shop');
 
 Route::get('google',[HomeController::class,'google'])->name('auth.google');
-Route::get('info',[HomeController::class,'info_customer'])->name('info')->middleware('auth','cache');
+Route::get('info',[HomeController::class,'info_customer'])->name('home.info')->middleware('auth','cache');
+Route::get('aonam/{id}',[HomeController::class,'show'])->name('home.show');
+Route::get('cart',[CartController::class,'index'])->name('home.cart');
+Route::get('checkout',[OrderController::class,'index'])->name('home.checkout');
+Route::get('done',[OrderController::class,'done'])->name('home.done');
+Route::get('dashboard',[HomeController::class,'admin']);
 
