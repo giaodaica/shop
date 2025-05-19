@@ -25,4 +25,10 @@
     <!-- custom Css-->
     <link href="{{asset('admin/css/custom.min.css')}}" rel="stylesheet" type="text/css" />
 
+    <style>
+        .main-content {
+            margin-top: 80px; /* tăng số này nếu header cao hơn */
+        }
+    </style>
+
 </head>

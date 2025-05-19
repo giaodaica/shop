@@ -24,7 +24,7 @@
                 </button>
             </div>
 
-            <div id="scrollbar">
+            {{-- <div id="scrollbar">
                 <div class="container-fluid">
 
                     <div id="two-column-menu">
@@ -1070,7 +1070,31 @@
                     </ul>
                 </div>
                 <!-- Sidebar -->
+            </div> --}}
+            <div id="scrollbar">
+                <div class="container-fluid">
+                    <div id="two-column-menu"></div>
+                    <ul class="navbar-nav" id="navbar-nav">
+                        <li class="menu-title"><span data-key="t-menu">Menu</span></li>
+            
+                        <!-- Sản phẩm -->
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="{{ route('products.index') }}">
+                                <i class="ri-box-3-line"></i>
+                                <span>Sản phẩm</span>
+                            </a>
+                        </li>
+            
+                        <!-- Danh mục -->
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="{{ route('categories.index') }}">
+                                <i class="ri-folder-3-line"></i>
+                                <span>Danh mục</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-
+            
             <div class="sidebar-background"></div>
         </div>
