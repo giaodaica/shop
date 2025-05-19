@@ -19,4 +19,5 @@ Route::get('aonam/{id}',[HomeController::class,'show'])->name('home.show');
 Route::get('cart',[CartController::class,'index'])->name('home.cart');
 Route::get('checkout',[OrderController::class,'index'])->name('home.checkout');
 Route::get('done',[OrderController::class,'done'])->name('home.done');
+Route::get('dashboard',[HomeController::class,'admin']);
 

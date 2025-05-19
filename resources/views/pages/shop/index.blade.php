@@ -15,7 +15,7 @@
                     <div class="row h-40px align-items-center m-0">
                         <div class="col-12 justify-content-center alt-font fs-13 fw-500 text-uppercase">
                             <div class="text-dark-gray">Miễn phí giao hàng với đơn hàng từ 200.000 VND.</div>
-                            <a href="#" class="text-dark-gray fw-600 ms-5px text-dark-gray-hover"><span class="text-decoration-line-bottom">Mua Ngay</span></a>
+                            <a href="admin" class="text-dark-gray fw-600 ms-5px text-dark-gray-hover"><span class="text-decoration-line-bottom">Mua Ngay</span></a>
                         </div>
                     </div>
                 </div>
