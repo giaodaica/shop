@@ -31,4 +31,7 @@ class HomeController extends Controller
     public function show($id){
         return view('pages.shop.show');
     }
+    public function admin(){
+        return view('dashboard.index');
+    }
 }
