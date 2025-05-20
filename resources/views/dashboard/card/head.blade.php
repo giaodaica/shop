@@ -13,6 +13,11 @@
 
     <!--Swiper slider css-->
     <link href="{{asset('admin/libs/swiper/swiper-bundle.min.css')}}" rel="stylesheet" type="text/css" />
+  <!-- nouisliderribute css -->
+   <link rel="stylesheet" href="{{asset('admin/libs/nouislider/nouislider.min.css')}}">
+
+  <!-- gridjs css -->
+   <link rel="stylesheet" href="{{asset('admin/libs/gridjs/theme/mermaid.min.css')}}">
 
     <!-- Layout config Js -->
     <script src="{{asset('admin/js/layout.js')}}"></script>
@@ -24,11 +29,5 @@
     <link href="{{asset('admin/css/app.min.css')}}" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="{{asset('admin/css/custom.min.css')}}" rel="stylesheet" type="text/css" />
-
-    <style>
-        .main-content {
-            margin-top: 80px; /* tăng số này nếu header cao hơn */
-        }
-    </style>
 
 </head>

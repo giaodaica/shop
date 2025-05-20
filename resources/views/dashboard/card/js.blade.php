@@ -1,4 +1,4 @@
- <script src="{{asset('admin/libs/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+   <script src="{{asset('admin/libs/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
     <script src="{{asset('admin/libs/simplebar/simplebar.min.js')}}"></script>
     <script src="{{asset('admin/libs/node-waves/waves.min.js')}}"></script>
     <script src="{{asset('admin/libs/feather-icons/feather.min.js')}}"></script>
@@ -20,3 +20,15 @@
 
     <!-- App js -->
     <script src="{{asset('admin/js/app.js')}}"></script>
+
+    <!-- gridjs js -->
+    <script src="{{asset('admin/libs/gridjs/gridjs.umd.js')}}"></script>
+    <script src="{{asset('https://unpkg.com/gridjs/plugins/selection/dist/selection.umd.js')}}"></script>
+
+    <script src="{{asset('admin/js/pages/ecommerce-product-list.init.js')}}"></script>
+
+    <script src="{{asset('admin/libs/nouislider/nouislider.min.js')}}"></script>
+    <script src="{{asset('admin/libs/wnumb/wNumb.min.js')}}"></script>
+
+
+    
