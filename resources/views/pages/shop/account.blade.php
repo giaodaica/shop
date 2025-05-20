@@ -1,1005 +1,450 @@
 @extends('layouts.layout')
 @section('cdn-custom')
-<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/css/info.css') }}">
 @endsection
 @section('js-page-custom')
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-    // Lấy ngày hiện tại và định dạng
-    const currentDate = new Date();
-    const currentDateString = currentDate.toLocaleDateString('en-GB'); // Định dạng dd/mm/yyyy
-
-    // Cập nhật placeholder với khoảng thời gian
-    document.getElementById('daterange').placeholder = `01/01/2022-${currentDateString}`;
-
-    // Khởi tạo flatpickr
-    flatpickr("#daterange", {
-        mode: "range",  // Cho phép chọn một khoảng thời gian
-        dateFormat: "Y-m-d",  // Định dạng ngày
-        minDate: "2022-01-01",  // Giới hạn ngày bắt đầu là 1/1/2022
-        maxDate: currentDate,  // Giới hạn ngày kết thúc là ngày hiện tại
-        locale: {
-            firstDayOfWeek: 1, // Đặt ngày đầu tuần là thứ 2
-        },
-        onClose: function(selectedDates, dateStr, instance) {
-            if (selectedDates.length === 2) {
-                instance.input.value = selectedDates[0].toLocaleDateString() + " - " + selectedDates[1].toLocaleDateString();
-            }
-        }
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const selectedTab = localStorage.getItem("selectedTab");
-        const selectedSubTab = localStorage.getItem("selectedSubTab");
-
-        // Bật tab cha
-        if (selectedTab) {
-            const tabToActivate = document.querySelector(`[href="${selectedTab}"]`);
-            const tabContentToShow = document.querySelector(selectedTab);
-
-            if (tabToActivate && tabContentToShow) {
-                document.querySelectorAll('.nav-link').forEach(tab => tab.classList.remove('active'));
-                document.querySelectorAll('.tab-pane').forEach(content => content.classList.remove('show', 'active'));
-
-                tabToActivate.classList.add('active');
-                tabContentToShow.classList.add('show', 'active');
-
-                // Nếu là tab_seven2 → xử lý tab con
-                if (selectedTab === "#tab_seven2") {
-                    let subTabToActivate, subTabContentToShow;
-
-                    if (selectedSubTab) {
-                        subTabToActivate = document.querySelector(`[href="${selectedSubTab}"]`);
-                        subTabContentToShow = document.querySelector(selectedSubTab);
-                    } else {
-                        // Không có localStorage → bật tab_third1
-                        subTabToActivate = document.querySelector('#tab_seven2 .nav-link[href="#tab_third1"]');
-                        subTabContentToShow = document.querySelector('#tab_third1');
-                    }
-
-                    if (subTabToActivate && subTabContentToShow) {
-                        document.querySelectorAll('#tab_seven2 .nav-link').forEach(tab => tab.classList.remove('active'));
-                        document.querySelectorAll('#tab_seven2 .tab-pane').forEach(content => content.classList.remove('show', 'active'));
-
-                        subTabToActivate.classList.add('active');
-                        subTabContentToShow.classList.add('show', 'active');
-                    }
-                }
-            }
-        }
-
-        // Lưu tab cha
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function () {
-                const href = link.getAttribute('href');
-                localStorage.setItem("selectedTab", href);
-
-                if (href !== '#tab_seven2') {
-                    localStorage.removeItem("selectedSubTab");
-                } else {
-                    // Khi click tab_seven2 thì bật luôn tab_third1 và nội dung
-                    const subTabToActivate = document.querySelector('#tab_seven2 .nav-link[href="#tab_third1"]');
-                    const subTabContentToShow = document.querySelector('#tab_third1');
-
-                    if (subTabToActivate && subTabContentToShow) {
-                        document.querySelectorAll('#tab_seven2 .nav-link').forEach(tab => tab.classList.remove('active'));
-                        document.querySelectorAll('#tab_seven2 .tab-pane').forEach(content => content.classList.remove('show', 'active'));
-
-                        subTabToActivate.classList.add('active');
-                        subTabContentToShow.classList.add('show', 'active');
-                    }
-                }
-            });
-        });
-
-        // Lưu tab con
-        document.querySelectorAll('#tab_seven2 .nav-link').forEach(link => {
-            link.addEventListener('click', function () {
-                const href = this.getAttribute('href');
-                localStorage.setItem("selectedSubTab", href);
-                localStorage.setItem("selectedTab", "#tab_seven2");
-            });
-        });
-    });
-
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{{ asset('assets/js/info/info.js') }}"></script>
 @endsection
-<style>
-    .nav-item-date{
-        width: 230px;
-        justify-content: center;
-    }
-    input#daterange {
-    text-align: center;
-}
-.order-status.success {
-    background-color: rgba(0, 171, 85, .078);
-    color: #007b55;
-}
-.order-status.pending {
-    background-color: rgba(255, 193, 7, .13); /* vàng nhạt */
-    color: #b78103;
-}
-.order-status.confirmed {
-    background-color: rgba(24, 144, 255, .10); /* xanh dương nhạt */
-    color: #1769aa;
-}
-.order-status.shipping {
-    background-color: rgba(0, 184, 217, .10); /* xanh cyan nhạt */
-    color: #006c9c;
-}
-.order-status.cancelled {
-    background-color: rgba(255, 72, 66, .10); /* đỏ nhạt */
-    color: #b72136;
-}
-</style>
-@section('content')
-        <!-- start page title -->
-        <section class="page-title-center-alignment cover-background top-space-padding" style="background-image: url({{asset('assets/images/demo-decor-store-title-bg.jpg')}})">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 text-center position-relative page-title-extra-large">
-                    </div>
-                    <div class="col-12 breadcrumb breadcrumb-style-01 d-flex justify-content-center">
-                        <ul>
 
+@section('content')
+    <!-- start page title -->
+    <section class="page-title-center-alignment cover-background top-space-padding"
+        style="background-image: url({{ asset('assets/images/demo-decor-store-title-bg.jpg') }})">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center position-relative page-title-extra-large">
+                    <h1 class="text-white fw-700 mb-0" style="font-size: 2.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                        Quản Lý Tài Khoản</h1>
+                </div>
+                <div class="col-12 breadcrumb breadcrumb-style-01 d-flex justify-content-center">
+                    <ul>
+                        <li><a href="{{ route('home') }}" class="text-white">Trang chủ</a></li>
+                        <li class="text-white">Quản lý tài khoản</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end page title -->
+    <!-- start section -->
+    <section class="position-relative">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-3 col-lg-4 tab-style-07 md-mb-50px sm-mb-35px"
+                    data-anime='{ "translate": [50, 0], "opacity": [0,1], "duration": 600, "delay":100, "staggervalue": 150, "easing": "easeOutQuad" }'>
+                    <div class="position-sticky top-50px">
+                        <ul
+                            class="nav nav-tabs justify-content-center border-0 fw-500 text-left alt-font bg-very-light-gray border-radius-6px overflow-hidden">
+                            <li class="nav-item">
+                                <a data-bs-toggle="tab" href="#tab_seven1" class="nav-link active">
+                                    <span>
+                                        <span class="me-5px"><i class="bi bi-file-text"></i></span>
+                                        <span>Thông Tin Khác Hàng</span>
+                                    </span>
+                                    <span class="bg-hover bg-base-color"></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#tab_seven2">
+                                    <span>
+                                        <span class="me-5px"><i class="bi bi-bag-plus"></i></span>
+                                        <span>Lịch sử mua hàng</span>
+                                    </span>
+                                    <span class="bg-hover bg-base-color"></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#tab_seven3">
+                                    <span>
+                                        <span class="me-5px"><i class="bi bi-gear"></i></span>
+                                        <span>Cài Đặt</span>
+                                    </span>
+                                    <span class="bg-hover bg-base-color"></span>
+                                </a>
+                            </li>
+                          
+                            <li class="nav-item">
+                                <form class="nav-link" data-bs-toggle="tab" action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <span>
+                                        <span class="me-5px"><i class="bi bi-power"></i></span>
+                                    </span>
+                                    <span>
+                                        <button class="btn" type="submit">Đăng xuất</button>
+                                    </span>
+                                </form>
+                            </li>
                         </ul>
                     </div>
                 </div>
-            </div>
-        </section>
-        <!-- end page title -->
-        <!-- start section -->
-        <section class="position-relative">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-3 col-lg-4 tab-style-07 md-mb-50px sm-mb-35px" data-anime='{ "translate": [50, 0], "opacity": [0,1], "duration": 600, "delay":100, "staggervalue": 150, "easing": "easeOutQuad" }'>
-                        <div class="position-sticky top-50px">
-                            <ul class="nav nav-tabs justify-content-center border-0 fw-500 text-left alt-font bg-very-light-gray border-radius-6px overflow-hidden">
-                                <li class="nav-item">
-                                    <a data-bs-toggle="tab" href="#tab_seven1" class="nav-link active">
-                                        <span>
-                                            <span class="me-5px"><i class="bi bi-file-text"></i></span>
-                                            <span>Trang chủ</span>
-                                        </span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_seven2">
-                                        <span>
-                                            <span class="me-5px"><i class="bi bi-bag-plus"></i></span>
-                                            <span>Lịch sử mua hàng</span>
-                                        </span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_seven3">
-                                        <span>
-                                            <span class="me-5px"><i class="bi bi-credit-card-2-back"></i></span>
-                                            <span>Payment information</span>
-                                        </span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_seven4">
-                                        <span>
-                                            <span class="me-5px"><i class="bi bi-box"></i></span>
-                                            <span>Orders and returns</span>
-                                        </span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_seven5">
-                                        <span>
-                                            <span class="me-5px"><i class="bi bi-cart"></i></span>
-                                            <span>Ordering from crafto</span>
-                                        </span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#tab_seven6">
-                                        <span>
-                                            <span class="me-5px"><i class="bi bi-info-circle"></i></span>
-                                            <span>Help and support</span>
-                                        </span>
-                                        <span class="bg-hover bg-base-color"></span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <form class="nav-link" data-bs-toggle="tab" action="{{route('logout')}}" method="POST">
-                                        @csrf
-                                        <span>
-                                            <span class="me-5px"><i class="bi bi-power"></i></span>
-                                        </span>
-                                        <span>
-                                            <button class="btn" type="submit">Đăng xuất</button>
-                                        </span>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-8 offset-xl-1 lg-ps-50px md-ps-15px" data-anime='{ "translateX": [0, 0], "opacity": [0,1], "duration": 600, "delay":150, "staggervalue": 150, "easing": "easeOutQuad" }'>
-                        <div class="tab-content h-100">
-                            <!-- start tab content -->
-                            <div class="tab-pane fade in active show" id="tab_seven1">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="accordion accordion-style-02" id="accordion-style-01" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item active-accordion">
-                                                <div class="accordion-header border-bottom border-color-extra-medium-gray pt-0">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-01" aria-expanded="true" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-minus"></i><span class="fw-500 fs-18">Can i order over the phone?</span>
+                <div class="col-lg-8 offset-xl-1 lg-ps-50px md-ps-15px"
+                    data-anime='{ "translateX": [0, 0], "opacity": [0,1], "duration": 600, "delay":150, "staggervalue": 150, "easing": "easeOutQuad" }'>
+                    <div class="tab-content h-100">
+                        <!-- start tab info -->
+                        <div class="tab-pane fade show active" id="tab_seven1">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-body">
+
+                                            <!-- Section: Thông tin khách hàng -->
+                                            <div
+                                                class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-4">
+                                                <h6 class="text-primary text-uppercase fs-5 mb-0">Thông tin khách hàng</h6>
+                                                <span class="badge bg-light text-primary fw-normal"><i
+                                                        class="bi bi-person-fill me-1"></i>Customer Info</span>
+                                            </div>
+
+                                            <div class="table-responsive px-1 mb-5">
+                                                <table class="table table-borderless table-sm">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-muted">Họ và tên</td>
+                                                            <td class="fw-semibold">{{ Auth::user()->name }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="text-muted">Số điện thoại</td>
+                                                            <td class="fw-semibold">{{ Auth::user()->phone ? Auth::user()->phone : 'Chưa cập nhật' }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="text-muted">Email</td>
+                                                            <td class="fw-semibold">{{ Auth::user()->email }}</td>
+                                                        </tr>
+                                                        
+                                                        <tr>
+                                                            <td class="text-muted">Thành viên từ</td>
+                                                            <td class="fw-semibold">{{ Auth::user()->created_at->format('d/m/Y H:i:s') }}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <!-- Section: Địa chỉ giao hàng -->
+                                            <div
+                                                class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-4">
+                                                <h6 class="text-primary text-uppercase fs-5 mb-0">Địa chỉ giao hàng</h6>
+                                                <span class="badge bg-light text-primary fw-normal"><i
+                                                        class="bi bi-geo-alt-fill me-1"></i>Address Info</span>
+                                            </div>
+
+                                            <div class="row g-4">
+                                                <!-- Home Address -->
+                                                <div class="col-md-6">
+                                                    <div class="card border-0 shadow-sm h-100">
+                                                        <div class="card-body position-relative">
+                                                            <a href="address.html"
+                                                                class="badge bg-primary-subtle text-primary position-absolute top-0 end-0 m-2">
+                                                                <i class="bi bi-pencil-fill me-1"></i> Chỉnh sửa
+                                                            </a>
+                                                            <p class="text-muted text-uppercase fw-semibold small mb-1">
+                                                                Home Address</p>
+                                                            <h6 class="fw-bold mb-1">Raquel Murillo</h6>
+                                                            <p class="text-muted mb-1">144 Cavendish Avenue, Indianapolis,
+                                                                IN 46251</p>
+                                                            <p class="text-muted mb-0">Mo. +(253) 01234 5678</p>
                                                         </div>
-                                                    </a>
+                                                    </div>
                                                 </div>
-                                                <div id="accordion-style-01-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-01">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
+
+                                                <!-- Shipping Address -->
+                                                <div class="col-md-6">
+                                                    <div class="card border-0 shadow-sm h-100">
+                                                        <div class="card-body position-relative">
+                                                            <a href="address.html"
+                                                                class="badge bg-primary-subtle text-primary position-absolute top-0 end-0 m-2">
+                                                                <i class="bi bi-pencil-fill me-1"></i> Chỉnh sửa
+                                                            </a>
+                                                            <p class="text-muted text-uppercase fw-semibold small mb-1">
+                                                                Shipping Address</p>
+                                                            <h6 class="fw-bold mb-1">James Honda</h6>
+                                                            <p class="text-muted mb-1">1246 Virgil Street, Pensacola, FL
+                                                                32501</p>
+                                                            <p class="text-muted mb-0">Mo. +(253) 01234 5678</p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-02" aria-expanded="false" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">I am having difficulty placing an order?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-01-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-03" aria-expanded="false" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What payment methods does accept?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-01-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-04" aria-expanded="false" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Can i amend my order once placed?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-01-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-05" aria-expanded="false" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">How do i know if my order was successful?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-01-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-transparent">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-01-06" aria-expanded="false" data-bs-parent="#accordion-style-01">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my order is incorrect?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-01-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-01">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
+                                            <!-- end address row -->
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <!-- end tab content -->
-                            <!-- start tab content -->
-                            <div class="tab-pane fade in h-100" id="tab_seven2">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="col tab-style-03">
-                                            <ul class="nav justify-content-center text-center fw-500 border-color-light-medium-gray mb-7 gap-2">
-                                                <li class="nav-item-date">
-                                                    Chọn khoảng thời gian<input type="text" name="daterange" id="daterange"/>
-                                                </li>
-                                            </ul>
-                                            <ul class="nav justify-content-center text-center fw-500 border-color-light-medium-gray mb-7 gap-2">
-                                                <li class="nav-item"><a class="nav-link active border text-black rounded" data-bs-toggle="tab" href="#tab_third1">Tất cả</a></li>
-                                                <li class="nav-item"><a class="nav-link border text-black rounded" data-bs-toggle="tab" href="#tab_third2">Chờ xác nhận</a></li>
-                                                <li class="nav-item"><a class="nav-link border text-black rounded" data-bs-toggle="tab" href="#tab_third3">Đã xác nhận</a></li>
-                                                <li class="nav-item"><a class="nav-link border text-black rounded" data-bs-toggle="tab" href="#tab_third4">Đang vận chuyển</a></li>
-                                                <li class="nav-item"><a class="nav-link border text-black rounded" data-bs-toggle="tab" href="#tab_third5">Đã giao hàng</a></li>
-                                                <li class="nav-item"><a class="nav-link border text-black rounded" data-bs-toggle="tab" href="#tab_third6">Đã hủy</a></li>
-                                            </ul>
-                                            <div class="tab-content">
-                                                <!-- start tab content -->
-                                                <div class="tab-pane fade in active show" id="tab_third1">
-                                                    <div class="bg-white border border-dark p-35px border-radius-6px mt-9 position-relative">
-                                                        <!-- Thời gian góc trên phải -->
-                                                        <span class="position-absolute top-0 end-0 mt-2 me-3 text-secondary small">01/05/2025</span>
-                                                        <div class="row align-items-center justify-content-center justify-content-lg-start">
-                                                            <div class="col-5 col-sm-3 sm-mb-20px text-center">
-                                                                <img src="{{asset('assets/images/shop/product1.png')}}" alt=""/>
+                        </div>
+
+
+                        <!-- end tab info -->
+
+                        <!-- start tab order -->
+                        <div class="tab-pane fade in h-100" id="tab_seven2">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="col tab-style-03">
+                                        <ul
+                                            class="nav justify-content-center text-center fw-500 border-color-light-medium-gray mb-7 gap-2">
+                                            <li class="nav-item-date">
+                                                Chọn khoảng thời gian<input type="text" name="daterange"
+                                                    id="daterange" />
+                                            </li>
+                                        </ul>
+                                        <ul
+                                            class="nav justify-content-center text-center fw-500 border-color-light-medium-gray mb-7 gap-2">
+                                            <li class="nav-item"><a class="nav-link active border text-black rounded"
+                                                    data-bs-toggle="tab" href="#tab_third1">Tất cả</a></li>
+                                            <li class="nav-item"><a class="nav-link border text-black rounded"
+                                                    data-bs-toggle="tab" href="#tab_third2">Chờ xác nhận</a></li>
+                                            <li class="nav-item"><a class="nav-link border text-black rounded"
+                                                    data-bs-toggle="tab" href="#tab_third3">Đã xác nhận</a></li>
+                                            <li class="nav-item"><a class="nav-link border text-black rounded"
+                                                    data-bs-toggle="tab" href="#tab_third4">Đang vận chuyển</a></li>
+                                            <li class="nav-item"><a class="nav-link border text-black rounded"
+                                                    data-bs-toggle="tab" href="#tab_third5">Đã giao hàng</a></li>
+                                            <li class="nav-item"><a class="nav-link border text-black rounded"
+                                                    data-bs-toggle="tab" href="#tab_third6">Đã hủy</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <!-- start tab content -->
+                                            <div class="tab-pane fade in active show" id="tab_third1">
+                                                <div class="card border-0 shadow-sm">
+                                                    <div class="card-body p-4">
+                                                        <!-- Order Header -->
+                                                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+                                                            <div class="mb-2 mb-md-0">
+                                                                <span class="text-muted small">Mã đơn hàng: #12345</span>
+                                                                <span class="text-muted small ms-2">01/05/2024</span>
                                                             </div>
-                                                            <div class="col-md-9 text-center text-md-start ps-3">
-                                                                <div class="mb-2">
-                                                                    <span class="fw-bold fs-5 d-block">Tên sản phẩm: Áo thun nam basic</span>
-                                                                    <span class="order-status pending px-3 py-2 rounded">Chờ xác nhận</span>
-                                                                    <span class="text-danger fw-bold fs-5 d-block">Giá: 350.000₫</span>
-                                                                </div>
+                                                            <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+                                                        </div>
+
+                                                        <!-- Order Content -->
+                                                        <div class="row g-3">
+                                                            <!-- Product Image -->
+                                                            <div class="col-4 col-md-2">
+                                                                <img src="{{ asset('assets/images/shop/product1.png') }}" 
+                                                                    alt="Product" class="img-fluid rounded w-100" />
                                                             </div>
-                                                        </div>
-                                                        <!-- Nút chi tiết góc dưới phải -->
-                                                        <a href="#" class="btn btn-sm border border-danger text-danger bg-white position-absolute bottom-0 end-0 mb-3 me-3">Chi tiết</a>
-                                                    </div>
-                                                    <div class="bg-white border border-dark p-35px border-radius-6px mt-9 position-relative">
-                                                        <!-- Thời gian góc trên phải -->
-                                                        <span class="position-absolute top-0 end-0 mt-2 me-3 text-secondary small">01/05/2025</span>
-                                                        <div class="row align-items-center justify-content-center justify-content-lg-start">
-                                                            <div class="col-5 col-sm-3 sm-mb-20px text-center">
-                                                                <img src="https://placehold.co/233x237" alt=""/>
+                                                            
+                                                            <!-- Product Info -->
+                                                            <div class="col-8 col-md-7">
+                                                                <h6 class="mb-1">Áo thun nam basic</h6>
+                                                                <p class="text-muted small mb-1">Size: M | Màu: Đen</p>
+                                                                <p class="text-muted small mb-0">Số lượng: 1</p>
                                                             </div>
-                                                            <div class="col-md-9 text-center text-md-start ps-3">
-                                                                <div class="mb-2">
-                                                                    <span class="fw-bold fs-5 d-block">Tên sản phẩm: Áo thun nam basic</span>
-                                                                    <span class="order-status confirmed px-3 py-2 rounded">Đã xác nhận</span>
-                                                                    <span class="text-danger fw-bold fs-5 d-block">Giá: 350.000₫</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <!-- Nút chi tiết góc dưới phải -->
-                                                        <a href="#" class="btn btn-sm border border-danger text-danger bg-white position-absolute bottom-0 end-0 mb-3 me-3">Chi tiết</a>
-                                                    </div>
-                                                    <div class="bg-white border border-dark p-35px border-radius-6px mt-9 position-relative">
-                                                        <!-- Thời gian góc trên phải -->
-                                                        <span class="position-absolute top-0 end-0 mt-2 me-3 text-secondary small">01/05/2025</span>
-                                                        <div class="row align-items-center justify-content-center justify-content-lg-start">
-                                                            <div class="col-5 col-sm-3 sm-mb-20px text-center">
-                                                                <img src="https://placehold.co/233x237" alt=""/>
-                                                            </div>
-                                                            <div class="col-md-9 text-center text-md-start ps-3">
-                                                                <div class="mb-2">
-                                                                    <span class="fw-bold fs-5 d-block">Áo thun nam basic</span>
-                                                                    <span class="order-status shipping px-3 py-2 rounded">Đang giao hàng</span>
-                                                                    <span class="text-danger fw-bold fs-5 d-block">Giá: 350.000₫</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <!-- Nút chi tiết góc dưới phải -->
-                                                        <a href="#" class="btn btn-sm border border-danger text-danger bg-white position-absolute bottom-0 end-0 mb-3 me-3">Chi tiết</a>
-                                                    </div>
-                                                    <div class="bg-white border border-dark p-35px border-radius-6px mt-9 position-relative">
-                                                        <!-- Thời gian góc trên phải -->
-                                                        <span class="position-absolute top-0 end-0 mt-2 me-3 text-secondary small">01/05/2025</span>
-                                                        <div class="row align-items-center justify-content-center justify-content-lg-start">
-                                                            <div class="col-5 col-sm-3 sm-mb-20px text-center">
-                                                                <img src="https://placehold.co/233x237" alt=""/>
-                                                            </div>
-                                                            <div class="col-md-9 text-center text-md-start ps-3">
-                                                                <div class="mb-2">
-                                                                    <span class="fw-bold fs-5 d-block">Tên sản phẩm: Áo thun nam basic</span>
-                                                                    <span class="order-status success px-3 py-2 rounded">Đã giao hàng</span>
-                                                                    <span class="text-danger fw-bold fs-5 d-block">Giá: 350.000₫</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <!-- Nút chi tiết góc dưới phải -->
-                                                        <a href="#" class="btn btn-sm border border-danger text-danger bg-white position-absolute bottom-0 end-0 mb-3 me-3">Chi tiết</a>
-                                                    </div>
-                                                    <div class="bg-white border border-dark p-35px border-radius-6px mt-9 position-relative">
-                                                        <!-- Thời gian góc trên phải -->
-                                                        <span class="position-absolute top-0 end-0 mt-2 me-3 text-secondary small">01/05/2025</span>
-                                                        <div class="row align-items-center justify-content-center justify-content-lg-start">
-                                                            <div class="col-5 col-sm-3 sm-mb-20px text-center">
-                                                                <img src="https://placehold.co/233x237" alt=""/>
-                                                            </div>
-                                                            <div class="col-md-9 text-center text-md-start ps-3">
-                                                                <div class="mb-2">
-                                                                    <span class="fw-bold fs-5 d-block">Tên sản phẩm: Áo thun nam basic</span>
-                                                                    <span class="order-status cancelled px-3 py-2 rounded">Đã hủy đơn</span>
-                                                                    <span class="text-danger fw-bold fs-5 d-block">Giá: 350.000₫</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <!-- Nút chi tiết góc dưới phải -->
-                                                        <a href="#" class="btn btn-sm border border-danger text-danger bg-white position-absolute bottom-0 end-0 mb-3 me-3">Chi tiết</a>
-                                                    </div>
-                                                </div>
-                                                <!-- end tab content -->
-                                                <!-- start tab content -->
-                                                <div class="tab-pane fade in" id="tab_third2">
-                                                    <div class="row align-items-center justify-content-center g-0">
-                                                        <div class="col-lg-6 col-md-11 position-relative md-mb-30px">
-                                                            <figure class="mb-0">
-                                                                <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
-                                                                <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px xs-right-minus-15px xs-w-140px">
-                                                                    <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
-                                                                </figcaption>
-                                                            </figure>
-                                                        </div>
-                                                        <div class="col-lg-5 col-md-11 offset-lg-1">
-                                                            <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Swimming pool</span>
-                                                            <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">The best place with a good swimming pool.</h3>
-                                                            <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
-                                                            <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
-                                                                <span>
-                                                                    <span class="btn-double-text" data-text="Explore more">Explore more</span>
-                                                                </span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end tab content -->
-                                                <!-- start tab content -->
-                                                <div class="tab-pane fade in" id="tab_third3">
-                                                    <div class="row align-items-center justify-content-center g-0">
-                                                        <div class="col-lg-6 col-md-11 position-relative md-mb-30px">
-                                                            <figure class="mb-0">
-                                                                <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
-                                                                <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px xs-right-minus-15px xs-w-140px">
-                                                                    <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
-                                                                </figcaption>
-                                                            </figure>
-                                                        </div>
-                                                        <div class="col-lg-5 col-md-11 offset-lg-1">
-                                                            <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Private beach</span>
-                                                            <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">The best luxury beach for spa massage.</h3>
-                                                            <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
-                                                            <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
-                                                                <span>
-                                                                    <span class="btn-double-text" data-text="Explore more">Explore more</span>
-                                                                </span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end tab content -->
-                                                <!-- start tab content -->
-                                                <div class="tab-pane fade in" id="tab_third4">
-                                                    <div class="row align-items-center justify-content-center g-0">
-                                                        <div class="col-lg-6 col-md-11 position-relative md-mb-30px">
-                                                            <figure class="mb-0">
-                                                                <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
-                                                                <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px sm-right-minus-20px xs-right-minus-10px xs-w-140px">
-                                                                    <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
-                                                                </figcaption>
-                                                            </figure>
-                                                        </div>
-                                                        <div class="col-lg-5 col-md-11 offset-lg-1">
-                                                            <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Sauna bath</span>
-                                                            <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">Saunas improve your health and wellness.</h3>
-                                                            <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
-                                                            <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
-                                                                <span>
-                                                                    <span class="btn-double-text" data-text="Explore more">Explore more</span>
-                                                                </span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end tab content -->
-                                                     <!-- start tab content -->
-                                                     <div class="tab-pane fade in" id="tab_third5">
-                                                        <div class="row align-items-center justify-content-center g-0">
-                                                            <div class="col-lg-6 col-md-11 position-relative md-mb-30px">
-                                                                <figure class="mb-0">
-                                                                    <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
-                                                                    <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px sm-right-minus-20px xs-right-minus-10px xs-w-140px">
-                                                                        <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
-                                                                    </figcaption>
-                                                                </figure>
-                                                            </div>
-                                                            <div class="col-lg-5 col-md-11 offset-lg-1">
-                                                                <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Sauna bath</span>
-                                                                <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">Saunas improve your health and wellness.</h3>
-                                                                <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
-                                                                <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
-                                                                    <span>
-                                                                        <span class="btn-double-text" data-text="Explore more">Explore more</span>
-                                                                    </span>
+                                                            
+                                                            <!-- Price & Action -->
+                                                            <div class="col-12 col-md-3 text-start text-md-end">
+                                                                <h6 class="text-danger mb-2">350.000₫</h6>
+                                                                <a href="#" class="text-primary">
+                                                                    {{-- <i class="bi bi-eye me-1"></i> --}}
+                                                                    <span>Xem Chi tiết</span>
                                                                 </a>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <!-- end tab content -->
-                                                         <!-- start tab content -->
-                                                <div class="tab-pane fade in" id="tab_third6">
-                                                    <div class="row align-items-center justify-content-center g-0">
-                                                        <div class="col-lg-6 col-md-11 position-relative md-mb-30px">
-                                                            <figure class="mb-0">
-                                                                <img src="https://placehold.co/580x475" alt="" class="w-95 border-radius-6px">
-                                                                <figcaption class="position-absolute bottom-90px right-minus-50px xs-bottom-10px sm-right-minus-20px xs-right-minus-10px xs-w-140px">
-                                                                    <img src="{{asset('assets/images/demo-spa-salon-facility-bg.png')}}" class="animation-float" alt="">
-                                                                </figcaption>
-                                                            </figure>
-                                                        </div>
-                                                        <div class="col-lg-5 col-md-11 offset-lg-1">
-                                                            <span class="fs-15 mb-15px text-gradient-fast-pink-light-yellow fw-700 d-inline-block text-uppercase ls-1px">Sauna bath</span>
-                                                            <h3 class="ls-minus-1px text-dark-gray w-100 fw-600">Saunas improve your health and wellness.</h3>
-                                                            <p class="mb-35px w-95 sm-w-100">A design-led approach guides the team, implementing practices, products and services that are thoughtful and environmentally sound. family of professionals that creates intelligent designs that help the face of hospitality.</p>
-                                                            <a href="#" class="btn btn-medium btn-switch-text btn-round-edge btn-transparent-light-gray">
-                                                                <span>
-                                                                    <span class="btn-double-text" data-text="Explore more">Explore more</span>
-                                                                </span>
-                                                            </a>
-                                                        </div>
-                                                    </div>
                                                 </div>
-                                                <!-- end tab content -->
                                             </div>
+                                            <!-- end tab content -->
+                                           
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <!-- end tab content -->
-                            <!-- start tab content -->
-                            <div class="tab-pane fade in h-100" id="tab_seven3">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="accordion accordion-style-02" id="accordion-style-03" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item active-accordion">
-                                                <div class="accordion-header border-bottom border-color-extra-medium-gray pt-0">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-01" aria-expanded="true" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-minus"></i><span class="fw-500 fs-17">Can I return my order?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-03-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-03">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-02" aria-expanded="false" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my item is damaged or faulty?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-03-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-03" aria-expanded="false" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">How long will it take to process a return?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-03-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-04" aria-expanded="false" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Why does the refund amount exclude delivery?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-03-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-05" aria-expanded="false" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Need more help?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-03-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-transparent">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-03-06" aria-expanded="false" data-bs-parent="#accordion-style-03">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my item is damaged or faulty?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-03-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-03">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- end tab content -->
-                            <!-- start tab content -->
-                            <div class="tab-pane fade in h-100" id="tab_seven4">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="accordion accordion-style-02" id="accordion-style-04" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item active-accordion">
-                                                <div class="accordion-header border-bottom border-color-extra-medium-gray pt-0">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-01" aria-expanded="true" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-minus"></i><span class="fw-500 fs-17">Can i order over the phone?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-04-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-04">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-02" aria-expanded="false" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">I am having difficulty placing an order?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-04-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-03" aria-expanded="false" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What payment methods does accept?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-04-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-04" aria-expanded="false" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Can i amend my order once placed?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-04-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-05" aria-expanded="false" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">How do i know if my order was successful?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-04-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-transparent">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-04-06" aria-expanded="false" data-bs-parent="#accordion-style-04">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my order is incorrect?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-04-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-04">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- end tab content -->
-                            <!-- start tab content -->
-                            <div class="tab-pane fade in h-100" id="tab_seven5">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="accordion accordion-style-02" id="accordion-style-05" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item active-accordion">
-                                                <div class="accordion-header border-bottom border-color-extra-medium-gray pt-0">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-01" aria-expanded="true" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-minus"></i><span class="fw-500 fs-17">Can i order over the phone?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-05-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-05">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-02" aria-expanded="false" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">I am having difficulty placing an order?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-05-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-03" aria-expanded="false" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What payment methods does accept?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-05-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-04" aria-expanded="false" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Can i amend my order once placed?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-05-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-05" aria-expanded="false" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">How do i know if my order was successful?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-05-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-transparent">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-05-06" aria-expanded="false" data-bs-parent="#accordion-style-05">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my order is incorrect?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-05-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-05">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- end tab content -->
-                            <!-- start tab content -->
-                            <div class="tab-pane fade in h-100" id="tab_seven6">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="accordion accordion-style-02" id="accordion-style-06" data-active-icon="icon-feather-minus" data-inactive-icon="icon-feather-plus">
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item active-accordion">
-                                                <div class="accordion-header border-bottom border-color-extra-medium-gray pt-0">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-01" aria-expanded="true" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-minus"></i><span class="fw-500 fs-17">Can i order over the phone?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-06-01" class="accordion-collapse collapse show" data-bs-parent="#accordion-style-06">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-extra-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-02" aria-expanded="false" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">I am having difficulty placing an order?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-06-02" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-03" aria-expanded="false" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What payment methods does accept?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-06-03" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-04" aria-expanded="false" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">Can i amend my order once placed?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-06-04" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-light-medium-gray">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-05" aria-expanded="false" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">How do i know if my order was successful?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-06-05" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                            <!-- start accordion item -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header border-bottom border-color-transparent">
-                                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#accordion-style-06-06" aria-expanded="false" data-bs-parent="#accordion-style-06">
-                                                        <div class="accordion-title mb-0 position-relative text-dark-gray">
-                                                            <i class="feather icon-feather-plus"></i><span class="fw-500 fs-17">What if my order is incorrect?</span>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                                <div id="accordion-style-06-06" class="accordion-collapse collapse" data-bs-parent="#accordion-style-06">
-                                                    <div class="accordion-body last-paragraph-no-margin border-bottom border-color-transparent">
-                                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took galley of type and scrambled to make type.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- end accordion item -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- end tab content -->
                         </div>
+                        <!-- end tab đơn hàng -->
+                        <!-- start tab Cài đặt -->
+                        <div class="tab-pane fade in h-100" id="tab_seven3">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card shadow-sm rounded-lg border-0">
+                                        <div class="card-body p-4">
+                                            <form action="javascript:void(0);">
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <h5 class="fs-5 text-primary text-uppercase mb-4 border-bottom pb-2">Thông tin cá nhân</h5>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label for="firstnameInput" class="form-label text-gray-600">Tên</label>
+                                                            <input type="text" class="form-control border-gray-300 rounded-lg" id="firstnameInput" placeholder="Nhập tên của bạn">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label for="lastnameInput" class="form-label text-gray-600">Họ</label>
+                                                            <input type="text" class="form-control border-gray-300 rounded-lg" id="lastnameInput" placeholder="Nhập họ của bạn" value="Murillo">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label for="phonenumberInput" class="form-label text-gray-600">Số điện thoại</label>
+                                                            <input type="text" class="form-control border-gray-300 rounded-lg" id="phonenumberInput" placeholder="Nhập số điện thoại" value="+(253) 01234 5678">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label for="emailInput" class="form-label text-gray-600">Địa chỉ email</label>
+                                                            <input type="email" class="form-control border-gray-300 rounded-lg" id="emailInput" placeholder="Nhập email của bạn" value="raque@toner.com">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="cityInput" class="form-label text-gray-600">Thành phố</label>
+                                                            <input type="text" class="form-control border-gray-300 rounded-lg" id="cityInput" placeholder="Thành phố" value="Phoenix">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="countryInput" class="form-label text-gray-600">Quốc gia</label>
+                                                            <input type="text" class="form-control border-gray-300 rounded-lg" id="countryInput" placeholder="Quốc gia" value="USA">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="zipcodeInput" class="form-label text-gray-600">Mã bưu điện</label>
+                                                            <input type="text" class="form-control border-gray-300 rounded-lg" minlength="5" maxlength="6" id="zipcodeInput" placeholder="Nhập mã bưu điện" value="90011">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                        <div class="mb-3 pb-2">
+                                                            <label for="exampleFormControlTextarea" class="form-label text-gray-600">Mô tả</label>
+                                                            <textarea class="form-control border-gray-300 rounded-lg" id="exampleFormControlTextarea" placeholder="Nhập mô tả của bạn" rows="3">Xin chào, tôi là Raquel Murillo. Tôi là một khách hàng thân thiết từ tháng 8 năm 2022. Rất mong được hỗ trợ nhanh chóng và hiệu quả.</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <div class="mb-3" id="changePassword">
+                                                <h5 class="fs-5 text-primary text-uppercase mb-4 border-bottom pb-2">Thay đổi mật khẩu</h5>
+                                                <form action="javascript:void(0);">
+                                                    <div class="row g-3">
+                                                        <div class="col-lg-4">
+                                                            <div>
+                                                                <label for="oldpasswordInput" class="form-label text-gray-600">Mật khẩu cũ*</label>
+                                                                <input type="password" class="form-control border-gray-300 rounded-lg" id="oldpasswordInput" placeholder="Nhập mật khẩu hiện tại">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4">
+                                                            <div>
+                                                                <label for="newpasswordInput" class="form-label text-gray-600">Mật khẩu mới*</label>
+                                                                <input type="password" class="form-control border-gray-300 rounded-lg" id="newpasswordInput" placeholder="Nhập mật khẩu mới">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4">
+                                                            <div>
+                                                                <label for="confirmpasswordInput" class="form-label text-gray-600">Xác nhận mật khẩu*</label>
+                                                                <input type="password" class="form-control border-gray-300 rounded-lg" id="confirmpasswordInput" placeholder="Xác nhận mật khẩu">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12">
+                                                            <div class="mb-3">
+                                                                <a href="auth-pass-reset-basic.html" class="text-blue-600 hover:underline">Quên mật khẩu?</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="mb-3" id="privacy">
+                                                <h5 class="fs-5 text-primary text-uppercase mb-4 border-bottom pb-2">Chính sách bảo mật</h5>
+                                                <div class="mb-3">
+                                                    <h5 class="fs-15 mb-2 text-gray-800">Bảo mật:</h5>
+                                                    <div class="d-flex flex-column align-items-center flex-sm-row mb-3">
+                                                        <div class="flex-grow-1">
+                                                            <p class="text-gray-600 fs-14 mb-0">Xác thực hai yếu tố</p>
+                                                        </div>
+                                                        <div class="flex-shrink-0 ms-sm-3">
+                                                            <a href="javascript:void(0);" class="text-primary bg-primary bg-primary-subtle px-3 py-2 rounded">Kích hoạt xác thực hai yếu tố</a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex flex-column align-items-center flex-sm-row mb-3">
+                                                        <div class="flex-grow-1">
+                                                            <p class="text-gray-600 fs-14 mb-0">Xác minh thứ cấp</p>
+                                                        </div>
+                                                        <div class="flex-shrink-0 ms-sm-3">
+                                                            <a href="javascript:void(0);" class="text-primary bg-primary bg-primary-subtle px-3 py-2 rounded">Thiết lập phương thức thứ cấp</a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex flex-column align-items-center flex-sm-row mb-3">
+                                                        <div class="flex-grow-1">
+                                                            <p class="text-gray-600 fs-14 mb-0">Mã dự phòng</p>
+                                                        </div>
+                                                        <div class="flex-shrink-0 ms-sm-3">
+                                                            <a href="javascript:void(0);" class="text-primary bg-primary bg-primary-subtle px-3 py-2 rounded">Tạo mã dự phòng</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <h5 class="fs-15 mb-2 text-gray-800">Thông báo ứng dụng:</h5>
+                                                    <ul class="list-unstyled mb-0">
+                                                        <li class="d-flex align-items-center mb-2">
+                                                            <div class="flex-grow-1">
+                                                                <label for="directMessage" class="form-check-label fs-14 text-gray-600">Tin nhắn trực tiếp</label>
+                                                            </div>
+                                                            <div class="flex-shrink-0">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" role="switch" id="directMessage" checked>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li class="d-flex align-items-center mb-2">
+                                                            <div class="flex-grow-1">
+                                                                <label class="form-check-label fs-14 text-gray-600" for="desktopNotification">Hiển thị thông báo trên máy tính</label>
+                                                            </div>
+                                                            <div class="flex-shrink-0">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" role="switch" id="desktopNotification" checked>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li class="d-flex align-items-center mb-2">
+                                                            <div class="flex-grow-1">
+                                                                <label class="form-check-label fs-14 text-gray-600" for="emailNotification">Hiển thị thông báo email</label>
+                                                            </div>
+                                                            <div class="flex-shrink-0">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" role="switch" id="emailNotification">
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li class="d-flex align-items-center mb-2">
+                                                            <div class="flex-grow-1">
+                                                                <label class="form-check-label fs-14 text-gray-600" for="chatNotification">Hiển thị thông báo trò chuyện</label>
+                                                            </div>
+                                                            <div class="flex-shrink-0">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" role="switch" id="chatNotification">
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li class="d-flex align-items-center mb-2">
+                                                            <div class="flex-grow-1">
+                                                                <label class="form-check-label fs-14 text-gray-600" for="purchaesNotification">Hiển thị thông báo mua hàng</label>
+                                                            </div>
+                                                            <div class="flex-shrink-0">
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" role="switch" id="purchaesNotification">
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="text-sm-end mt-4">
+                                                <a href="#!" class="btn btn-secondary rounded-lg hover:bg-gray-600 transition-colors duration-200">
+                                                  Cập nhật hồ sơ
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                       
+                        <!-- end tab Cài Đặt -->
+                     
                     </div>
                 </div>
             </div>
-        </section>
-        <!-- end section -->
+        </div>
+    </section>
+    <!-- end section -->
 @endsection
-
