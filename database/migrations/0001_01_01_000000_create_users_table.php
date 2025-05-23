@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('default_address')->nullable();
             $table->string('default_phone')->nullable();
             $table->enum('role',['admin','guest'])->default('guest');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->rememberToken();
             $table->timestamps();
         });
