@@ -1,47 +1,46 @@
-@extends('layouts.app')
+@extends('layouts.layout')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Reset Password') }}</div>
+<section class="pt-0">
+    <div class="container">
+        <div class="row g-0 justify-content-center">
+            <div class="col-xl-4 col-lg-5 col-md-10 contact-form-style-04 md-mb-50px">
+                <img src="{{ asset('assets/images/shop/demo-fashion-store-product-01.jpg') }}" alt="">
+            </div>
+            <div class="col-lg-6 col-md-10 offset-xl-2 offset-lg-1 p-6 box-shadow-extra-large border-radius-6px">
+                <span class="fs-26 alt-font fw-600 text-dark-gray mb-20px d-block">Quên mật khẩu</span>
 
-                <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
+                @if (session('status'))
+                    <div class="alert alert-success">
+                        {{ session('status') }}
+                    </div>
+                @endif
 
-                    <form method="POST" action="{{ route('password.email') }}">
-                        @csrf
+                <form method="POST" action="{{ route('password.email') }}">
+                    @csrf
 
-                        <div class="row mb-3">
-                            <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
+                    <div>
+                        <label for="email" class="text-dark-gray mb-10px fw-500">
+                            Nhập địa chỉ Email của bạn<span class="text-red">*</span>
+                        </label>
+                        <input id="email" type="email"
+                            class="mb-20px bg-very-light-gray form-control @error('email') is-invalid @enderror"
+                            name="email" value="{{ old('email') }}" required autocomplete="email" autofocus
+                            placeholder="Email của bạn">
 
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                        @error('email')
+                        <span class="invalid-feedback d-block" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
 
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Send Password Reset Link') }}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                    <button type="submit" class="btn btn-medium btn-round-edge btn-dark-gray btn-box-shadow w-100">
+                        Gửi liên kết đặt lại mật khẩu
+                    </button>
+                </form>
             </div>
         </div>
     </div>
-</div>
+</section>
 @endsection
