@@ -25,3 +25,4 @@ Route::get('dashboard',[HomeController::class,'admin']);
 
 Route::resource('products', ProductsController::class);
 Route::resource('categories', CategoriesController::class);
+

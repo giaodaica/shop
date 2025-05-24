@@ -30,5 +30,26 @@
     <script src="{{asset('admin/libs/nouislider/nouislider.min.js')}}"></script>
     <script src="{{asset('admin/libs/wnumb/wNumb.min.js')}}"></script>
 
+    <script>
+  // Khi click mở menu "Danh sách", lưu trạng thái mở
+  document.addEventListener('DOMContentLoaded', function () {
+    const menuToggle = document.querySelector('[href="#sidebarDashboards"]');
+    const menuDropdown = document.getElementById('sidebarDashboards');
+
+    // Đọc trạng thái từ localStorage
+    const isOpen = localStorage.getItem('sidebarDashboardsOpen');
+    if (isOpen === 'true') {
+      menuDropdown.classList.add('show');
+      menuToggle.setAttribute('aria-expanded', 'true');
+    }
+
+    // Ghi trạng thái mỗi khi click
+    menuToggle.addEventListener('click', function () {
+      const willOpen = !menuDropdown.classList.contains('show');
+      localStorage.setItem('sidebarDashboardsOpen', willOpen);
+    });
+  });
+</script>
+
 
     
