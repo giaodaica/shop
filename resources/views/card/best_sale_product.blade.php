@@ -17,7 +17,7 @@
                         <div class="shop-box mb-10px">
                             <div class="shop-image mb-20px">
                                 <a href="{{ route('home.show', $product->slug) }}">
-                                    <img src="{{ asset('assets/images/shop/demo-fashion-store-product-01.jpg') }}" alt="{{ $product->name }}">
+                                    <img src="{{ asset($product->image_url) }}" alt="{{ $product->name }}">
                                     <div class="shop-overlay bg-gradient-gray-light-dark-transparent"></div>
                                 </a>
                             </div>
