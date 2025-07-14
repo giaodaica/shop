@@ -228,142 +228,6 @@ class ProductsController extends Controller
     }
 
 
-    // public function update(Request $request, $id)
-    // {
-
-
-    //     $product = Products::with('variants')->findOrFail($id);
-    //     // dd($product);
-    //     // Validate dữ liệu
-    //     $request->validate([
-    //         'name' => 'required|string|max:255|unique:products,name,' . $id,
-    //         'slug' => 'required|unique:products,slug,' . $id,
-    //         'category_id' => 'required|exists:categories,id',
-    //         'description' => 'nullable|string',
-    //         'temp_image_url' => 'nullable|string',
-
-    //         'variants' => 'required|array|min:1',
-    //         'variants.*.size_id' => 'required|exists:sizes,id',
-    //         'variants.*.color_id' => 'required|exists:colors,id',
-    //         'variants.*.import_price' => 'required|numeric|min:0',
-    //         'variants.*.listed_price' => 'required|numeric|min:0',
-    //         'variants.*.sale_price' => 'nullable|numeric|min:0|lte:variants.*.listed_price',
-    //         'variants.*.stock' => 'required|integer|min:0',
-    //         'variants.*.temp_variant_image_url' => 'nullable|string',
-    //     ]);
-
-    //     // Kiểm tra trùng Màu - Size
-    //     $combinations = [];
-    //     $errors = [];
-
-    //     foreach ($request->variants as $index => $variant) {
-    //         $key = $variant['color_id'] . '-' . $variant['size_id'];
-    //         if (in_array($key, $combinations)) {
-    //             $errors["variants.$index.size_id"] = ['Size đã bị trùng với màu này.'];
-    //             $errors["variants.$index.color_id"] = ['Màu đã bị trùng với size này.'];
-    //         }
-    //         $combinations[] = $key;
-    //     }
-
-    //     if (!empty($errors)) {
-    //         throw \Illuminate\Validation\ValidationException::withMessages($errors);
-    //     }
-
-    //     try {
-    //         DB::beginTransaction();
-    //         DB::enableQueryLog(); // ✅ Bật ghi log trước mọi truy vấn
-
-    //         // Xử lý ảnh sản phẩm chính nếu có thay đổi
-    //         $imagePath = $product->image_url;
-    //         if ($request->filled('temp_image_url')) {
-    //             $tempPath = public_path(parse_url($request->temp_image_url, PHP_URL_PATH));
-    //             if (file_exists($tempPath)) {
-    //                 $filename = time() . '_' . basename($tempPath);
-    //                 $newPath = 'uploads/products/' . $filename;
-    //                 rename($tempPath, public_path($newPath));
-    //                 $imagePath = $newPath;
-    //             }
-    //         }
-
-    //         // Cập nhật sản 
-    //         //  dd($imagePath);
-    //         $product->update([
-    //             'name' => $request->name,
-    //             'slug' => Str::slug($request->slug),
-    //             'description' => $request->description,
-    //             'category_id' => $request->category_id,
-    //             'image_url' => $imagePath,
-    //         ]);
-
-
-    //         $existingIds = [];
-
-    //         foreach ($request->variants as $variantData) {
-    //             $variantImagePath = null;
-
-    //             // Xử lý ảnh biến thể nếu có
-    //             if (!empty($variantData['temp_variant_image_url'])) {
-    //                 $tempPath = public_path(parse_url($variantData['temp_variant_image_url'], PHP_URL_PATH));
-    //                 if (file_exists($tempPath)) {
-    //                     $filename = time() . '_' . basename($tempPath);
-    //                     $newPath = 'uploads/product_variants/' . $filename;
-    //                     rename($tempPath, public_path($newPath));
-    //                     $variantImagePath = $newPath;
-    //                 }
-    //             }
-
-    //             // Tạo tên biến thể
-    //             $color = Color::find($variantData['color_id']);
-    //             $size = Size::find($variantData['size_id']);
-    //             $variantName = $product->name . ' - ' . ($color->color_name ?? '') . ' - ' . ($size->size_name ?? '');
-
-    //             if (isset($variantData['id'])) {
-    //                 // Cập nhật biến thể cũ
-    //                 $variant = $product->variants()->find($variantData['id']);
-
-    //                 if ($variant) {
-    //                     $variant->update([
-    //                         'color_id' => $variantData['color_id'],
-    //                         'size_id' => $variantData['size_id'],
-    //                         'name' => $variantName,
-    //                         'import_price' => $variantData['import_price'],
-    //                         'listed_price' => $variantData['listed_price'],
-    //                         'sale_price' => $variantData['sale_price'],
-    //                         'stock' => $variantData['stock'],
-    //                         'variant_image_url' => $variantImagePath ?? $variant->variant_image_url,
-    //                     ]);
-    //                     $existingIds[] = $variant->id;
-    //                 }
-    //             } else {
-    //                 // Thêm mới biến thể
-    //                 $newVariant = $product->variants()->create([
-    //                     'color_id' => $variantData['color_id'],
-    //                     'size_id' => $variantData['size_id'],
-    //                     'name' => $variantName,
-    //                     'import_price' => $variantData['import_price'],
-    //                     'listed_price' => $variantData['listed_price'],
-    //                     'sale_price' => $variantData['sale_price'],
-    //                     'stock' => $variantData['stock'],
-    //                     'variant_image_url' => $variantImagePath,
-    //                 ]);
-    //                 $existingIds[] = $newVariant->id;
-    //             }
-    //         }
-
-    //         // Xoá các biến thể không còn
-    //         $product->variants()->whereNotIn('id', $existingIds)->delete();
-
-    //         DB::commit();
-
-    //         // ✅ Hiển thị danh sách các truy vấn SQL đã chạy
-    //         dd(DB::getQueryLog());
-
-    //         return redirect()->route('products.index')->with('success', 'Cập nhật sản phẩm và biến thể thành công!');
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return redirect()->back()->withInput()->with('error', 'Lỗi: ' . $e->getMessage());
-    //     }
-    // }
 
 
 
@@ -374,10 +238,10 @@ class ProductsController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255|unique:products,name,' . $id,
-            'slug' => 'required|unique:products,slug,' . $id,
+            'slug' => 'nullable|unique:products,slug,' . $id,
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
-            'temp_image_url' => 'nullable|string',
+            'temp_image_url' => $request->filled('temp_image_url') ? 'required|string' : 'nullable|string',
 
             'variants' => 'required|array|min:1',
             'variants.*.size_id' => 'required|exists:sizes,id',
@@ -386,7 +250,43 @@ class ProductsController extends Controller
             'variants.*.listed_price' => 'required|numeric|min:0',
             'variants.*.sale_price' => 'nullable|numeric|min:0|lte:variants.*.listed_price',
             'variants.*.stock' => 'required|integer|min:0',
+
+       
+            'variants.*.temp_variant_image_url' => function ($attribute, $value, $fail) use ($request) {
+                preg_match('/variants\.(\d+)\.temp_variant_image_url/', $attribute, $matches);
+                $index = $matches[1] ?? null;
+                if ($index !== null && empty($request->variants[$index]['id']) && empty($value)) {
+                    $fail('Vui lòng chọn ảnh cho biến thể mới.');
+                }
+            },
+        ], [
+            'name.required' => 'Vui lòng nhập tên sản phẩm.',
+            'name.unique' => 'Tên sản phẩm đã tồn tại.',
+            'slug.unique' => 'Slug đã tồn tại.',
+            'category_id.required' => 'Vui lòng chọn danh mục.',
+            'temp_image_url.required' => 'Vui lòng chọn ảnh sản phẩm.',
+
+            'variants.required' => 'Vui lòng thêm ít nhất một biến thể.',
+            'variants.*.size_id.required' => 'Vui lòng chọn size.',
+            'variants.*.color_id.required' => 'Vui lòng chọn màu.',
+
+            'variants.*.import_price.required' => 'Giá nhập không được để trống.',
+            'variants.*.import_price.numeric' => 'Giá nhập phải là số.',
+            'variants.*.import_price.min' => 'Giá nhập không được nhỏ hơn 0.',
+
+            'variants.*.listed_price.required' => 'Giá niêm yết không được để trống.',
+            'variants.*.listed_price.numeric' => 'Giá niêm yết phải là số.',
+            'variants.*.listed_price.min' => 'Giá niêm yết không được nhỏ hơn 0.',
+
+            'variants.*.sale_price.numeric' => 'Giá bán phải là số.',
+            'variants.*.sale_price.min' => 'Giá bán không được nhỏ hơn 0.',
+            'variants.*.sale_price.lte' => 'Giá bán phải nhỏ hơn hoặc bằng giá niêm yết.',
+
+            'variants.*.stock.required' => 'Số lượng kho không được để trống.',
+            'variants.*.stock.integer' => 'Số lượng kho phải là số nguyên.',
+            'variants.*.stock.min' => 'Số lượng kho không được nhỏ hơn 0.',
         ]);
+
 
         // Kiểm tra trùng biến thể
         $combinations = [];
@@ -490,7 +390,7 @@ class ProductsController extends Controller
 
             DB::commit();
 
-            return redirect()->route('products.edit')->with('success', 'Cập nhật sản phẩm và biến thể thành công!');
+            return redirect()->route('products.edit', $product->id)->with('success', 'Cập nhật sản phẩm và biến thể thành công!');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->withInput()->with('error', 'Lỗi: ' . $e->getMessage());

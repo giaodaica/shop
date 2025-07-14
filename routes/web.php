@@ -144,6 +144,8 @@ Route::prefix('dashboard')->group(function () {
     Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
     Route::post('/users/lock', [UserController::class, 'lock'])->name('users.lock');
     Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
+    Route::get('order/{id}', [OrderController::class, 'db_order_show'])->name('orders.show');
+
 });
 
 

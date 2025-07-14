@@ -11,7 +11,12 @@
                     </div>
                 </div>
             </div>
-
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
             <!-- Form -->
             <form method="POST" action="{{ route('products.update', $product->id) }}" enctype="multipart/form-data"
                 class="needs-validation" novalidate>
@@ -26,7 +31,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Tên sản phẩm</label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                        id="product-name" name="name" value="{{ old('name', $product->name) }}" required maxlength="255">
+                                        id="product-name" name="name" value="{{ old('name', $product->name) }}" required
+                                        maxlength="255">
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -36,7 +42,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Slug</label>
                                     <input type="text" class="form-control @error('slug') is-invalid @enderror"
-                                        id="product-slug" name="slug" value="{{ old('slug', $product->slug) }}" readonly required>
+                                        id="product-slug" name="slug" value="{{ old('slug', $product->slug) }}" readonly
+                                        required>
                                     @error('slug')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -148,13 +155,13 @@
     <script>
         let index = {{ count($product->variants ?? []) }};
 
-        $('#add-variant').on('click', function () {
+        $('#add-variant').on('click', function() {
             let template = $('#variant-template').html().replace(/__INDEX__/g, index);
             $('#variant-container').append(template);
             index++;
         });
 
-        $(document).on('change', '#product-image', function () {
+        $(document).on('change', '#product-image', function() {
             let file = this.files[0];
             let formData = new FormData();
             formData.append('image', file);
@@ -166,19 +173,19 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function (response) {
+                success: function(response) {
                     $('#product-image-preview').html(
                         `<img src="${response.url}" class="img-thumbnail" style="max-height: 300px;">`
                     );
                     $('input[name="temp_image_url"]').val(response.url);
                 },
-                error: function () {
+                error: function() {
                     alert('Lỗi khi tải ảnh sản phẩm.');
                 }
             });
         });
 
-        $(document).on('change', '.variant-image-input', function () {
+        $(document).on('change', '.variant-image-input', function() {
             let variantIndex = $(this).data('index');
             let formData = new FormData();
             formData.append('variant_image', this.files[0]);
@@ -192,14 +199,15 @@
                 data: formData,
                 contentType: false,
                 processData: false,
-                success: function (response) {
-                    $(`input[name="variants[${variantIndex}][temp_variant_image_url]"]`).val(response.url);
+                success: function(response) {
+                    $(`input[name="variants[${variantIndex}][temp_variant_image_url]"]`).val(response
+                        .url);
                     $(previewSelector).html(`<img src="${response.url}" alt="Preview" width="100">`);
                 }
             });
         });
 
-        $(document).on('click', '.remove-variant', function () {
+        $(document).on('click', '.remove-variant', function() {
             $(this).closest('.variant-item').remove();
         });
 
@@ -209,7 +217,7 @@
             return str.normalize('NFD').replace(/\u0300-\u036f/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
         }
 
-        $(document).on('input', 'input[name="name"]', function () {
+        $(document).on('input', 'input[name="name"]', function() {
             let name = $(this).val();
             let slug = removeVietnameseTones(name).toLowerCase().trim()
                 .replace(/[^a-z0-9\s-]/g, '')
@@ -219,7 +227,7 @@
         });
 
         // Validate form before submit
-        $('form.needs-validation').on('submit', function (e) {
+        $('form.needs-validation').on('submit', function(e) {
             let isValid = true;
             let variants = $('#variant-container .variant-item');
 
@@ -228,7 +236,7 @@
                 isValid = false;
             }
 
-            variants.each(function () {
+            variants.each(function() {
                 const size = $(this).find('select[name*="[size_id]"]').val();
                 const color = $(this).find('select[name*="[color_id]"]').val();
                 const import_price = $(this).find('input[name*="[import_price]"]').val();

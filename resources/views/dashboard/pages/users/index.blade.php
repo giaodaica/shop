@@ -112,14 +112,6 @@
                                                     <a href="{{ route('users.show', $user->id) }}" class="text-primary">Chi
                                                         tiết</a> |
                                                     <a href="{{ route('users.edit', $user->id) }}" class="text-info">Sửa</a>
-                                                    |
-                                                    <form class="delete-single-form" data-id="{{ $user->id }}"
-                                                        style="display:inline-block">
-                                                        <button type="button"
-                                                            class="btn btn-link text-danger p-0 m-0 delete-single-btn">
-                                                            Xoá
-                                                        </button>
-                                                    </form>
                                                     |                                                   @if ($user->status === 'active')
                                                         <a href="javascript:void(0);" class="text-warning lock-user-link"
                                                             data-user-id="{{ $user->id }}" data-bs-toggle="modal"
