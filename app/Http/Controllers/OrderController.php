@@ -307,7 +307,6 @@ class OrderController extends Controller
     }
     public function db_order_change(Request $request, $id)
     {
-
         $before = $request->change;
         // dd($before);
         $request->validate(
@@ -329,8 +328,10 @@ class OrderController extends Controller
         if ($before == 'failed' || $before == 'cancelled') {
             $id = $request->order_id;
         }
+        // dd($id);
         $old_status = Order::find($id);
         $present = Order::find($id);
+
         $count = OrderHistories::where('from_status', 'failed')->count();
 
         if (!$present || !$old_status) {
@@ -432,8 +433,15 @@ class OrderController extends Controller
                     'amount' => $present->final_amount,
                     'status' => 'admin',
                 ]);
+                $voucher = VouchersUsers::find($present->voucher_id);
+                if (!$voucher) {
+                    $voucher = null;
+                }
+                $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
+                Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type));
             }
-            Mail::to($present->user->email)->send(new OrderCancelledMail($present));
+            // dd($present);
+
         }
 
         $present->save();
@@ -442,7 +450,8 @@ class OrderController extends Controller
             'order_id' => $id,
             'from_status' => $old_status->status,
             'to_status' => $present->status,
-            'note' => $note
+            'note' => $note,
+            'content' => $request->content ?? '',
         ]);
 
         if ($count >= 2 && $present->status == 'failed') {

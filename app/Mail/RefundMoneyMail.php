@@ -9,23 +9,19 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OrderCancelledMail extends Mailable
+class RefundMoneyMail extends Mailable
 {
     use Queueable, SerializesModels;
-
-    public $present;
-    public $voucher;
-    public $type;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($present ,$voucher,$type)
+    public $refund;
+    public $code_order;
+    public function __construct($refund, $code_order)
     {
-        $this->present = $present;
-        $this->voucher = $voucher;
-        $this->type = $type;
-
+        $this->refund = $refund;
+        $this->code_order = $code_order;
     }
 
     /**
@@ -34,7 +30,7 @@ class OrderCancelledMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Thông báo hủy đơn hàng #' . $this->present->code,
+            subject: 'Hoàn Tiền đơn hàng #' . $this->code_order,
         );
     }
 
@@ -44,7 +40,7 @@ class OrderCancelledMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.order_cancelled',
+            view: 'emails.order_refunded',
         );
     }
 

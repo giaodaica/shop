@@ -45,7 +45,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="dashboard-crm.html" class="nav-link" data-key="t-crm"> CRM </a>
+                                <a href="{{url('dashboard/refund')}}" class="nav-link" data-key="t-crm"> Yêu cầu hoàn tiền </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ url('dashboard') }}" class="nav-link" data-key="t-ecommerce"> Ecommerce </a>
