@@ -92,7 +92,7 @@ $selectedColorId = old("variants.$index.color_id", $variant['color_id'] ?? '');
             @php
                 $previewUrl =
                     old("variants.$index.temp_variant_image_url") ??
-                    ($variant['temp_variant_image_url'] ?? null ?? ($variant['variant_image_url'] ?? null));
+                    ($variant['temp_variant_image_url'] ?? (null ?? ($variant['variant_image_url'] ?? null)));
             @endphp
 
             @if ($previewUrl && file_exists(public_path(parse_url($previewUrl, PHP_URL_PATH))))
@@ -102,6 +102,9 @@ $selectedColorId = old("variants.$index.color_id", $variant['color_id'] ?? '');
             @endif
 
         </div>
+        @if (!empty($variant['id']))
+            <input type="hidden" name="variants[{{ $index }}][id]" value="{{ $variant['id'] }}">
+        @endif
     </div>
 
     {{-- Remove Button --}}

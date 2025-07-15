@@ -149,8 +149,46 @@ class UserController extends Controller
     }
     public function show($id)
     {
-        $user = User::findOrFail($id);
-        return view('dashboard.pages.users.show', compact('user'));
+        $user = User::with([
+            'orders.orderItems',
+            'vouchers'
+        ])->findOrFail($id);
+
+        $activeTab = request('tab', 'overview');
+
+        // Thống kê trạng thái đơn hàng
+        $orderStats = [
+            'total' => $user->orders->count(),
+            'pending' => $user->orders->where('status', 'pending')->count(),
+            'confirmed' => $user->orders->where('status', 'confirmed')->count(),
+            'shipping' => $user->orders->where('status', 'shipping')->count(),
+            'success' => $user->orders->where('status', 'success')->count(),
+            'cancelled' => $user->orders->where('status', 'cancelled')->count(),
+            'failed' => $user->orders->where('status', 'failed')->count(),
+        ];
+
+        // Chuẩn hóa dữ liệu voucher để truyền ra view
+        $vouchers = $user->vouchers->map(function ($voucher) {
+            $now = now();
+            $status = 'Chưa dùng';
+
+            if ($voucher->pivot->is_used === 'used') {
+                $status = 'Đã dùng';
+            } elseif ($voucher->end_date < $now) {
+                $status = 'Hết hạn';
+            }
+
+            return [
+                'code' => $voucher->code,
+                'name' => $voucher->name ?? '---',
+                'type' => $voucher->type_discount,
+                'value' => $voucher->value,
+                'end_date' => $voucher->end_date,
+                'status' => $status,
+            ];
+        });
+        $recentOrders = $user->orders->sortByDesc('created_at')->take(5);
+        return view('dashboard.pages.users.show', compact('user', 'activeTab', 'orderStats', 'vouchers','recentOrders'));
     }
 
     public function lock(Request $request)
