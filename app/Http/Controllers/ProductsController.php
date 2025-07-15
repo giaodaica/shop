@@ -251,7 +251,7 @@ class ProductsController extends Controller
             'variants.*.sale_price' => 'nullable|numeric|min:0|lte:variants.*.listed_price',
             'variants.*.stock' => 'required|integer|min:0',
 
-       
+
             'variants.*.temp_variant_image_url' => function ($attribute, $value, $fail) use ($request) {
                 preg_match('/variants\.(\d+)\.temp_variant_image_url/', $attribute, $matches);
                 $index = $matches[1] ?? null;
@@ -295,20 +295,23 @@ class ProductsController extends Controller
         foreach ($request->variants as $index => $variant) {
             $key = $variant['color_id'] . '-' . $variant['size_id'];
 
-            // Nếu đã có biến thể này nhưng là biến thể khác id => lỗi
-            if (isset($combinations[$key])) {
-                // Nếu trùng nhưng khác ID (tức là sửa đè sang biến thể khác)
-                if (
-                    !isset($variant['id']) || // Nếu là thêm mới thì rõ ràng trùng
-                    $variant['id'] != $combinations[$key]
-                ) {
-                    $errors["variants.$index.size_id"] = ['Size đã bị trùng với màu này.'];
-                    $errors["variants.$index.color_id"] = ['Màu đã bị trùng với size này.'];
-                }
-            }
+            if (array_key_exists($key, $combinations)) {
+                $firstIndex = $combinations[$key]['index'];
+                $firstId = $combinations[$key]['id'] ?? null;
+                $currentId = $variant['id'] ?? null;
 
-            // Ghi nhận key này kèm theo id (nếu có)
-            $combinations[$key] = $variant['id'] ?? null;
+                // Nếu là biến thể mới hoặc khác ID cũ thì tính là trùng
+                if ($currentId !== $firstId) {
+                    // ⚠ Gán lỗi cho dòng đầu tiên xuất hiện
+                    $errors["variants.$firstIndex.size_id"] = ['Trùng với biến thể ở dòng ' . ($index + 1)];
+                    $errors["variants.$firstIndex.color_id"] = ['Trùng với biến thể ở dòng ' . ($index + 1)];
+                }
+            } else {
+                $combinations[$key] = [
+                    'index' => $index,
+                    'id' => $variant['id'] ?? null
+                ];
+            }
         }
 
         if (!empty($errors)) {

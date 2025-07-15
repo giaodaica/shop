@@ -132,7 +132,8 @@
                             </div>
 
                             <div class="col-xxl-8">
-                                <div class="card">
+                                {{-- Tổng kết thành viên --}}
+                                <div class="card mb-4">
                                     <div class="card-body">
                                         <div
                                             class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-3">
@@ -141,11 +142,7 @@
                                                 <p class="text-muted fs-14 mb-0">Tổng tiền và số đơn hàng được tính chung từ
                                                     hệ thống.</p>
                                             </div>
-                                            <div class="text-end">
-                                                <span class="badge bg-light text-dark">
-                                                    Cập nhật lại sau {{ $user->next_rank_review_at ?? '---' }}
-                                                </span>
-                                            </div>
+                                           
                                         </div>
 
                                         <div class="row text-center">
@@ -171,20 +168,69 @@
                                             <div class="col-md-4">
                                                 <div class="p-3">
                                                     <div class="d-flex align-items-center justify-content-center mb-2">
-                                                        <img src="{{ asset('assets/images/logo-mini.png') }}"
-                                                            alt="logo" width="28" height="28" class="me-2">
+                                                       
                                                         <strong>{{ ucfirst($user->rank) ?? '---' }}</strong>
                                                     </div>
                                                     <div class="text-muted">Hạng hiện tại</div>
-                                                    <select class="form-select mt-1 w-auto mx-auto" disabled>
-                                                        <option selected>{{ $user->channel_name ?? 'CellphoneS' }}</option>
-                                                    </select>
+                                                   
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                {{-- Lịch sử đơn hàng --}}
+                                <div class="card">
+                                    <div class="card-header border-bottom">
+                                        <h5 class="card-title mb-0">Lịch sử đơn hàng gần đây</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        @if ($recentOrders->isEmpty())
+                                            <div class="alert alert-warning mb-0">
+                                                <i class="ri-information-line me-1 align-middle"></i>
+                                                Người dùng chưa có đơn hàng nào.
+                                            </div>
+                                        @else
+                                            <ul class="list-group list-group-flush">
+                                                @foreach ($recentOrders as $order)
+                                                    <li
+                                                        class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <strong>#{{ $order->id }}</strong> -
+                                                            {{ $order->created_at->format('d/m/Y H:i') }}
+                                                            <br>
+                                                            <span class="text-muted">Tổng tiền:
+                                                                <strong>{{ number_format($order->total_amount, 0, ',', '.') }}₫</strong>
+                                                            </span>
+                                                        </div>
+                                                        <span
+                                                            class="badge 
+                                @switch($order->status)
+                                    @case('pending') bg-warning text-dark @break
+                                    @case('confirmed') bg-info @break
+                                    @case('shipping') bg-primary @break
+                                    @case('success') bg-success @break
+                                    @case('cancelled') bg-secondary @break
+                                    @case('failed') bg-danger @break
+                                    @default bg-light text-dark
+                                @endswitch">
+                                                            {{ ucfirst($order->status) }}
+                                                        </span>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                            <div class="text-end mt-3">
+                                                <a href="{{ route('users.show', ['id' => $user->id, 'tab' => 'orders']) }}"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                    Xem tất cả đơn hàng <i
+                                                        class="ri-arrow-right-line align-middle ms-1"></i>
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
+
                         </div>
                     </div>
                 @elseif ($activeTab == 'orders')
@@ -239,7 +285,7 @@
                         </div>
                     </div>
                 @elseif ($activeTab == 'vouchers')
-                    <div class="tab-pane" id="vouchers-tab" role="tabpanel">
+                    <div class="tab-pane fade show active" id="vouchers-tab" role="tabpanel">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title mb-3 text-dark">Danh sách Voucher</h5>
