@@ -178,7 +178,7 @@
                         @if ($refund)
                             @if ($refund->status == 'approved')
                                 <span class="btn btn-success no-hover">Đã hoàn tiền</span>
-                                @if (!empty($refund->QR_images))
+                                @if (!empty($refund->images))
                                     <button type="button" class="btn btn-info no-hover" data-bs-toggle="modal" data-bs-target="#qrImageModal">Xem bill</button>
                                 @endif
                             @elseif ($refund->status == 'pending')
@@ -332,11 +332,14 @@
                             <span class="visually-hidden">Loading...</span>
                         </div>
                     </div>
-                    @if (!empty($refund->QR_images))
-                        <img id="qrBillImage" src="{{ asset($refund->QR_images) }}" alt="QR Code" class="img-fluid qr-bill-img shadow" style="max-width: 350px; border-radius: 16px; border: 2px solid #f1f1f1; transition: transform 0.2s; cursor: pointer;" onload="document.getElementById('qrImageLoading').style.display='none';" onerror="document.getElementById('qrImageLoading').style.display='none';" />
+                    @if (!empty($refund->images))
+                        <img id="qrBillImage" src="{{ asset($refund->images) }}" alt="QR Code" class="img-fluid qr-bill-img shadow" style="max-width: 350px; border-radius: 16px; border: 2px solid #f1f1f1; transition: transform 0.2s; cursor: pointer;" onload="document.getElementById('qrImageLoading').style.display='none';" onerror="document.getElementById('qrImageLoading').style.display='none';" />
                     @else
                         <div class="alert alert-warning mt-3">Chưa có bill hoàn tiền.</div>
                     @endif
+                    {{-- @php
+                    dd($refund);
+                    @endphp --}}
                 </div>
                 <div class="modal-footer border-0 pt-0 d-flex justify-content-center">
                     <button type="button" class="btn btn-secondary no-hover px-4 py-2 fs-5" data-bs-dismiss="modal">Đóng</button>

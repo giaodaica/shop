@@ -309,6 +309,7 @@ class OrderController extends Controller
     {
         $before = $request->change;
         // dd($before);
+        // dd($request->all());
         $request->validate(
             [
                 'content' => 'nullable|string|max:255',
