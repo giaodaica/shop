@@ -188,8 +188,8 @@ class UserController extends Controller
             ];
         });
         $recentOrders = $user->orders->sortByDesc('created_at')->take(5);
-        $totalFinalAmount = $user->orders()         
-            ->whereIn('status', ['confirmed', 'shipping', 'success'])
+        $totalFinalAmount = $user->orders()
+            ->where('status', 'success')
             ->sum('final_amount');
 
         return view('dashboard.pages.users.show', compact('user', 'activeTab', 'orderStats', 'vouchers', 'recentOrders', "totalFinalAmount"));
