@@ -188,8 +188,11 @@ class UserController extends Controller
             ];
         });
         $recentOrders = $user->orders->sortByDesc('created_at')->take(5);
-        $totalFinalAmount = $user->orders->sum('final_amount');
-        return view('dashboard.pages.users.show', compact('user', 'activeTab', 'orderStats', 'vouchers','recentOrders',"totalFinalAmount"));
+        $totalFinalAmount = $user->orders()         
+            ->whereIn('status', ['confirmed', 'shipping', 'success'])
+            ->sum('final_amount');
+
+        return view('dashboard.pages.users.show', compact('user', 'activeTab', 'orderStats', 'vouchers', 'recentOrders', "totalFinalAmount"));
     }
 
     public function lock(Request $request)
