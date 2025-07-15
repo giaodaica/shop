@@ -151,7 +151,7 @@ class UserController extends Controller
     {
         $user = User::with([
             'orders.orderItems',
-            'vouchers'
+            'vouchers.cate_vouchers'
         ])->findOrFail($id);
 
         $activeTab = request('tab', 'overview');
@@ -180,7 +180,7 @@ class UserController extends Controller
 
             return [
                 'code' => $voucher->code,
-                'name' => $voucher->name ?? '---',
+                'name' => $voucher->cate_vouchers->name ?? '---',
                 'type' => $voucher->type_discount,
                 'value' => $voucher->value,
                 'end_date' => $voucher->end_date,
@@ -188,7 +188,8 @@ class UserController extends Controller
             ];
         });
         $recentOrders = $user->orders->sortByDesc('created_at')->take(5);
-        return view('dashboard.pages.users.show', compact('user', 'activeTab', 'orderStats', 'vouchers','recentOrders'));
+        $totalFinalAmount = $user->orders->sum('final_amount');
+        return view('dashboard.pages.users.show', compact('user', 'activeTab', 'orderStats', 'vouchers','recentOrders',"totalFinalAmount"));
     }
 
     public function lock(Request $request)

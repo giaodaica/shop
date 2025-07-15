@@ -14,12 +14,7 @@
             {{-- Thông tin người dùng --}}
             <div class="pt-4 mb-4 pb-lg-4 profile-wrapper">
                 <div class="row g-4">
-                    <div class="col-auto">
-                        <div class="avatar-lg">
-                            <img src="{{ asset('assets/images/users/avatar-1.jpg') }}" alt="user-img"
-                                class="img-thumbnail rounded-circle" />
-                        </div>
-                    </div>
+                    
                     <div class="col">
                         <div class="p-2">
                             <h3 class="text-white mb-1">{{ $user->name }}</h3>
@@ -142,20 +137,22 @@
                                                 <p class="text-muted fs-14 mb-0">Tổng tiền và số đơn hàng được tính chung từ
                                                     hệ thống.</p>
                                             </div>
-                                           
+
                                         </div>
 
                                         <div class="row text-center">
                                             <div class="col-md-4">
                                                 <div class="p-3">
-                                                    <div class="fs-18 fw-semibold">{{ $user->orders_count ?? 0 }}</div>
+                                                    <div class="fs-18 fw-semibold">
+                                                        {{ $user->orders->whereIn('status', ['confirmed', 'shipping', 'success'])->count() }}
+                                                    </div>
                                                     <div class="text-muted">Tổng số đơn hàng đã mua</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="p-3">
                                                     <div class="fs-18 fw-semibold">
-                                                        {{ number_format($user->total_spent, 0, ',', '.') }}₫
+                                                        {{ number_format($totalFinalAmount, 0, ',', '.') }}₫
                                                     </div>
                                                     <div class="text-muted">Tổng tiền tích lũy</div>
                                                     <small class="text-muted d-block mt-1">
@@ -168,11 +165,11 @@
                                             <div class="col-md-4">
                                                 <div class="p-3">
                                                     <div class="d-flex align-items-center justify-content-center mb-2">
-                                                       
+
                                                         <strong>{{ ucfirst($user->rank) ?? '---' }}</strong>
                                                     </div>
                                                     <div class="text-muted">Hạng hiện tại</div>
-                                                   
+
                                                 </div>
                                             </div>
                                         </div>
@@ -200,21 +197,49 @@
                                                             {{ $order->created_at->format('d/m/Y H:i') }}
                                                             <br>
                                                             <span class="text-muted">Tổng tiền:
-                                                                <strong>{{ number_format($order->total_amount, 0, ',', '.') }}₫</strong>
+                                                                <strong>{{ number_format($order->final_amount, 0, ',', '.') }}₫</strong>
                                                             </span>
                                                         </div>
                                                         <span
                                                             class="badge 
-                                @switch($order->status)
-                                    @case('pending') bg-warning text-dark @break
-                                    @case('confirmed') bg-info @break
-                                    @case('shipping') bg-primary @break
-                                    @case('success') bg-success @break
-                                    @case('cancelled') bg-secondary @break
-                                    @case('failed') bg-danger @break
-                                    @default bg-light text-dark
-                                @endswitch">
-                                                            {{ ucfirst($order->status) }}
+                              @switch($order->status)
+                @case('pending') bg-warning text-dark @break
+                @case('confirmed') bg-info @break
+                @case('shipping') bg-primary @break
+                @case('success') bg-success @break
+                @case('cancelled') bg-secondary @break
+                @case('failed') bg-danger @break
+                @default bg-light text-dark
+                @endswitch">
+                                                            @switch($order->status)
+                                                                @case('pending')
+                                                                    Chờ xác nhận
+                                                                @break
+
+                                                                @case('confirmed')
+                                                                    Đã xác nhận
+                                                                @break
+
+                                                                @case('shipping')
+                                                                    Đang vận chuyển
+                                                                @break
+
+                                                                @case('success')
+                                                                    Giao thành công
+                                                                @break
+
+                                                                @case('cancelled')
+                                                                    Đã huỷ
+                                                                @break
+
+                                                                @case('failed')
+                                                                    Thất bại
+                                                                @break
+
+                                                                @default
+                                                                    Không xác định
+                                                            @endswitch
+
                                                         </span>
                                                     </li>
                                                 @endforeach
