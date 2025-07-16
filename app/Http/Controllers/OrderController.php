@@ -434,14 +434,15 @@ class OrderController extends Controller
                     'amount' => $present->final_amount,
                     'status' => 'admin',
                 ]);
+                $voucher = VouchersUsers::find($present->voucher_id);
+                if (!$voucher) {
+                    $voucher = null;
+                }
+                $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
+                Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type));
             }
             // dd($present);
-            $voucher = VouchersUsers::find($present->voucher_id);
-            if(!$voucher) {
-                $voucher = null;
-            }
-            $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
-            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher,$type));
+
         }
 
         $present->save();
