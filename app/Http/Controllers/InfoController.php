@@ -55,7 +55,24 @@ class InfoController extends Controller
         $cancelledOrders = $orders->where('status', 'cancelled')->values();
         // dd($cancelledOrders);
         // dd($shippingOrders, $orders, $confirmedOrders,$successOrders,$pendingOrders,  $failedOrders,   $cancelledOrders);
-        return view('pages.shop.account', compact('orders', 'addresses', 'pendingOrders', 'confirmedOrders', 'shippingOrders', 'successOrders', 'cancelledOrders'));
+
+        // Lấy voucher của user: chỉ lấy voucher chưa dùng và còn hạn
+        $now = now();
+        $userVouchers = $user->vouchers()->with('cate_vouchers')
+            ->wherePivot('is_used', 'unused')
+            ->where('vouchers_users.end_date', '>=', $now)
+            ->get();
+        $vouchers = $userVouchers->map(function ($voucher) {
+            return [
+                'code' => $voucher->code,
+                'name' => $voucher->cate_vouchers->name ?? '---',
+                'type' => $voucher->type_discount,
+                'value' => $voucher->value,
+                'end_date' => $voucher->end_date,
+            ];
+        });
+        // dd($vouchers);
+        return view('pages.shop.account', compact('orders', 'addresses', 'pendingOrders', 'confirmedOrders', 'shippingOrders', 'successOrders', 'cancelledOrders', 'vouchers'));
     }
     public function orderDetail($id)
     {

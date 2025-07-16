@@ -48,10 +48,30 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Trending searches (should be fetched from API in production)
-    const trendingSearches = [
-        "Áo thun nam", "Quần jean nữ", "Váy liền thân", "Giày thể thao",
-        "Túi xách", "Đồng hồ", "Kính mát", "Phụ kiện"
-    ];
+    // const trendingSearches = [ ... ];
+    let trendingCategories = [];
+    async function fetchTrendingCategories() {
+        try {
+            const res = await fetch('/search/trending-categories');
+            if (!res.ok) throw new Error('Network error');
+            const data = await res.json();
+            if (data && data.data && Array.isArray(data.data) && data.data.length > 0) {
+                trendingCategories = data.data;
+            } else {
+                trendingCategories = [
+                    { name: "Áo thun nam" }, { name: "Quần jean nữ" }, { name: "Váy liền thân" }, { name: "Giày thể thao" },
+                    { name: "Túi xách" }, { name: "Đồng hồ" }, { name: "Kính mát" }, { name: "Phụ kiện" }
+                ];
+            }
+        } catch (e) {
+            trendingCategories = [
+                { name: "Áo thun nam" }, { name: "Quần jean nữ" }, { name: "Váy liền thân" }, { name: "Giày thể thao" },
+                { name: "Túi xách" }, { name: "Đồng hồ" }, { name: "Kính mát" }, { name: "Phụ kiện" }
+            ];
+        }
+    }
+    // Gọi fetch trending khi load trang
+    fetchTrendingCategories();
 
     // Initialize loading overlay
     const loadingOverlay = (() => {
@@ -606,6 +626,10 @@ document.addEventListener('DOMContentLoaded', function () {
             state.lastRequestedTerm = trimmedTerm;
 
             if (trimmedTerm === '') {
+                // Đảm bảo trendingCategories đã fetch xong
+                if (trendingCategories.length === 0) {
+                    await fetchTrendingCategories();
+                }
                 // Display history and trending
                 let contentHtml = `
                     <div class="suggestions-section mb-3">
@@ -666,7 +690,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         elements.searchSuggestions.style.display = 'none'; // Hide dropdown
                         state.currentKeyword = keyword;
                         state.currentPage = 1;
-                        this.perform(keyword);
+                        // Chuyển hướng đúng URL search
+                        window.location.href = `/search?q=${encodeURIComponent(keyword)}`;
                     });
                 });
 
@@ -853,7 +878,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         state.suggestionsVisible = false; // Hide suggestions after Enter
                         // Remove focus from input
                         elements.searchInput.blur();
-                        search.perform(keyword);
+                        // search.perform(keyword);
+                        window.location.href = `/search?q=${encodeURIComponent(keyword)}`;
                     }
                 }
             });
@@ -893,10 +919,10 @@ document.addEventListener('DOMContentLoaded', function () {
             // if (!elements.trendingList) return; // This will be removed
 
             // elements.trendingList.innerHTML = ''; // This will be removed
-            return trendingSearches.map(keyword => `
+            return trendingCategories.map(keyword => `
                 <a href="#" class="trend-tag">
                     <i class="fa fa-fire"></i>
-                    <span>${keyword}</span>
+                    <span>${keyword.name}</span>
                 </a>
             `).join('');
         }
