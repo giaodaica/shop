@@ -85,8 +85,8 @@
                             <li class="nav-item">
                                 <a class="nav-link" data-bs-toggle="tab" href="#tab_seven3">
                                     <span>
-                                        <span class="me-5px"><i class="bi bi-gear"></i></span>
-                                        <span>Cài Đặt</span>
+                                        <span class="me-5px"><i class="bi bi-ticket"></i></span>
+                                        <span>Voucher của tôi</span>
                                     </span>
                                     <span class="bg-hover bg-base-color"></span>
                                 </a>
@@ -319,270 +319,58 @@
                             </div>
                         </div>
                         <!-- end tab đơn hàng -->
-                        <!-- start tab Cài đặt -->
+                        <!-- start tab Voucher của tôi -->
                         <div class="tab-pane fade in h-100" id="tab_seven3">
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="card shadow-sm rounded-lg border-0">
                                         <div class="card-body p-4">
-                                            <form action="javascript:void(0);">
-                                                <div class="row">
-                                                    <div class="col-lg-12">
-                                                        <h5
-                                                            class="fs-5 text-primary text-uppercase mb-4 border-bottom pb-2">
-                                                            Thông tin cá nhân</h5>
-                                                    </div>
-                                                    <div class="col-lg-6">
-                                                        <div class="mb-3">
-                                                            <label for="firstnameInput"
-                                                                class="form-label text-gray-600">Tên</label>
-                                                            <input type="text"
-                                                                class="form-control border-gray-300 rounded-lg"
-                                                                id="firstnameInput" placeholder="Nhập tên của bạn">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-6">
-                                                        <div class="mb-3">
-                                                            <label for="lastnameInput"
-                                                                class="form-label text-gray-600">Họ</label>
-                                                            <input type="text"
-                                                                class="form-control border-gray-300 rounded-lg"
-                                                                id="lastnameInput" placeholder="Nhập họ của bạn"
-                                                                value="Murillo">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-6">
-                                                        <div class="mb-3">
-                                                            <label for="phonenumberInput"
-                                                                class="form-label text-gray-600">Số
-                                                                điện thoại</label>
-                                                            <input type="text"
-                                                                class="form-control border-gray-300 rounded-lg"
-                                                                id="phonenumberInput" placeholder="Nhập số điện thoại"
-                                                                value="+(253) 01234 5678">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-6">
-                                                        <div class="mb-3">
-                                                            <label for="emailInput" class="form-label text-gray-600">Địa
-                                                                chỉ email</label>
-                                                            <input type="email"
-                                                                class="form-control border-gray-300 rounded-lg"
-                                                                id="emailInput" placeholder="Nhập email của bạn"
-                                                                value="raque@toner.com">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-4">
-                                                        <div class="mb-3">
-                                                            <label for="cityInput" class="form-label text-gray-600">Thành
-                                                                phố</label>
-                                                            <input type="text"
-                                                                class="form-control border-gray-300 rounded-lg"
-                                                                id="cityInput" placeholder="Thành phố" value="Phoenix">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-4">
-                                                        <div class="mb-3">
-                                                            <label for="countryInput"
-                                                                class="form-label text-gray-600">Quốc
-                                                                gia</label>
-                                                            <input type="text"
-                                                                class="form-control border-gray-300 rounded-lg"
-                                                                id="countryInput" placeholder="Quốc gia" value="USA">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-4">
-                                                        <div class="mb-3">
-                                                            <label for="zipcodeInput" class="form-label text-gray-600">Mã
-                                                                bưu
-                                                                điện</label>
-                                                            <input type="text"
-                                                                class="form-control border-gray-300 rounded-lg"
-                                                                minlength="5" maxlength="6" id="zipcodeInput"
-                                                                placeholder="Nhập mã bưu điện" value="90011">
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="mb-3 pb-2">
-                                                            <label for="exampleFormControlTextarea"
-                                                                class="form-label text-gray-600">Mô
-                                                                tả</label>
-                                                            <textarea class="form-control border-gray-300 rounded-lg" id="exampleFormControlTextarea"
-                                                                placeholder="Nhập mô tả của bạn" rows="3">Xin chào, tôi là Raquel Murillo. Tôi là một khách hàng thân thiết từ tháng 8 năm 2022. Rất mong được hỗ trợ nhanh chóng và hiệu quả.</textarea>
-                                                        </div>
-                                                    </div>
+                                            <h5 class="fs-5 text-primary text-uppercase mb-4 border-bottom pb-2">
+                                                Danh sách Voucher của bạn
+                                            </h5>
+                                            @if($vouchers->isEmpty())
+                                                <div class="alert alert-info mb-0">
+                                                    <i class="bi bi-info-circle me-1 align-middle"></i>
+                                                    Bạn chưa có voucher nào.
                                                 </div>
-                                            </form>
-                                            <div class="mb-3" id="changePassword">
-                                                <h5 class="fs-5 text-primary text-uppercase mb-4 border-bottom pb-2">
-                                                    Thay đổi mật khẩu</h5>
-                                                <form action="javascript:void(0);">
-                                                    <div class="row g-3">
-                                                        <div class="col-lg-4">
-                                                            <div>
-                                                                <label for="oldpasswordInput"
-                                                                    class="form-label text-gray-600">Mật
-                                                                    khẩu cũ*</label>
-                                                                <input type="password"
-                                                                    class="form-control border-gray-300 rounded-lg"
-                                                                    id="oldpasswordInput"
-                                                                    placeholder="Nhập mật khẩu hiện tại">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-4">
-                                                            <div>
-                                                                <label for="newpasswordInput"
-                                                                    class="form-label text-gray-600">Mật
-                                                                    khẩu mới*</label>
-                                                                <input type="password"
-                                                                    class="form-control border-gray-300 rounded-lg"
-                                                                    id="newpasswordInput" placeholder="Nhập mật khẩu mới">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-4">
-                                                            <div>
-                                                                <label for="confirmpasswordInput"
-                                                                    class="form-label text-gray-600">Xác
-                                                                    nhận mật khẩu*</label>
-                                                                <input type="password"
-                                                                    class="form-control border-gray-300 rounded-lg"
-                                                                    id="confirmpasswordInput"
-                                                                    placeholder="Xác nhận mật khẩu">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-12">
-                                                            <div class="mb-3">
-                                                                <a href="auth-pass-reset-basic.html"
-                                                                    class="text-blue-600 hover:underline">Quên
-                                                                    mật khẩu?</a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                            <div class="mb-3" id="privacy">
-                                                <h5 class="fs-5 text-primary text-uppercase mb-4 border-bottom pb-2">
-                                                    Chính sách bảo mật</h5>
-                                                <div class="mb-3">
-                                                    <h5 class="fs-15 mb-2 text-gray-800">Bảo mật:</h5>
-                                                    <div class="d-flex flex-column align-items-center flex-sm-row mb-3">
-                                                        <div class="flex-grow-1">
-                                                            <p class="text-gray-600 fs-14 mb-0">Xác
-                                                                thực hai yếu tố</p>
-                                                        </div>
-                                                        <div class="flex-shrink-0 ms-sm-3">
-                                                            <a href="javascript:void(0);"
-                                                                class="text-primary bg-primary bg-primary-subtle px-3 py-2 rounded">Kích
-                                                                hoạt xác thực hai yếu tố</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex flex-column align-items-center flex-sm-row mb-3">
-                                                        <div class="flex-grow-1">
-                                                            <p class="text-gray-600 fs-14 mb-0">Xác
-                                                                minh thứ cấp</p>
-                                                        </div>
-                                                        <div class="flex-shrink-0 ms-sm-3">
-                                                            <a href="javascript:void(0);"
-                                                                class="text-primary bg-primary bg-primary-subtle px-3 py-2 rounded">Thiết
-                                                                lập phương thức thứ cấp</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex flex-column align-items-center flex-sm-row mb-3">
-                                                        <div class="flex-grow-1">
-                                                            <p class="text-gray-600 fs-14 mb-0">Mã dự
-                                                                phòng</p>
-                                                        </div>
-                                                        <div class="flex-shrink-0 ms-sm-3">
-                                                            <a href="javascript:void(0);"
-                                                                class="text-primary bg-primary bg-primary-subtle px-3 py-2 rounded">Tạo
-                                                                mã dự phòng</a>
-                                                        </div>
-                                                    </div>
+                                            @else
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Mã voucher</th>
+                                                                <th>Tên loại</th>
+                                                                <th>Loại giảm</th>
+                                                                <th>Giá trị</th>
+                                                                <th>Hạn dùng</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach($vouchers as $voucher)
+                                                                <tr>
+                                                                    <td><strong>{{ $voucher['code'] }}</strong></td>
+                                                                    <td>{{ $voucher['name'] }}</td>
+                                                                    <td>{{ $voucher['type'] === 'percent' ? 'Phần trăm' : 'Tiền mặt' }}</td>
+                                                                    <td>
+                                                                        @if($voucher['type'] === 'percent')
+                                                                            {{ $voucher['value'] }}%
+                                                                        @else
+                                                                            {{ number_format($voucher['value'], 0, ',', '.') }}₫
+                                                                        @endif
+                                                                    </td>
+                                                                    <td>{{ \Carbon\Carbon::parse($voucher['end_date'])->format('d/m/Y') }}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
                                                 </div>
-                                                <div class="mb-3">
-                                                    <h5 class="fs-15 mb-2 text-gray-800">Thông báo ứng
-                                                        dụng:</h5>
-                                                    <ul class="list-unstyled mb-0">
-                                                        <li class="d-flex align-items-center mb-2">
-                                                            <div class="flex-grow-1">
-                                                                <label for="directMessage"
-                                                                    class="form-check-label fs-14 text-gray-600">Tin
-                                                                    nhắn trực tiếp</label>
-                                                            </div>
-                                                            <div class="flex-shrink-0">
-                                                                <div class="form-check form-switch">
-                                                                    <input class="form-check-input" type="checkbox"
-                                                                        role="switch" id="directMessage" checked>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                        <li class="d-flex align-items-center mb-2">
-                                                            <div class="flex-grow-1">
-                                                                <label class="form-check-label fs-14 text-gray-600"
-                                                                    for="desktopNotification">Hiển thị
-                                                                    thông báo trên máy tính</label>
-                                                            </div>
-                                                            <div class="flex-shrink-0">
-                                                                <div class="form-check form-switch">
-                                                                    <input class="form-check-input" type="checkbox"
-                                                                        role="switch" id="desktopNotification" checked>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                        <li class="d-flex align-items-center mb-2">
-                                                            <div class="flex-grow-1">
-                                                                <label class="form-check-label fs-14 text-gray-600"
-                                                                    for="emailNotification">Hiển thị
-                                                                    thông báo email</label>
-                                                            </div>
-                                                            <div class="flex-shrink-0">
-                                                                <div class="form-check form-switch">
-                                                                    <input class="form-check-input" type="checkbox"
-                                                                        role="switch" id="emailNotification">
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                        <li class="d-flex align-items-center mb-2">
-                                                            <div class="flex-grow-1">
-                                                                <label class="form-check-label fs-14 text-gray-600"
-                                                                    for="chatNotification">Hiển thị
-                                                                    thông báo trò chuyện</label>
-                                                            </div>
-                                                            <div class="flex-shrink-0">
-                                                                <div class="form-check form-switch">
-                                                                    <input class="form-check-input" type="checkbox"
-                                                                        role="switch" id="chatNotification">
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                        <li class="d-flex align-items-center mb-2">
-                                                            <div class="flex-grow-1">
-                                                                <label class="form-check-label fs-14 text-gray-600"
-                                                                    for="purchaesNotification">Hiển thị
-                                                                    thông báo mua hàng</label>
-                                                            </div>
-                                                            <div class="flex-shrink-0">
-                                                                <div class="form-check form-switch">
-                                                                    <input class="form-check-input" type="checkbox"
-                                                                        role="switch" id="purchaesNotification">
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="text-sm-end mt-4">
-                                                <a href="#!"
-                                                    class="btn btn-secondary rounded-lg hover:bg-gray-600 transition-colors duration-200">
-                                                    Cập nhật hồ sơ
-                                                </a>
-                                            </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- end tab Cài Đặt -->
+                        <!-- end tab Voucher của tôi -->
 
                     </div>
                 </div>

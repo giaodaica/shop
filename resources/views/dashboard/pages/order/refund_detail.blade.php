@@ -81,7 +81,7 @@
                             <div class="mt-3 text-end">
                                 <a class="btn btn-primary" href="{{ route('dashboard.order.refund') }}">Quay lại</a>
                                 <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#qrModal"
-                                    {{ empty($refund->qr_image) ? 'disabled' : '' }}>
+                                    {{ !empty($refund->QR_image) ? 'disabled' : '' }}>
                                     Xem ảnh QR
                                 </button>
                                 <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
@@ -107,7 +107,7 @@
                                         </div>
                                         <div class="modal-body text-center">
                                             @if (!empty($refund->QR_images))
-                                                <img src="{{ asset('storage/' . $refund->qr_image) }}" alt="QR Image"
+                                                <img src="{{ asset( $refund->QR_images) }}" alt="QR Image"
                                                     class="img-fluid" style="max-height:90vh;">
                                             @else
                                                 <p>Không có ảnh QR.</p>
