@@ -104,10 +104,24 @@
             $(document).on('click', '.loadModal_toggle, .edit_toggle', function(e) {
                 e.preventDefault();
                 const url = $(this).data("url");
-                $('#loadModal .modal-content').empty().load(url, function() {
-                    $('#loadModal').modal('show');
-                    $("#kt_select2_2, #kt_select2_3, #kt_select2_4").select2();
-                });
+                // Hiển thị loading
+                $('#loadModal .modal-content').html('<div style="text-align:center;padding:40px"><span class="spinner-border"></span> Đang tải...</div>');
+                $('#loadModal').modal('show');
+                // Load nội dung modal
+                $.get(url)
+                    .done(function(data) {
+                        // Nếu response là HTML hợp lệ thì show, nếu không thì báo lỗi
+                        if (typeof data === 'string' && data.trim().length > 0 && data.indexOf('<form') !== -1) {
+                            $('#loadModal .modal-content').html(data);
+                            $("#kt_select2_2, #kt_select2_3, #kt_select2_4").select2();
+                        } else {
+                            $('#loadModal .modal-content').html('<div class="alert alert-danger">Không load được form. Vui lòng thử lại hoặc kiểm tra route!</div>');
+                        }
+                    })
+                    .fail(function(xhr) {
+                        let msg = 'Lỗi khi tải form: ' + (xhr.status ? xhr.status + ' ' + xhr.statusText : 'Không xác định');
+                        $('#loadModal .modal-content').html('<div class="alert alert-danger">'+msg+'</div>');
+                    });
             });
             // Xử lý nút xóa đơn
             $(document).on('click', '.delete_toggle', function(e) {

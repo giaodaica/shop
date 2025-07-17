@@ -75,7 +75,7 @@ class PermissionController extends Controller
             $id = $all['id'];
         }
 
-        return view('admin.permission.create_edit', compact('dataCategory','id'));
+        return view('dashboard.pages.permission.create_edit', compact('dataCategory','id'));
     }
 
 	/**
@@ -125,7 +125,7 @@ class PermissionController extends Controller
 	{
 		$data = Permission::findOrFail($id);
 		$dataCategory= Permission::where('id','!=',$id)->orderBy('order','asc')->get();
-		return view('admin.permission.create_edit', compact('data','dataCategory'));
+		return view('dashboard.pages.permission.create_edit', compact('data','dataCategory'));
 
 	}
 
