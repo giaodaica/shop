@@ -34,19 +34,24 @@
             <div class="row">
                 <div class="col-sm-8">
                     <div class="well">
-                        <div class="lead text-right">
-                            <div class="float-right">
-                                <a href="#" id="nestable-menu-action" data-action="collapse-all"
-                                    class="btn btn-info m-btn">
-                                    {{ __('Thu gọn') }}
-                                </a>
-                                <a href="#" id="nestable-menu-checkall" data-action="0" class="btn btn-primary m-btn">
-                                    {{ __('Chọn tất cả') }}
-                                </a>
-                                <a href="#" class="btn btn-danger m-btn delete_selected">
-                                    {{ __('Xóa mục đã chọn') }}
-                                </a>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="lead text-right">
+                                <div class="float-right">
+                                    <a href="#" id="nestable-menu-action" data-action="collapse-all"
+                                        class="btn btn-info m-btn">
+                                        {{ __('Thu gọn') }}
+                                    </a>
+                                    <a href="#" id="nestable-menu-checkall" data-action="0" class="btn btn-primary m-btn">
+                                        {{ __('Chọn tất cả') }}
+                                    </a>
+                                    <a href="#" class="btn btn-danger m-btn delete_selected">
+                                        {{ __('Xóa mục đã chọn') }}
+                                    </a>
+                                </div>
                             </div>
+                            <button type="button" data-url="{{ route('dashboard.roles.create') }}" class="btn btn-success font-weight-bolder loadModal_toggle">
+                                <i class="fas fa-plus-circle icon-md"></i> {{__('Thêm mới')}}
+                            </button>
                         </div>
                         <form action="{{ route('dashboard.roles.order') }}" method="POST" id="nestable-form">
                             @csrf

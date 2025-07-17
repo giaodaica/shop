@@ -152,6 +152,7 @@ Route::prefix('dashboard')->name('dashboard.')->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
     Route::post('roles/order', [RoleController::class, 'order'])->name('roles.order');
+    Route::post('permissions/order', [PermissionController::class, 'order'])->name('permissions.order');
     //  Route::post('permission/order', [RoleController::class, 'order'])->name('permission.order');
 });
 
