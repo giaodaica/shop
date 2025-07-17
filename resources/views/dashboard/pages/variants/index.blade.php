@@ -35,9 +35,7 @@
                             <!-- card-header -->
                             <div class="card-header border-0">
                                 <div class="row g-4">
-                                    <div class="col-sm-auto">
-                                        <a href="{{ route('variants.create') }}" class="btn btn-info"> Thêm biến thể</a>
-                                    </div>
+                                
                                     <div class="col-sm">
                                         <form method="GET" action="{{ route('variants.index') }}" class="row g-2">
                                             <input type="hidden" name="status" value="{{ request('status') }}">
