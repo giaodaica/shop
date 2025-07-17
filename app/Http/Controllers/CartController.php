@@ -82,17 +82,31 @@ public function index()
 public function ajaxUpdateSelected(Request $request)
 {
     $userId = Auth::id();
-    $ids = $request->input('ids', []);
+    $items = $request->input('items', []);
 
-    session(['cart_selected_ids' => $ids]);
+    $selectedIds = [];
+    $subtotal = 0;
 
-    $cartItems = Cart::with('productVariant.color')
-        ->where('user_id', $userId)
-        ->whereIn('id', $ids)
-        ->get();
+    foreach ($items as $item) {
+        $cartItem = Cart::where('user_id', $userId)
+            ->where('id', $item['id'])
+            ->first();
 
-    $subtotal = $cartItems->sum(fn($item) => $item->quantity * $item->price_at_time);
+        if ($cartItem) {
+            // Cập nhật số lượng
+            $cartItem->quantity = (int) $item['qty'];
+            $cartItem->save();
 
+            $selectedIds[] = $cartItem->id;
+
+            $subtotal += $cartItem->quantity * $cartItem->price_at_time;
+        }
+    }
+
+    // Lưu lại danh sách được chọn
+    session(['cart_selected_ids' => $selectedIds]);
+
+    // Xử lý voucher
     $voucherDiscount = 0;
     $voucherRemoved = false;
 
@@ -102,21 +116,17 @@ public function ajaxUpdateSelected(Request $request)
             ->where('status', 'active')
             ->first();
 
-        if ($voucher && $voucher->type_discount === 'percent') {
-            $voucherDiscount = round($subtotal * ($voucher->value / 100));
-            if ($voucher->max_discount && $voucherDiscount > $voucher->max_discount) {
-                $voucherDiscount = $voucher->max_discount;
+        if ($voucher) {
+            if ($voucher->type_discount === 'percent') {
+                $voucherDiscount = round($subtotal * ($voucher->value / 100));
+
+                if ($voucher->max_discount && $voucherDiscount > $voucher->max_discount) {
+                    $voucherDiscount = $voucher->max_discount;
+                }
+            } else {
+                $voucherDiscount = $voucher->value;
             }
 
-            if ($voucher->min_order_value && $subtotal < $voucher->min_order_value) {
-                session()->forget(['voucher_code', 'voucher_discount']);
-                $voucherDiscount = 0;
-                $voucherRemoved = true;
-            } else {
-                session(['voucher_discount' => $voucherDiscount]);
-            }
-        } elseif ($voucher) {
-            $voucherDiscount = $voucher->value;
             if ($voucher->min_order_value && $subtotal < $voucher->min_order_value) {
                 session()->forget(['voucher_code', 'voucher_discount']);
                 $voucherDiscount = 0;
@@ -147,18 +157,42 @@ public function ajaxUpdateSelected(Request $request)
 
 
 
-   public function deleteSelected(Request $request)
+public function deleteSelected(Request $request)
 {
-    $ids = $request->input('ids');
+    $ids = $request->input('ids', []);
+    $userId = auth()->id();
 
-    if (is_array($ids)) {
-        Cart::whereIn('id', $ids)->delete();
+    // Xóa cart item
+    Cart::where('user_id', $userId)->whereIn('id', $ids)->delete();
 
-        return response()->json(['success' => true]);
+    // Lấy lại các cart item còn lại sau khi xóa
+    $remainingItems = Cart::where('user_id', $userId)->get();
+
+    $subtotal = $remainingItems->sum(function ($item) {
+        return $item->quantity * $item->price_at_time;
+    });
+
+    $voucherRemoved = false;
+
+    // Kiểm tra lại điều kiện voucher
+    if (session()->has('voucher_code')) {
+        $voucher = DB::table('vouchers')
+            ->where('code', session('voucher_code'))
+            ->where('status', 'active')
+            ->first();
+
+        if (!$voucher || ($voucher->min_order_value && $subtotal < $voucher->min_order_value)) {
+            session()->forget(['voucher_code', 'voucher_discount']);
+            $voucherRemoved = true;
+        }
     }
 
-    return response()->json(['success' => false], 400);
+    return response()->json([
+        'success' => true,
+        'voucher_removed' => $voucherRemoved,
+    ]);
 }
+
 
 public function updateQuantity(Request $request)
 {
@@ -323,7 +357,7 @@ public function removeVoucher()
 }
 
     public function add_to_cart($id,request $request){
-        // dd($request->all());
+
         $request->validate([
             'color' => 'required|exists:colors,id',
             'size' => 'required|exists:sizes,id',
