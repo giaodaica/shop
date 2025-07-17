@@ -195,7 +195,7 @@
                                                     <li
                                                         class="list-group-item d-flex justify-content-between align-items-center">
                                                         <div>
-                                                            <strong>#{{ $order->id }}</strong> -
+                                                            <strong>#{{ $order->code_order }}</strong> -
                                                             {{ $order->created_at->format('d/m/Y H:i') }}
                                                             <br>
                                                             <span class="text-muted">Tổng tiền:
@@ -333,20 +333,22 @@
                                         <table class="table table-bordered table-hover align-middle">
                                             <thead class="table-light text-center">
                                                 <tr>
-                                                    <th>ID</th>
-                                                    <th>Ngày tạo</th>
-                                                    <th>Phương thức</th>
+                                                    <th>STT</th>
+                                                    <th>Mã đơn hàng</th>
+
                                                     <th>Tổng tiền</th>
                                                     <th>Trạng thái</th>
+                                                    <th>Hành động</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @foreach ($user->orders->sortByDesc('created_at') as $order)
                                                     <tr>
-                                                        <td class="text-center">{{ $order->id }}</td>
-                                                        <td class="text-center">{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                                                        <td class="text-center">{{ $loop->iteration }}</td>
                                                         <td class="text-center">
-                                                            {{ strtoupper($order->pay_method ?? 'COD') }}</td>
+                                                            {{ $order->code_order ?? '---' }}
+                                                        </td>
+
                                                         <td class="text-end">
                                                             {{ number_format($order->final_amount, 0, ',', '.') }}₫</td>
                                                         <td class="text-center">
@@ -390,6 +392,12 @@
                                                                         Không xác định
                                                                 @endswitch
                                                             </span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <a href="{{ url('dashboard/order/' . $order->id) }}"
+                                                                class="btn btn-sm btn-primary">
+                                                                Xem
+                                                            </a>
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -452,6 +460,7 @@
                                                                 @break
                                                             @endswitch
                                                         </td>
+
                                                     </tr>
                                                 @endforeach
                                             </tbody>

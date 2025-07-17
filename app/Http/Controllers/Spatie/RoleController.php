@@ -19,14 +19,21 @@ class RoleController extends Controller
         $this->middleware(function ($request, $next) {
             return $next($request);
         });
-        $this->middleware('role:admin');
+
     }
     public function index(Request $request)
     {
         $data = Role::orderBy('order', 'asc')->get();
         $datatable = $this->getHTMLCategory($data);
+        $page_breadcrumbs = [
+            [
+                'page' => route('dashboard.roles.index'),
+                'title' => 'Quản lý vai trò',
+            ],
+        ];
         return view('dashboard.pages.role.index')
-            ->with('datatable', $datatable);
+            ->with('datatable', $datatable)
+            ->with('page_breadcrumbs', $page_breadcrumbs);
     }
 
 
@@ -55,7 +62,7 @@ class RoleController extends Controller
         }
         $permissionsJson = json_encode($array);
 
-        return view('dashboard.pages.role.create_edit', compact('dataCategory', 'permissionsJson'));
+        return view('dashboard.pages.role.create_edit', compact('dataCategory', 'permissionsJson', 'permissions'));
     }
 
     /**
@@ -76,19 +83,12 @@ class RoleController extends Controller
         ]);
         $input = $request->all();
         $data = Role::create($input);
-        $data->permissions()->sync(isset($request->permission_ids) ? explode(",", $request->permission_ids) : []);
-        if ($request->filled('permission_ids')) {
-            $permission = Permission::whereIn('id', explode(",", $request->get('permission_ids')))->get();
-            $message = '';
-            $message = "Thời gian: <b>" . Carbon::now()->format('d-m-Y H:i:s') . "</b>";
-            $message .= "\n";
-            $message .= "<b>" . auth()->user()->username . "</b> thay đổi thông tin quyền của nhóm vai trò <b>" . $data->title . "</b> :";
-            $message .= "\n";
-            $message .= "\n";
-            foreach ($permission as $key => $item) {
-                $message .= '- ' . $item->title;
-                $message .= "\n";
-            }
+        // Nếu form gửi lên là permissions[] (theo chuẩn resource), cần sync lại
+        if ($request->has('permissions')) {
+            $permissionIds = Permission::whereIn('name', $request->permissions)->pluck('id')->toArray();
+            $data->permissions()->sync($permissionIds);
+        } else {
+            $data->permissions()->sync(isset($request->permission_ids) ? explode(",", $request->permission_ids) : []);
         }
         return redirect()->route('dashboard.roles.index')
             ->with('success', __('Thêm mới thành công !'));
@@ -135,7 +135,7 @@ class RoleController extends Controller
             ];
         }
         $permissionsJson = json_encode($array);
-        return view('dashboard.pages.role.create_edit', compact('data', 'dataCategory', 'permissionsJson', 'permissionsSelected'));
+        return view('dashboard.pages.role.create_edit', compact('data', 'dataCategory', 'permissionsJson', 'permissionsSelected', 'permissions'));
     }
 
     /**
@@ -156,24 +156,15 @@ class RoleController extends Controller
             'name.unique' => __('Keyword đã tồn tại'),
             'name.required' => __('Vui lòng nhập keyword'),
         ]);
-
         $input = $request->all();
         $data->update($input);
-        $data->permissions()->sync(isset($request->permission_ids) ? explode(",", $request->permission_ids) : []);
-        if ($request->filled('permission_ids')) {
-            $permission = Permission::whereIn('id', explode(",", $request->get('permission_ids')))->get();
-            $message = '';
-            $message = "Thời gian: <b>" . Carbon::now()->format('d-m-Y H:i:s') . "</b>";
-            $message .= "\n";
-            $message .= "<b>" . auth()->user()->username . "</b> thay đổi thông tin quyền của nhóm vai trò <b>" . $data->title . "</b> :";
-            $message .= "\n";
-            $message .= "\n";
-            foreach ($permission as $key => $item) {
-                $message .= '- ' . $item->title;
-                $message .= "\n";
-            }
+        if ($request->has('permissions')) {
+            $permissionIds = Permission::whereIn('name', $request->permissions)->pluck('id')->toArray();
+            $data->permissions()->sync($permissionIds);
+        } else {
+            $data->permissions()->sync(isset($request->permission_ids) ? explode(",", $request->permission_ids) : []);
         }
-        return redirect()->route('dashboard.roles.index')->with('success', __('Cập nhật vai trò thành công ' . '[' . $data->title . ']'));
+        return redirect()->route('dashboard.roles.index')->with('success', __('Cập nhật vai trò thành công [' . $data->title . ']'));
     }
 
     /**
@@ -261,5 +252,52 @@ class RoleController extends Controller
           </div>" . $this->buildMenu($menu, $item->id) . "</li>";
             }
         return $result ? "\n<ol class=\"dd-list\">\n$result</ol>\n" : null;
+    }
+
+    // Build dropdown for role category
+    public static function buildMenuDropdownList($dataCategory, $selected, $idparent = 0, $stringSpecial = "")
+    {
+        $result = null;
+        foreach ($dataCategory as $item) {
+            if ($item->parent_id == $idparent) {
+                $checked = "";
+                foreach ((array)$selected as $key => $value) {
+                    if ($value == $item->id) {
+                        $checked = "selected";
+                        break;
+                    }
+                }
+                $result .= "<option value='" . $item->id . "'" . $checked . ">" . e($stringSpecial . ' ' . $item->title) . "</option>";
+                $result .= self::buildMenuDropdownList($dataCategory, $selected, $item->id, $stringSpecial . "¦– – ");
+            }
+        }
+        return $result;
+    }
+    public static function buildMenuDropdownListNotIdParent0($dataCategory, $selected, $idparent = 0, $stringSpecial = "")
+    {
+        $result = null;
+        foreach ($dataCategory as $item) {
+            if ($item->parent_id == $idparent) {
+                $checked = "";
+                foreach ((array)$selected as $key => $value) {
+                    if ($value == $item->id) {
+                        $checked = "selected";
+                        break;
+                    }
+                }
+                $result .= "<option value='" . $item->id . "'" . $checked . ">" . e($stringSpecial . ' ' . $item->title) . "</option>";
+                $result .= self::buildMenuDropdownList($dataCategory, $selected, $item->id, $stringSpecial . "¦– – ");
+            } else {
+                $checked_e = "";
+                foreach ((array)$selected as $key => $value) {
+                    if ($value == $item->id) {
+                        $checked_e = "selected";
+                        break;
+                    }
+                }
+                $result .= "<option value='" . $item->id . "'" . $checked_e . ">" . e($stringSpecial . ' ' . $item->title) . "</option>";
+            }
+        }
+        return $result;
     }
 }
