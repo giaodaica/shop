@@ -325,6 +325,8 @@
                 updateShippingExpressAvailability();
             });
 
+
+
             // Set mặc định khi load
             if (radio.checked) {
                 const addressCard = radio.parentElement.querySelector('.address-card');
@@ -368,3 +370,4 @@
     <!-- Thêm link CDN FontAwesome nếu chưa có -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 @endsection
+
