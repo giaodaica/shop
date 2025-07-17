@@ -247,7 +247,7 @@
                                                 @endforeach
                                             </ul>
                                             <div class="text-end mt-3">
-                                                <a href="{{ route('users.show', ['id' => $user->id, 'tab' => 'orders']) }}"
+                                                <a href="{{ route('dashboard.order') }}"
                                                     class="btn btn-sm btn-outline-primary">
                                                     Xem tất cả đơn hàng <i
                                                         class="ri-arrow-right-line align-middle ms-1"></i>
