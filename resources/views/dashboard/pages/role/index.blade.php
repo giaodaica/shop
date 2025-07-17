@@ -21,12 +21,9 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            /* Hoặc 'flex-start' nếu muốn nút gần tên hơn */
             gap: 8px;
-            /* Khoảng cách giữa các phần tử */
             padding: 5px 10px;
             height: auto;
-            /* Bỏ cố định 42px nếu chữ dài bị cắt */
         }
     </style>
     <div class="page-content" id="kt_page_sticky_card">
