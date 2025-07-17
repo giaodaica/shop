@@ -247,7 +247,7 @@
                                                 @endforeach
                                             </ul>
                                             <div class="text-end mt-3">
-                                                <a href="{{ route('dashboard.order') }}"
+                                                <a href="{{ route('dashboard.order', ['id' => $user->id, 'tab' => 'orders']) }}"
                                                     class="btn btn-sm btn-outline-primary">
                                                     Xem tất cả đơn hàng <i
                                                         class="ri-arrow-right-line align-middle ms-1"></i>
@@ -338,13 +338,15 @@
                                                     <th>Phương thức</th>
                                                     <th>Tổng tiền</th>
                                                     <th>Trạng thái</th>
+                                                    <th>Hành động</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @foreach ($user->orders->sortByDesc('created_at') as $order)
                                                     <tr>
                                                         <td class="text-center">{{ $order->id }}</td>
-                                                        <td class="text-center">{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                                                        <td class="text-center">
+                                                            {{ $order->created_at->format('d/m/Y H:i') }}</td>
                                                         <td class="text-center">
                                                             {{ strtoupper($order->pay_method ?? 'COD') }}</td>
                                                         <td class="text-end">
@@ -390,6 +392,12 @@
                                                                         Không xác định
                                                                 @endswitch
                                                             </span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <a href="{{ url('dashboard/order/' . $order->id) }}"
+                                                                class="btn btn-sm btn-primary">
+                                                                Xem
+                                                            </a>
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -452,6 +460,7 @@
                                                                 @break
                                                             @endswitch
                                                         </td>
+
                                                     </tr>
                                                 @endforeach
                                             </tbody>
