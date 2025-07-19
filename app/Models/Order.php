@@ -26,7 +26,9 @@ class Order extends Model
         'image_ship',
         'image_user',
         'user_comment',
-        'user_confirm'
+        'user_confirm',
+        'province_code',
+        'wards_code'
     ];
 
     public function user()

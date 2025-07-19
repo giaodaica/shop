@@ -8,11 +8,13 @@ use App\Models\OrderHistories;
 use App\Models\OrderItem;
 use App\Models\Cart;
 use App\Models\AddressBook;
+use App\Models\Provinces;
 use App\Models\RefundMoney;
 use App\Models\User;
 use App\Models\Vouchers;
 use App\Models\VouchersLog;
 use App\Models\VouchersUsers;
+use App\Models\Wards;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -503,7 +505,7 @@ class OrderController extends Controller
             'users.email',
         )->where('orders.id', $id)
             ->first();
-            // dd($data_order);
+        // dd($data_order);
         $data_order_items = OrderItem::join('orders', 'orders.id', 'order_items.order_id')->join('product_variants', 'product_variants.id', 'order_items.product_variant_id')->join('sizes', 'sizes.id', 'product_variants.size_id')->join('colors', 'colors.id', 'product_variants.color_id')->where('order_id', $id)->select(
             'order_items.*',
             'sizes.size_name',
@@ -519,8 +521,11 @@ class OrderController extends Controller
         // dd($historyItems);
         // dd($data_order);
         // dd($data_order_items);
-
-        return view('dashboard.pages.order.detail', compact('data_order', 'data_order_items', 'histoty_order'));
+        $data_provinces = Provinces::all();
+        if (!$data_order) {
+            return abort(403, "không có đơn này");
+        }
+        return view('dashboard.pages.order.detail', compact('data_order', 'data_order_items', 'histoty_order', 'data_provinces'));
     }
 
     // Method để cập nhật loại vận chuyển trong checkout
@@ -900,10 +905,10 @@ class OrderController extends Controller
     {
         // Xử lý IPN từ VNPAY
         Log::info('VNPAY IPN received', $request->all());
-        
+
         // Thực hiện xác minh và xử lý IPN
         // Code xử lý IPN sẽ được thêm ở đây
-        
+
         return response()->json(['RspCode' => '00', 'Message' => 'Confirmed']);
     }
 
@@ -935,7 +940,7 @@ class OrderController extends Controller
                 $file = $request->file('user_image');
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/orders/user_images'), $filename);
-                
+
                 // Cập nhật ảnh vào database
                 $order->update([
                     'image_user' => 'uploads/orders/user_images/' . $filename,
@@ -962,5 +967,52 @@ class OrderController extends Controller
         }
     }
 
-    
+    public function getWards(Request $request)
+    {
+        return response()->json(
+            Wards::where('province_code', $request->province_id)->get(['ward_code', 'name'])
+        );
+    }
+    public function change_address(Request $request, $id)
+    {
+        if ($request->_form != "change_address") {
+            return abort(403, "Hành Động Không Hợp Lệ");
+        }
+        $data_order = Order::find($id);
+        if(!$data_order){
+            return abort(403, "Không tìm thấy đơn này");
+        }
+        $request->validate([
+            'ad_name' => 'required|string',
+            'ad_phone' => 'required|string',
+            'province_id' => ['required', 'exists:provinces,province_code'],
+            'ward_id' => ['required', 'exists:wards,ward_code'],
+            'ad_address' => 'required|string',
+        ], [
+            'ad_name.required' => 'Vui lòng nhập họ tên.',
+            'ad_phone.required' => 'Vui lòng nhập số điện thoại.',
+            'province_id.required' => 'Vui lòng chọn tỉnh/thành phố.',
+            'province_id.exists' => 'Tỉnh/thành phố không hợp lệ.',
+            'ward_id.required' => 'Vui lòng chọn xã/phường.',
+            'ward_id.exists' => 'Xã/phường không hợp lệ.',
+            'ad_address.required' => 'Vui lòng nhập địa chỉ chi tiết.',
+        ]);
+        $data_order->update([
+            'address_books_id' => null,
+            'province_code' => $request->province_id,
+            'ward_code' => $request->ward_id,
+            'address' => $request->ad_address,
+            'phone' => $request->ad_phone,
+            'name' => $request->ad_name,
+        ]);
+        OrderHistories::create([
+            'from_status' => 'Địa chỉ cũ',
+            'to_status' => 'Địa chỉ mới',
+            'order_id' => $id,
+            'note' => 'Khách hàng yêu cầu đổi địa chỉ giao hàng',
+            'users' => Auth::user()->id,
+        ]);
+        return redirect()->back()->with('success','Sửa địa chỉ thành công');
+
+    }
 }

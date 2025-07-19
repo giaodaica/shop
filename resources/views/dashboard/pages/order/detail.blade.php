@@ -128,9 +128,9 @@
                             <div class="d-sm-flex align-items-center">
                                 <h5 class="card-title flex-grow-1 mb-0">Trạng thái đơn hàng</h5>
                                 <div class="flex-shrink-0 mt-2 mt-sm-0">
-                                    <button type="button" class="btn btn-soft-info btn-sm mt-2 mt-sm-0" data-bs-toggle="modal"
-                                                        data-id="{{ $data_order->id }}" id="create-btn"
-                                                        data-bs-target="#showModalchange"><i
+                                    <button type="button" class="btn btn-soft-info btn-sm mt-2 mt-sm-0"
+                                        data-bs-toggle="modal" data-id="{{ $data_order->id }}" id="create-btn"
+                                        data-bs-target="#showModalchange"><i
                                             class="ri-map-pin-line align-middle me-1"></i>Thay đổi địa chỉ</button>
                                 </div>
                             </div>
@@ -362,26 +362,30 @@
                                         <h6 class="mb-0">{{ number_format($data_order->final_amount) }}</h6>
                                     </div>
                                 </div>
-                                   <div class="d-flex align-items-center">
-                                        @switch($data_order->status_pay)
-                                            @case('paid')
-                                                <h3 class="text-success">Đã Thanh Toán</h3>
-                                                @break
-                                             @case('unpaid')
-                                                <h3 class="text-danger">Chưa Thanh Toán</h3>
-                                                @break
-                                                 @case('failed')
-                                                <h3 class="text-danger">Thanh Toán Thất Bại</h3>
-                                                @break
-                                                 @case('cancelled')
-                                                <h3 class="text-success">Đã hủy</h3>
-                                                @break
-                                                 @case('cod_paid')
-                                                <h3 class="text-success">Thanh toán khi nhận hàng</h3>
-                                                @break
-                                            @default
+                                <div class="d-flex align-items-center">
+                                    @switch($data_order->status_pay)
+                                        @case('paid')
+                                            <h3 class="text-success">Đã Thanh Toán</h3>
+                                        @break
 
-                                        @endswitch
+                                        @case('unpaid')
+                                            <h3 class="text-danger">Chưa Thanh Toán</h3>
+                                        @break
+
+                                        @case('failed')
+                                            <h3 class="text-danger">Thanh Toán Thất Bại</h3>
+                                        @break
+
+                                        @case('cancelled')
+                                            <h3 class="text-success">Đã hủy</h3>
+                                        @break
+
+                                        @case('cod_paid')
+                                            <h3 class="text-success">Thanh toán khi nhận hàng</h3>
+                                        @break
+
+                                        @default
+                                    @endswitch
                                 </div>
                             </div>
                         @endif
@@ -394,17 +398,17 @@
                                     <i class="ri-image-line align-middle me-1 text-muted"></i> Ảnh giao hàng
                                 </h5>
                             </div>
-                                <div class="" data-category="designing development">
-                                    <div class="gallery-box card">
-                                        <div class="gallery-container">
-                                            <a class="image-popup" href="{{ asset($data_order->image_ship) }}"
-                                                title="">
-                                                <img class="gallery-img img-fluid mx-auto"
-                                                    src="{{ asset($data_order->image_ship) }}" alt="" />
-                                            </a>
-                                        </div>
+                            <div class="" data-category="designing development">
+                                <div class="gallery-box card">
+                                    <div class="gallery-container">
+                                        <a class="image-popup" href="{{ asset($data_order->image_ship) }}"
+                                            title="">
+                                            <img class="gallery-img img-fluid mx-auto"
+                                                src="{{ asset($data_order->image_ship) }}" alt="" />
+                                        </a>
                                     </div>
                                 </div>
+                            </div>
                         </div>
                     @else
                         <div class="card mt-3">
@@ -554,56 +558,71 @@
             </div>
         </div>
     </div>
-     <div class="modal fade" id="showModalchange" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-light p-3">
-                <h5 class="modal-title" id="exampleModalLabel">Thay đổi địa chỉ nhận hàng</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                    id="close-modal"></button>
+    <div class="modal fade" id="showModalchange" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light p-3">
+                    <h5 class="modal-title" id="exampleModalLabel">Thay đổi địa chỉ nhận hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        id="close-modal"></button>
+                </div>
+                <form action="{{ url("dashboard/order/change-address/$data_order->id") }}" method="post"
+                    class="tablelist-form" autocomplete="off">
+                    <div class="modal-body">
+                        @csrf
+                        <input type="hidden" name="_form" value="change_address">
+
+                        <div class="mb-3">
+                            <label for="ad_name" class="form-label">Tên người nhận</label>
+                            <input type="text" id="ad_name" name="ad_name" class="form-control"
+                                value="{{ old('ad_name', $data_order->ad_name ?? $data_order->name) }}">
+                            @error('ad_name')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ad_phone" class="form-label">Số điện thoại</label>
+                            <input type="text" id="ad_phone" name="ad_phone" class="form-control"
+                                value="{{ old('ad_phone', $data_order->ad_phone ?? $data_order->phone) }}">
+                            @error('ad_phone')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <div>
+                                <label for="ad_address" class="form-label">Địa chỉ nhận hàng</label>
+                                <select name="province_id" id="province" class="form-control">
+                                    <option value="">Tỉnh/Thành Phố</option>
+                                    @foreach ($data_provinces as $render_provinces)
+                                        <option value="{{ $render_provinces->province_code }}">
+                                            {{ $render_provinces->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="pt-3" id="ward-container" style="display: none;">
+                                <select name="ward_id" id="ward" class="form-control">
+                                    <option value="">Chọn Xã Phường</option>
+                                </select>
+                            </div>
+                            <div class="pt-3" id="address-detail-group" style="display: none;">
+                                <label for="ad_address" class="form-label">Địa chỉ chi tiết (số nhà, đường,...)</label>
+                                <input type="text" id="ad_address" name="ad_address" class="form-control"
+                                    value="{{ old('ad_address', $data_order->ad_address ?? $data_order->address) }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="hstack gap-2 justify-content-end">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <form action="{{ url("dashboard/order/change-address/$data_order->id") }}" method="post"
-                class="tablelist-form" autocomplete="off">
-                <div class="modal-body">
-                    @csrf
-                    <input type="hidden" name="_form" value="change_address">
-
-                    <div class="mb-3">
-                        <label for="ad_name" class="form-label">Tên người nhận</label>
-                        <input type="text" id="ad_name" name="ad_name" class="form-control"
-                               value="{{ old('ad_name', $data_order->ad_name ?? $data_order->name) }}">
-                        @error('ad_name')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="ad_phone" class="form-label">Số điện thoại</label>
-                        <input type="text" id="ad_phone" name="ad_phone" class="form-control"
-                               value="{{ old('ad_phone', $data_order->ad_phone ?? $data_order->phone) }}">
-                        @error('ad_phone')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="ad_address" class="form-label">Địa chỉ nhận hàng</label>
-                        <textarea id="ad_address" name="ad_address" class="form-control" rows="3">{{ old('ad_address', $data_order->ad_address ?? $data_order->address) }}</textarea>
-                        @error('ad_address')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="hstack gap-2 justify-content-end">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
-</div>
 
     <!-- Modal -->
 @endsection
@@ -614,11 +633,70 @@
             myModal.show();
         @endif
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+   $(document).ready(function () {
+    $('#province').on('change', function () {
+        let provinceId = $(this).val();
+        if (provinceId) {
+            $.get('/wards', { province_id: provinceId }, function (data) {
+                $('#ward').empty().append('<option value="">Chọn Xã Phường</option>');
+                if (data.length > 0) {
+                    data.forEach(function (ward) {
+                        $('#ward').append(`<option value="${ward.ward_code}">${ward.name}</option>`);
+                    });
+                    $('#ward-container').slideDown();
+                } else {
+                    $('#ward').append('<option>Không có xã/phường</option>');
+                    $('#ward-container').slideDown();
+                }
+
+                // Ẩn ô địa chỉ chi tiết nếu chưa chọn xã
+                $('#address-detail-group').slideUp();
+            });
+        } else {
+            $('#ward-container').slideUp();
+            $('#ward').empty().append('<option value="">Chọn Xã Phường</option>');
+            $('#address-detail-group').slideUp();
+        }
+    });
+
+    // Khi chọn xã/phường thì mới hiện ô địa chỉ chi tiết
+    $('#ward').on('change', function () {
+        let wardId = $(this).val();
+        if (wardId) {
+            $('#address-detail-group').slideDown();
+        } else {
+            $('#address-detail-group').slideUp();
+        }
+    });
+});
+
+    </script>
+
     <script src="{{ asset('admin/libs/glightbox/js/glightbox.min.js') }}"></script>
 
     <!-- isotope-layout -->
     <script src="{{ asset('admin/libs/isotope-layout/isotope.pkgd.min.js') }}"></script>
 
     <script src="{{ asset('admin/js/pages/gallery.init.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script>
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: "{{ session('success') }}",
+        });
+    @endif
+
+    @if (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi!',
+            text: "{{ session('error') }}",
+        });
+    @endif
+</script>
 @endsection
