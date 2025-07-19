@@ -377,58 +377,73 @@ document.getElementById('delete-selected-btn').addEventListener('click', functio
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const checkboxes = document.querySelectorAll('.cart-item-checkbox');
-    const selectAll = document.getElementById('select-all-cart');
+// const csrfToken = "{{ csrf_token() }}";
 
-    function updateCartSelected() {
-        let selectedIds = Array.from(document.querySelectorAll('.cart-item-checkbox:checked'))
-            .map(cb => cb.value);
+function updateCartSelectedSession() {
+    let selectedIds = Array.from(document.querySelectorAll('.cart-item-checkbox:checked')).map(cb => cb.value);
 
-        fetch("{{ route('cart.ajaxUpdateSelected') }}", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ ids: selectedIds })
-        })
-        .then(res => res.json())
-        .then(res => {
-            if (res.success) {
-                document.getElementById('subtotal').innerText = res.subtotal;
-                document.getElementById('total').innerText = res.total;
+    fetch("{{ route('cart.ajaxUpdateSelected') }}", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({ ids: selectedIds })
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            document.getElementById('subtotal').innerText = res.subtotal + ' đ';
+            document.getElementById('total').innerText = res.total + ' đ';
 
-                const voucherRow = document.getElementById('voucher-row');
-                const voucherDiscountEl = document.getElementById('voucher-discount');
+            const voucherRow = document.querySelector('.max_discount'); // <tr> chứa dòng voucher
+            const voucherDiscountEl = document.getElementById('voucher-discount');
 
-                if (res.voucher_removed) {
-                    voucherRow.innerHTML = `<span class="text-muted">Chưa áp dụng</span>`;
-                } else if (voucherDiscountEl) {
-                    voucherDiscountEl.innerText = '-' + res.voucher_discount;
-                }
+            if (res.voucher_removed && voucherRow) {
+                voucherRow.remove(); // Xoá cả dòng voucher
+                toastr.warning("Voucher bị gỡ do không đủ điều kiện.");
+            } else if (voucherDiscountEl) {
+                voucherDiscountEl.innerText = '-' + res.voucher_discount + ' đ';
             }
-        })
-        .catch(err => {
-            console.error('Lỗi khi cập nhật giỏ hàng:', err);
-        });
+        }
+    })
+    .catch(err => {
+        console.error('Lỗi khi cập nhật giỏ hàng:', err);
+    });
+}
+
+$(document).on('change', '.cart-item-checkbox, #select-all-cart', function () {
+    const isChecked = $(this).is('#select-all-cart') ? $(this).prop('checked') : null;
+    if (isChecked !== null) {
+        $('.cart-item-checkbox').prop('checked', isChecked);
     }
 
-    checkboxes.forEach(function (checkbox) {
-        checkbox.addEventListener('change', function () {
-            selectAll.checked = document.querySelectorAll('.cart-item-checkbox:checked').length === checkboxes.length;
-            updateCartSelected();
-        });
-    });
+    updateCartSelectedSession();
+});
 
+// Nếu bạn muốn xử lý bổ sung logic đồng bộ "chọn tất cả":
+const checkboxes = document.querySelectorAll('.cart-item-checkbox');
+const selectAll = document.getElementById('select-all-cart');
+
+checkboxes.forEach(function (checkbox) {
+    checkbox.addEventListener('change', function () {
+        const allChecked = document.querySelectorAll('.cart-item-checkbox:checked').length === checkboxes.length;
+        selectAll.checked = allChecked;
+        updateCartSelectedSession();
+    });
+});
+
+if (selectAll) {
     selectAll.addEventListener('change', function () {
         checkboxes.forEach(function (cb) {
             cb.checked = selectAll.checked;
         });
-        updateCartSelected();
+        updateCartSelectedSession();
     });
-});
+}
 </script>
+
+
 
 
 
