@@ -361,15 +361,13 @@ class OrderController extends Controller
     }
     public function db_order_change(Request $request, $id)
     {
-        // dd($request->all());
         $before = $request->change;
-        // dd($before);
-        // dd($request->all());
+
         $request->validate(
             [
                 'content' => 'nullable|string|max:255',
                 'notes' => 'nullable|string|max:255',
-                'image_ship' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'image_ship' => 'required_if:change,shipping|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ],
             [
                 'content.max' => 'Nội dung không được quá 255 ký tự',
@@ -379,7 +377,7 @@ class OrderController extends Controller
                 'image_ship.image' => 'Ảnh giao hàng phải là một tệp hình ảnh',
                 'image_ship.mimes' => 'Ảnh giao hàng phải có định dạng jpeg, png, jpg, gif hoặc svg',
                 'image_ship.max' => 'Ảnh giao hàng không được vượt quá 2MB',
-                'image_ship.required' => 'Ảnh giao hàng là bắt buộc khi cập nhật trạng thái giao hàng thành công',
+                'image_ship.required_if' => 'Ảnh giao hàng là bắt buộc khi cập nhật trạng thái giao hàng thành công',
             ]
         );
         if (!$request->content) {
@@ -505,6 +503,7 @@ class OrderController extends Controller
             'users.email',
         )->where('orders.id', $id)
             ->first();
+            // dd($data_order);
         $data_order_items = OrderItem::join('orders', 'orders.id', 'order_items.order_id')->join('product_variants', 'product_variants.id', 'order_items.product_variant_id')->join('sizes', 'sizes.id', 'product_variants.size_id')->join('colors', 'colors.id', 'product_variants.color_id')->where('order_id', $id)->select(
             'order_items.*',
             'sizes.size_name',
