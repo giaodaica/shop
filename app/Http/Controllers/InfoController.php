@@ -6,6 +6,7 @@ use App\Models\AddressBook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\Order;
 use App\Models\OrderHistories;
 use App\Models\OrderItem;
@@ -32,7 +33,7 @@ class InfoController extends Controller
 
     public function account(Request $request)
     {
-        $query = Order::where('user_id', auth()->id());
+        $query = Order::where('user_id', Auth::id());
 
         // Lọc theo ngày nếu có
         if ($request->has('from') && $request->has('to')) {
@@ -173,7 +174,7 @@ class InfoController extends Controller
 
     public function filterOrders(Request $request)
     {
-        $query = Order::where('user_id', auth()->id());
+        $query = Order::where('user_id', Auth::id());
         if ($request->has('from') && $request->has('to')) {
             $query->whereDate('created_at', '>=', $request->from)
                   ->whereDate('created_at', '<=', $request->to);
@@ -195,6 +196,16 @@ class InfoController extends Controller
         $order = Order::where('id', $id)
             ->where('user_id', Auth::id())
             ->firstOrFail();
+
+        // Kiểm tra trạng thái đơn hàng phải là 'success'
+        if ($order->status !== 'success') {
+            return redirect()->back()->with('error', 'Chỉ có thể xác nhận nhận hàng khi đơn hàng ở trạng thái thành công.');
+        }
+
+        // Kiểm tra xem đã xác nhận chưa
+        if ($order->user_confirm) {
+            return redirect()->back()->with('error', 'Đơn hàng này đã được xác nhận nhận hàng.');
+        }
 
         // Validate request
         $request->validate([
