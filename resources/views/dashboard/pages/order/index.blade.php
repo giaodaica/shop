@@ -173,7 +173,6 @@
                                                 <th class="" data-sort="payment_mothod">Trạng thái thanh toán</th>
                                                 <th class="" data-sort="status">Trạng thái</th>
                                                 <th class="" data-sort="city">Hành động</th>
-                                                <th class="" data-sort="product_name">Xác nhận</th>
 
                                             </tr>
                                         </thead>
@@ -270,88 +269,7 @@
                                                                     <i class="ri-eye-fill fs-16"></i>
                                                                 </a>
                                                             </li>
-                                                            <li class="list-inline-item edit" data-bs-toggle="tooltip"
-                                                                data-bs-trigger="hover" data-bs-placement="top"
-                                                                title="Edit">
-                                                                <a href="#showModal" data-bs-toggle="modal"
-                                                                    class="text-primary d-inline-block edit-item-btn">
-                                                                    <i class="ri-pencil-fill fs-16"></i>
-                                                                </a>
-                                                            </li>
-                                                            <li class="list-inline-item" data-bs-toggle="tooltip"
-                                                                data-bs-trigger="hover" data-bs-placement="top"
-                                                                title="Remove">
-                                                                <a class="text-danger d-inline-block remove-item-btn"
-                                                                    data-bs-toggle="modal" href="#deleteOrder">
-                                                                    <i class="ri-delete-bin-5-fill fs-16"></i>
-                                                                </a>
-                                                            </li>
                                                         </ul>
-                                                    </td>
-                                                    <td class="customer_name">
-                                                        @switch($render_order->status)
-                                                            @case('pending')
-                                                                <div class="d-flex gap-2">
-                                                                    <form
-                                                                        action="{{ url("dashboard/order/change/$render_order->id") }}"
-                                                                        method="post">
-                                                                        @csrf
-                                                                        <input type="hidden" name="change" value="pending">
-                                                                        <button class="btn btn-success">Xác nhận</button>
-                                                                    </form>
-                                                                    <button type="button" class="btn btn-danger add-btn"
-                                                                        data-bs-toggle="modal" data-id="{{ $render_order->id }}" id="create-btn"
-                                                                        data-bs-target="#showModalcancel">Hủy đơn</button>
-                                                                </div>
-                                                            @break
-
-                                                            @case('confirmed')
-                                                                <div class="d-flex gap-2">
-                                                                    <form
-                                                                        action="{{ url("dashboard/order/change/$render_order->id") }}"
-                                                                        method="post">
-                                                                        @csrf
-                                                                        <input type="hidden" name="change" value="confirmed">
-                                                                        <button class="btn btn-success">Giao Hàng</button>
-                                                                    </form>
-                                                                    <button type="button" class="btn btn-danger add-btn"
-                                                                        data-bs-toggle="modal" data-id="{{ $render_order->id }}" id="create-btn"
-                                                                        data-bs-target="#showModalcancel">Hủy đơn</button>
-                                                                </div>
-                                                            @break
-
-                                                            @case('shipping')
-                                                                <div class="d-flex gap-2">
-                                                                    <form
-                                                                        action="{{ url("dashboard/order/change/$render_order->id") }}"
-                                                                        method="post">
-                                                                        @csrf
-                                                                        <input type="hidden" name="change" value="shipping">
-                                                                        <button class="btn btn-success">Đã giao</button>
-                                                                    </form>
-                                                                  <button type="button" class="btn btn-danger add-btn"
-                                                                        data-bs-toggle="modal" data-id="{{ $render_order->id }}" id="create-btn"
-                                                                        data-bs-target="#showModalfailed">Giao Thất Bại</button>
-                                                                </div>
-                                                            @break
-
-                                                            @case('failed')
-                                                                <div class="d-flex gap-2">
-                                                                    <form
-                                                                        action="{{ url("dashboard/order/change/$render_order->id") }}"
-                                                                        method="post">
-                                                                        @csrf
-                                                                        <input type="hidden" name="change" value="return">
-                                                                        <button class="btn btn-success">Giao lại</button>
-                                                                    </form>
-                                                                    <button type="button" class="btn btn-danger add-btn"
-                                                                        data-bs-toggle="modal" data-id="{{ $render_order->id }}" id="create-btn"
-                                                                        data-bs-target="#showModalcancel">Hủy đơn</button>
-                                                                </div>
-                                                            @break
-
-                                                            @default
-                                                        @endswitch
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -369,15 +287,7 @@
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-end">
-                                    <div class="pagination-wrap hstack gap-2">
-                                        <a class="page-item pagination-prev disabled" href="#">
-                                            Previous
-                                        </a>
-                                        <ul class="pagination listjs-pagination mb-0"></ul>
-                                        <a class="page-item pagination-next" href="#">
-                                            Next
-                                        </a>
-                                    </div>
+                                 {{$data_order->links('')}}
                                 </div>
                             </div>
                             {{-- show modal --}}
@@ -493,125 +403,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal fade" id="showModalfailed" tabindex="-1"
-                                aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-light p-3">
-                                            <h5 class="modal-title" id="exampleModalLabel">Giao hàng thất bại</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close" id="close-modal"></button>
-                                        </div>
-                                        <form action="{{ url("dashboard/order/change/$render_order->id") }}" method="post" class="tablelist-form" autocomplete="off" id="reasonFormFailed">
-                                            <div class="modal-body">
-                                                @csrf
-                                                <input type="hidden" name="change" value="failed">
-                                            <input type="hidden" name="order_id" id="order_id_failed">
-
-                                                <div class="mb-3">
-                                                    <label for="reason-select-failed" class="form-label">Lý do</label>
-                                                    <select id="reason-select-failed" name="content1"
-                                                        class="form-control">
-                                                        <option value="">-- Chọn lý do --</option>
-                                                        <option value="Khách không nhận hàng">Khách không nhận hàng
-                                                        </option>
-                                                        <option value="Không liên lạc được">Không liên lạc được</option>
-                                                        <option value="Địa chỉ không đúng">Địa chỉ không đúng</option>
-                                                        <option value="Lý do khác">Lý do khác</option>
-                                                    </select>
-                                                </div>
-                                                <div class="mb-3" id="other-reason-group-failed" style="display:none;">
-                                                    <label for="other-reason-failed" class="form-label">Nhập lý do
-                                                        khác</label>
-                                                    <input type="text" id="other-reason-failed" name="content"
-                                                        class="form-control" placeholder="Nhập lý do khác" />
-                                                </div>
-                                            </div>
-                                           <div class="modal-footer">
-                                                <div class="hstack gap-2 justify-content-end">
-                                                    <button type="button" class="btn btn-light"
-                                                        data-bs-dismiss="modal">Đóng</button>
-                                                    <button type="submit" class="btn btn-success" id="add-btn">Cập
-                                                        Nhật</button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal fade" id="showModalcancel" tabindex="-1"
-                                aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-light p-3">
-                                            <h5 class="modal-title" id="exampleModalLabel">
-                                                Hủy đơn hàng
-                                           </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close" id="close-modal"></button>
-                                        </div>
-                                        <form action="{{ url("dashboard/order/change/$render_order->id") }}" class="tablelist-form" autocomplete="off" id="reasonFormCancel" method="post">
-                                            @csrf
-                                            <input type="hidden" name="change" value="cancelled">
-                                            <input type="hidden" name="order_id" id="order_id_cancel">
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label for="reason-select-cancel" class="form-label">Lý do</label>
-                                                    <select id="reason-select-cancel" name="content1"
-                                                        class="form-control">
-                                                        <option value="">-- Chọn lý do --</option>
-                                                        <option value="Khách không nhận hàng">Khách không nhận hàng
-                                                        </option>
-                                                        <option value="Không liên lạc được">Không liên lạc được</option>
-                                                        <option value="Địa chỉ không đúng">Địa chỉ không đúng</option>
-                                                        <option value="Lý do khác">Lý do khác</option>
-                                                    </select>
-                                                </div>
-                                                <div class="mb-3" id="other-reason-group-cancel" style="display:none;">
-                                                    <label for="other-reason-cancel" class="form-label">Nhập lý do
-                                                        khác</label>
-                                                    <input type="text" id="other-reason-cancel" name="content"
-                                                        class="form-control" placeholder="Nhập lý do khác" />
-                                                </div>
-                                            </div>
-                                         <div class="modal-footer">
-                                                <div class="hstack gap-2 justify-content-end">
-                                                    <button type="button" class="btn btn-light"
-                                                        data-bs-dismiss="modal">Đóng</button>
-                                                    <button type="submit" class="btn btn-success" >Cập
-                                                        Nhật</button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                             <!-- Modal -->
                                     @endif
-                            <div class="modal fade flip" id="deleteOrder" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-body p-5 text-center">
-                                            <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop"
-                                                colors="primary:#405189,secondary:#f06548"
-                                                style="width:90px;height:90px"></lord-icon>
-                                            <div class="mt-4 text-center">
-                                                <h4>You are about to delete a order ?</h4>
-                                                <p class="text-muted fs-15 mb-4">Deleting your order will remove all of
-                                                    your information from our database.</p>
-                                                <div class="hstack gap-2 justify-content-center remove">
-                                                    <button
-                                                        class="btn btn-link link-success fw-medium text-decoration-none"
-                                                        id="deleteRecord-close" data-bs-dismiss="modal"><i
-                                                            class="ri-close-line me-1 align-middle"></i> Close</button>
-                                                    <button class="btn btn-danger" id="delete-record">Yes, Delete
-                                                        It</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <!--end modal -->
                         </div>
                     </div>
@@ -648,67 +441,4 @@
     <script src="{{ asset('admin/assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 
     <!-- App js -->
-    <script>
-    // ...existing code...
-['Failed', 'Cancel'].forEach(function(type) {
-    const form = document.getElementById('reasonForm' + type);
-    const reasonSelect = document.getElementById('reason-select-' + type.toLowerCase());
-    const otherReasonGroup = document.getElementById('other-reason-group-' + type.toLowerCase());
-    const otherReasonInput = document.getElementById('other-reason-' + type.toLowerCase());
-
-    if (form && reasonSelect && otherReasonGroup && otherReasonInput) {
-        reasonSelect.addEventListener('change', function() {
-            if (this.value === 'Lý do khác') {
-                otherReasonGroup.style.display = 'block';
-                setTimeout(() => otherReasonInput.focus(), 100);
-            } else {
-                otherReasonGroup.style.display = 'none';
-                otherReasonInput.value = '';
-            }
-        });
-
-        const validation = new JustValidate(form);
-
-        validation
-            .addField('#' + reasonSelect.id, [
-                {
-                    validator: (value) => {
-                        return value !== '';
-                    },
-                    errorMessage: 'Vui lòng chọn lý do',
-                }
-            ])
-            .addField('#' + otherReasonInput.id, [
-                {
-                    validator: (value) => {
-                        if (reasonSelect.value === 'Lý do khác') {
-                            return value.trim() !== '';
-                        }
-                        return true;
-                    },
-                    errorMessage: 'Vui lòng nhập lý do khác',
-                }
-            ])
-            .onSuccess((event) => {
-                event.target.submit();
-            });
-    }
-});
-const modalCancel = document.getElementById('showModalcancel');
-modalCancel.addEventListener('show.bs.modal', function (event) {
-    const button = event.relatedTarget;
-    const orderId = button.getAttribute('data-id');
-    const inputOrderId = modalCancel.querySelector('#order_id_cancel');
-    inputOrderId.value = orderId;
-});
-const modalFailed = document.getElementById('showModalfailed');
-modalFailed.addEventListener('show.bs.modal', function (event) {
-    const button = event.relatedTarget;
-    const orderId = button.getAttribute('data-id');
-    const inputOrderId = modalFailed.querySelector('#order_id_failed');
-    inputOrderId.value = orderId;
-});
-// ...existing code...
-
-    </script>
 @endsection
