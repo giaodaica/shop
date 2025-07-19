@@ -1,5 +1,6 @@
 @extends('dashboard.layouts.layout')
 @section('css-content')
+    <link rel="stylesheet" href="{{ asset('admin/libs/glightbox/css/glightbox.min.css') }}">
 @endsection
 @section('main-content')
     <div class="page-content">
@@ -127,8 +128,10 @@
                             <div class="d-sm-flex align-items-center">
                                 <h5 class="card-title flex-grow-1 mb-0">Trạng thái đơn hàng</h5>
                                 <div class="flex-shrink-0 mt-2 mt-sm-0">
-                                    <a href="javascript:void(0);" class="btn btn-soft-info btn-sm mt-2 mt-sm-0"><i
-                                            class="ri-map-pin-line align-middle me-1"></i> Thay đổi địa chỉ</a>
+                                    <button type="button" class="btn btn-soft-info btn-sm mt-2 mt-sm-0" data-bs-toggle="modal"
+                                                        data-id="{{ $data_order->id }}" id="create-btn"
+                                                        data-bs-target="#showModalchange"><i
+                                            class="ri-map-pin-line align-middle me-1"></i>Thay đổi địa chỉ</button>
                                 </div>
                             </div>
                         </div>
@@ -257,7 +260,7 @@
                             <div class="text-center">
                                 <lord-icon src="https://cdn.lordicon.com/uetqnvvg.json" trigger="loop"
                                     colors="primary:#405189,secondary:#0ab39c" style="width:80px;height:80px"></lord-icon>
-                                <h5 class="fs-16 mt-2">Giaodaica Logistics</h5>
+                                <h5 class="fs-16 mt-2">OUTFITLY Logistics</h5>
                                 <p class="text-muted mb-0">ID: {{ $data_order->code_order }}</p>
                                 <p class="text-muted mb-0">Phương thức thanh toán : {{ $data_order->pay_method }}</p>
                             </div>
@@ -334,50 +337,54 @@
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title mb-0"><i
-                                    class="ri-secure-payment-line align-bottom me-1 text-muted"></i> Payment Details</h5>
+                                    class="ri-secure-payment-line align-bottom me-1 text-muted"></i> Phương thức thanh toán
+                            </h5>
                         </div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="flex-shrink-0">
-                                    <p class="text-muted mb-0">Transactions:</p>
+                        @if ($data_order->pay_method == 'COD')
+                            <div class="card-body">
+                                <p class="text-muted mb-0">Thanh toán khi nhận hàng (COD)</p>
+                            </div>
+                        @elseif($data_order->pay_method == 'VNPAY')
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="flex-shrink-0">
+                                        <p class="text-muted mb-0">Phương thức thanh toán:</p>
+                                    </div>
+                                    <div class="flex-grow-1 ms-2">
+                                        <h6 class="mb-0">VNPAY</h6>
+                                    </div>
                                 </div>
-                                <div class="flex-grow-1 ms-2">
-                                    <h6 class="mb-0">#VLZ124561278124</h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <p class="text-muted mb-0">Số tiền:</p>
+                                    </div>
+                                    <div class="flex-grow-1 ms-2">
+                                        <h6 class="mb-0">{{ number_format($data_order->final_amount) }}</h6>
+                                    </div>
+                                </div>
+                                   <div class="d-flex align-items-center">
+                                        @switch($data_order->status_pay)
+                                            @case('paid')
+                                                <h3 class="text-success">Đã Thanh Toán</h3>
+                                                @break
+                                             @case('unpaid')
+                                                <h3 class="text-danger">Chưa Thanh Toán</h3>
+                                                @break
+                                                 @case('failed')
+                                                <h3 class="text-danger">Thanh Toán Thất Bại</h3>
+                                                @break
+                                                 @case('cancelled')
+                                                <h3 class="text-success">Đã hủy</h3>
+                                                @break
+                                                 @case('cod_paid')
+                                                <h3 class="text-success">Thanh toán khi nhận hàng</h3>
+                                                @break
+                                            @default
+
+                                        @endswitch
                                 </div>
                             </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="flex-shrink-0">
-                                    <p class="text-muted mb-0">Payment Method:</p>
-                                </div>
-                                <div class="flex-grow-1 ms-2">
-                                    <h6 class="mb-0">Debit Card</h6>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="flex-shrink-0">
-                                    <p class="text-muted mb-0">Card Holder Name:</p>
-                                </div>
-                                <div class="flex-grow-1 ms-2">
-                                    <h6 class="mb-0">Joseph Parker</h6>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="flex-shrink-0">
-                                    <p class="text-muted mb-0">Card Number:</p>
-                                </div>
-                                <div class="flex-grow-1 ms-2">
-                                    <h6 class="mb-0">xxxx xxxx xxxx 2456</h6>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0">
-                                    <p class="text-muted mb-0">Total Amount:</p>
-                                </div>
-                                <div class="flex-grow-1 ms-2">
-                                    <h6 class="mb-0">$415.96</h6>
-                                </div>
-                            </div>
-                        </div>
+                        @endif
                     </div>
                     <!--end card-->
                     @if (!empty($data_order->image_ship))
@@ -387,21 +394,25 @@
                                     <i class="ri-image-line align-middle me-1 text-muted"></i> Ảnh giao hàng
                                 </h5>
                             </div>
-                            <div class="row gallery-wrapper">
-                                <div class="element-item col-xxl-3 col-xl-4 col-sm-6 project designing development"
-                                    data-category="designing development">
+                                <div class="" data-category="designing development">
                                     <div class="gallery-box card">
                                         <div class="gallery-container">
-                                            <a class="image-popup" href="{{ asset($data_order->image_ship) }}" title="">
+                                            <a class="image-popup" href="{{ asset($data_order->image_ship) }}"
+                                                title="">
                                                 <img class="gallery-img img-fluid mx-auto"
                                                     src="{{ asset($data_order->image_ship) }}" alt="" />
-                                                <div class="gallery-overlay">
-                                                    <h5 class="overlay-caption">Glasses and laptop from above</h5>
-                                                </div>
                                             </a>
                                         </div>
                                     </div>
                                 </div>
+                        </div>
+                    @else
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h5 class="card-title   mb-0">
+                                    <i class="ri-image-line align-middle me-1 text-muted"></i> Ảnh giao hàng
+                                    <div class="text-muted">Chưa có ảnh giao hàng</div>
+                                </h5>
                             </div>
                         </div>
                     @endif
@@ -543,14 +554,71 @@
             </div>
         </div>
     </div>
+     <div class="modal fade" id="showModalchange" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-light p-3">
+                <h5 class="modal-title" id="exampleModalLabel">Thay đổi địa chỉ nhận hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                    id="close-modal"></button>
+            </div>
+            <form action="{{ url("dashboard/order/change-address/$data_order->id") }}" method="post"
+                class="tablelist-form" autocomplete="off">
+                <div class="modal-body">
+                    @csrf
+                    <input type="hidden" name="_form" value="change_address">
+
+                    <div class="mb-3">
+                        <label for="ad_name" class="form-label">Tên người nhận</label>
+                        <input type="text" id="ad_name" name="ad_name" class="form-control"
+                               value="{{ old('ad_name', $data_order->ad_name ?? $data_order->name) }}">
+                        @error('ad_name')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ad_phone" class="form-label">Số điện thoại</label>
+                        <input type="text" id="ad_phone" name="ad_phone" class="form-control"
+                               value="{{ old('ad_phone', $data_order->ad_phone ?? $data_order->phone) }}">
+                        @error('ad_phone')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ad_address" class="form-label">Địa chỉ nhận hàng</label>
+                        <textarea id="ad_address" name="ad_address" class="form-control" rows="3">{{ old('ad_address', $data_order->ad_address ?? $data_order->address) }}</textarea>
+                        @error('ad_address')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="hstack gap-2 justify-content-end">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
     <!-- Modal -->
 @endsection
 @section('js-content')
-  
     <script>
         @if ($errors->any() && old('_form') === 'success')
             var myModal = new bootstrap.Modal(document.getElementById('showModalsuccess'));
             myModal.show();
         @endif
     </script>
+    <script src="{{ asset('admin/libs/glightbox/js/glightbox.min.js') }}"></script>
+
+    <!-- isotope-layout -->
+    <script src="{{ asset('admin/libs/isotope-layout/isotope.pkgd.min.js') }}"></script>
+
+    <script src="{{ asset('admin/js/pages/gallery.init.js') }}"></script>
+
 @endsection
