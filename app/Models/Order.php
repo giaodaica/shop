@@ -22,7 +22,11 @@ class Order extends Model
         'status_pay',
         'notes',
         'shipping_fee',
-        'shipping_method'
+        'shipping_method',
+        'image_ship',
+        'image_user',
+        'user_comment',
+        'user_confirm'
     ];
 
     public function user()
