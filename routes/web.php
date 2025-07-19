@@ -121,6 +121,7 @@ Route::prefix('dashboard')->group(function () {
     Route::get('refund', [RefundMoneyController::class, 'index'])->name('dashboard.order.refund');
     Route::get('refund/{id}', [RefundMoneyController::class, 'show'])->name('dashboard.order.refund.show');
     Route::post('change/refund/{id}', [RefundMoneyController::class, 'change'])->name('dashboard.change.refund');
+    
     // route thống kê
     Route::get('thong-ke', [RevenueController::class, 'index'])->name('dashboard.revenue');
     Route::post('fillter-revenue',[RevenueController::class,'index'])->name('dashboard.order.fillter');
