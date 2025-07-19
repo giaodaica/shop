@@ -369,7 +369,7 @@ class OrderController extends Controller
             [
                 'content' => 'nullable|string|max:255',
                 'notes' => 'nullable|string|max:255',
-                'image_ship' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'image_ship' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ],
             [
                 'content.max' => 'Nội dung không được quá 255 ký tự',
@@ -899,32 +899,69 @@ class OrderController extends Controller
      */
     public function vnpayIpn(Request $request)
     {
+        // Xử lý IPN từ VNPAY
+        Log::info('VNPAY IPN received', $request->all());
+        
+        // Thực hiện xác minh và xử lý IPN
+        // Code xử lý IPN sẽ được thêm ở đây
+        
+        return response()->json(['RspCode' => '00', 'Message' => 'Confirmed']);
+    }
+
+    /**
+     * Upload ảnh xác nhận từ user
+     */
+    public function uploadUserImage(Request $request, $id)
+    {
+        // Kiểm tra đơn hàng tồn tại và thuộc về user hiện tại
+        $order = Order::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // Validate request
+        $request->validate([
+            'user_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'note' => 'nullable|string|max:500',
+        ], [
+            'user_image.required' => 'Vui lòng chọn ảnh xác nhận',
+            'user_image.image' => 'File phải là hình ảnh',
+            'user_image.mimes' => 'Chỉ chấp nhận định dạng: jpeg, png, jpg, gif, svg',
+            'user_image.max' => 'Kích thước ảnh không được vượt quá 2MB',
+            'note.max' => 'Ghi chú không được vượt quá 500 ký tự',
+        ]);
+
         try {
-            $responseCode = $request->get('vnp_ResponseCode');
-            $transactionStatus = $request->get('vnp_TransactionStatus');
-            $txnRef = $request->get('vnp_TxnRef');
-            $transactionNo = $request->get('vnp_TransactionNo');
-
-            // Tìm đơn hàng theo TxnRef
-            $order = Order::where('code_order', $txnRef)->first();
-            if (!$order) {
-                return response()->json(['error' => 'Order not found'], 404);
-            }
-
-            // Kiểm tra trạng thái giao dịch
-            if ($responseCode === '00' && $transactionStatus === '00') {
+            // Upload ảnh
+            if ($request->hasFile('user_image')) {
+                $file = $request->file('user_image');
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/orders/user_images'), $filename);
+                
+                // Cập nhật ảnh vào database
                 $order->update([
-                    'status_pay' => 'paid',
-                    'status' => 'confirmed',
-                    'payment_date' => now()
+                    'image_user' => 'uploads/orders/user_images/' . $filename,
+                    'notes' => $request->note ?? $order->notes,
                 ]);
 
-                return response()->json(['success' => true]);
+                // Tạo lịch sử đơn hàng
+                OrderHistories::create([
+                    'users' => Auth::id(),
+                    'order_id' => $order->id,
+                    'from_status' => $order->status,
+                    'to_status' => $order->status,
+                    'note' => 'Khách hàng đã gửi ảnh xác nhận nhận hàng',
+                    'content' => $request->note ?? '',
+                ]);
+
+                return redirect()->back()->with('success', 'Gửi ảnh xác nhận thành công!');
             }
 
-            return response()->json(['success' => true]);
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi upload ảnh');
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Internal server error'], 500);
+            Log::error('Error uploading user image: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi upload ảnh: ' . $e->getMessage());
         }
     }
+
+    
 }

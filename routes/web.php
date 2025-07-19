@@ -163,3 +163,5 @@ Route::prefix('dashboard')->name('dashboard.')->group(function () {
 Route::post('/vnpay/ipn', [OrderController::class, 'vnpayIpn'])->name('vnpay.ipn');
 Route::post('/order/{id}/refund', [RefundMoneyController::class, 'store'])->name('order.refund')->middleware('auth');
 Route::get('/order/{id}/refund-request', [App\Http\Controllers\RefundMoneyController::class, 'showRefundRequest'])->name('order.refund.request')->middleware('auth');
+Route::post('/order/{id}/upload-image', [OrderController::class, 'uploadUserImage'])->name('order.upload.image')->middleware('auth');
+Route::post('/order/{id}/submit-confirmation', [InfoController::class, 'submitUserConfirmation'])->name('order.submit.confirmation')->middleware('auth');
