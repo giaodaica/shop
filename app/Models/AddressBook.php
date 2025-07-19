@@ -10,7 +10,9 @@ class AddressBook extends Model
         'name',
         'address',
         'phone',
-        'user_id'
+        'user_id',
+        'province_code',
+        'wards_code'
     ];
 
     public function user()

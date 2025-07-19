@@ -8,11 +8,13 @@ use App\Models\OrderHistories;
 use App\Models\OrderItem;
 use App\Models\Cart;
 use App\Models\AddressBook;
+use App\Models\Provinces;
 use App\Models\RefundMoney;
 use App\Models\User;
 use App\Models\Vouchers;
 use App\Models\VouchersLog;
 use App\Models\VouchersUsers;
+use App\Models\Wards;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -361,15 +363,13 @@ class OrderController extends Controller
     }
     public function db_order_change(Request $request, $id)
     {
-        // dd($request->all());
         $before = $request->change;
-        // dd($before);
-        // dd($request->all());
+
         $request->validate(
             [
                 'content' => 'nullable|string|max:255',
                 'notes' => 'nullable|string|max:255',
-                'image_ship' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'image_ship' => 'required_if:change,shipping|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ],
             [
                 'content.max' => 'Nội dung không được quá 255 ký tự',
@@ -379,7 +379,7 @@ class OrderController extends Controller
                 'image_ship.image' => 'Ảnh giao hàng phải là một tệp hình ảnh',
                 'image_ship.mimes' => 'Ảnh giao hàng phải có định dạng jpeg, png, jpg, gif hoặc svg',
                 'image_ship.max' => 'Ảnh giao hàng không được vượt quá 2MB',
-                'image_ship.required' => 'Ảnh giao hàng là bắt buộc khi cập nhật trạng thái giao hàng thành công',
+                'image_ship.required_if' => 'Ảnh giao hàng là bắt buộc khi cập nhật trạng thái giao hàng thành công',
             ]
         );
         if (!$request->content) {
@@ -505,6 +505,7 @@ class OrderController extends Controller
             'users.email',
         )->where('orders.id', $id)
             ->first();
+        // dd($data_order);
         $data_order_items = OrderItem::join('orders', 'orders.id', 'order_items.order_id')->join('product_variants', 'product_variants.id', 'order_items.product_variant_id')->join('sizes', 'sizes.id', 'product_variants.size_id')->join('colors', 'colors.id', 'product_variants.color_id')->where('order_id', $id)->select(
             'order_items.*',
             'sizes.size_name',
@@ -520,8 +521,11 @@ class OrderController extends Controller
         // dd($historyItems);
         // dd($data_order);
         // dd($data_order_items);
-
-        return view('dashboard.pages.order.detail', compact('data_order', 'data_order_items', 'histoty_order'));
+        $data_provinces = Provinces::all();
+        if (!$data_order) {
+            return abort(403, "không có đơn này");
+        }
+        return view('dashboard.pages.order.detail', compact('data_order', 'data_order_items', 'histoty_order', 'data_provinces'));
     }
 
     // Method để cập nhật loại vận chuyển trong checkout
@@ -899,32 +903,116 @@ class OrderController extends Controller
      */
     public function vnpayIpn(Request $request)
     {
+        // Xử lý IPN từ VNPAY
+        Log::info('VNPAY IPN received', $request->all());
+
+        // Thực hiện xác minh và xử lý IPN
+        // Code xử lý IPN sẽ được thêm ở đây
+
+        return response()->json(['RspCode' => '00', 'Message' => 'Confirmed']);
+    }
+
+    /**
+     * Upload ảnh xác nhận từ user
+     */
+    public function uploadUserImage(Request $request, $id)
+    {
+        // Kiểm tra đơn hàng tồn tại và thuộc về user hiện tại
+        $order = Order::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // Validate request
+        $request->validate([
+            'user_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'note' => 'nullable|string|max:500',
+        ], [
+            'user_image.required' => 'Vui lòng chọn ảnh xác nhận',
+            'user_image.image' => 'File phải là hình ảnh',
+            'user_image.mimes' => 'Chỉ chấp nhận định dạng: jpeg, png, jpg, gif, svg',
+            'user_image.max' => 'Kích thước ảnh không được vượt quá 2MB',
+            'note.max' => 'Ghi chú không được vượt quá 500 ký tự',
+        ]);
+
         try {
-            $responseCode = $request->get('vnp_ResponseCode');
-            $transactionStatus = $request->get('vnp_TransactionStatus');
-            $txnRef = $request->get('vnp_TxnRef');
-            $transactionNo = $request->get('vnp_TransactionNo');
+            // Upload ảnh
+            if ($request->hasFile('user_image')) {
+                $file = $request->file('user_image');
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/orders/user_images'), $filename);
 
-            // Tìm đơn hàng theo TxnRef
-            $order = Order::where('code_order', $txnRef)->first();
-            if (!$order) {
-                return response()->json(['error' => 'Order not found'], 404);
-            }
-
-            // Kiểm tra trạng thái giao dịch
-            if ($responseCode === '00' && $transactionStatus === '00') {
+                // Cập nhật ảnh vào database
                 $order->update([
-                    'status_pay' => 'paid',
-                    'status' => 'confirmed',
-                    'payment_date' => now()
+                    'image_user' => 'uploads/orders/user_images/' . $filename,
+                    'notes' => $request->note ?? $order->notes,
                 ]);
 
-                return response()->json(['success' => true]);
+                // Tạo lịch sử đơn hàng
+                OrderHistories::create([
+                    'users' => Auth::id(),
+                    'order_id' => $order->id,
+                    'from_status' => $order->status,
+                    'to_status' => $order->status,
+                    'note' => 'Khách hàng đã gửi ảnh xác nhận nhận hàng',
+                    'content' => $request->note ?? '',
+                ]);
+
+                return redirect()->back()->with('success', 'Gửi ảnh xác nhận thành công!');
             }
 
-            return response()->json(['success' => true]);
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi upload ảnh');
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Internal server error'], 500);
+            Log::error('Error uploading user image: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi upload ảnh: ' . $e->getMessage());
         }
+    }
+
+    public function getWards(Request $request)
+    {
+        return response()->json(
+            Wards::where('province_code', $request->province_id)->get(['ward_code', 'name'])
+        );
+    }
+    public function change_address(Request $request, $id)
+    {
+        if ($request->_form != "change_address") {
+            return abort(403, "Hành Động Không Hợp Lệ");
+        }
+        $data_order = Order::find($id);
+        if(!$data_order){
+            return abort(403, "Không tìm thấy đơn này");
+        }
+        $request->validate([
+            'ad_name' => 'required|string',
+            'ad_phone' => 'required|string',
+            'province_id' => ['required', 'exists:provinces,province_code'],
+            'ward_id' => ['required', 'exists:wards,ward_code'],
+            'ad_address' => 'required|string',
+        ], [
+            'ad_name.required' => 'Vui lòng nhập họ tên.',
+            'ad_phone.required' => 'Vui lòng nhập số điện thoại.',
+            'province_id.required' => 'Vui lòng chọn tỉnh/thành phố.',
+            'province_id.exists' => 'Tỉnh/thành phố không hợp lệ.',
+            'ward_id.required' => 'Vui lòng chọn xã/phường.',
+            'ward_id.exists' => 'Xã/phường không hợp lệ.',
+            'ad_address.required' => 'Vui lòng nhập địa chỉ chi tiết.',
+        ]);
+        $data_order->update([
+            'address_books_id' => null,
+            'province_code' => $request->province_id,
+            'ward_code' => $request->ward_id,
+            'address' => $request->ad_address,
+            'phone' => $request->ad_phone,
+            'name' => $request->ad_name,
+        ]);
+        OrderHistories::create([
+            'from_status' => 'Địa chỉ cũ',
+            'to_status' => 'Địa chỉ mới',
+            'order_id' => $id,
+            'note' => 'Khách hàng yêu cầu đổi địa chỉ giao hàng',
+            'users' => Auth::user()->id,
+        ]);
+        return redirect()->back()->with('success','Sửa địa chỉ thành công');
+
     }
 }

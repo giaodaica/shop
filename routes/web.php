@@ -27,7 +27,9 @@ use App\Http\Controllers\AddressBookController;
 use App\Http\Controllers\RefundMoneyController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Contracts\Role;
 
+    Route::get('/wards', [OrderController::class, 'getWards']);
 
 Route::middleware(['cache'])->group(function () {
     Auth::routes();
@@ -121,6 +123,7 @@ Route::prefix('dashboard')->group(function () {
     Route::get('refund', [RefundMoneyController::class, 'index'])->name('dashboard.order.refund');
     Route::get('refund/{id}', [RefundMoneyController::class, 'show'])->name('dashboard.order.refund.show');
     Route::post('change/refund/{id}', [RefundMoneyController::class, 'change'])->name('dashboard.change.refund');
+    Route::post('order/change-address/{id}',[OrderController::class,'change_address']);
     // route thống kê
     Route::get('thong-ke', [RevenueController::class, 'index'])->name('dashboard.revenue');
     Route::post('fillter-revenue',[RevenueController::class,'index'])->name('dashboard.order.fillter');
@@ -163,3 +166,5 @@ Route::prefix('dashboard')->name('dashboard.')->group(function () {
 Route::post('/vnpay/ipn', [OrderController::class, 'vnpayIpn'])->name('vnpay.ipn');
 Route::post('/order/{id}/refund', [RefundMoneyController::class, 'store'])->name('order.refund')->middleware('auth');
 Route::get('/order/{id}/refund-request', [App\Http\Controllers\RefundMoneyController::class, 'showRefundRequest'])->name('order.refund.request')->middleware('auth');
+Route::post('/order/{id}/upload-image', [OrderController::class, 'uploadUserImage'])->name('order.upload.image')->middleware('auth');
+Route::post('/order/{id}/submit-confirmation', [InfoController::class, 'submitUserConfirmation'])->name('order.submit.confirmation')->middleware('auth');
