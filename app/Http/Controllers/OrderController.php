@@ -305,18 +305,81 @@ class OrderController extends Controller
         // dd($data_order);
         return view('dashboard.pages.order.index', compact('data_order', 'count'));
     }
+    public function refund($present, $id)
+    {
+        OrderItem::where('order_id', $id)->get()->each(function ($item) {
+            $item->productVariant->increment('stock', $item->quantity);
+        });
+        $voucher = Vouchers::find($present->voucher_id);
+        if ($present->voucher_id && $voucher->end_date < now()) {
+            VouchersUsers::updateOrCreate(
+                [
+                    'user_id' => $present->user_id,
+                    'voucher_id' => $present->voucher_id,
+                ],
+                [
+                    'is_used'    => 'unused',
+                    'start_date' => now(),
+                    'end_date'   => now()->addDays(7),
+                ]
+            );
+            VouchersLog::create([
+                'user_id' => $present->user_id,
+                'voucher_id' => $present->voucher_id,
+                'order_id' => $id,
+                'type' => 'refund_new',
+                'content' => 'Voucher đã được tạo lại do đơn hàng bị hủy',
+            ]);
+        } else if ($present->voucher_id) {
+            VouchersUsers::where('user_id', $present->user_id)
+                ->where('voucher_id', $present->voucher_id)
+                ->update([
+                    'is_used' => 'unused',
+                ]);
+            VouchersLog::create([
+                'user_id' => $present->user_id,
+                'voucher_id' => $present->voucher_id,
+                'order_id' => $id,
+                'type' => 'refund_reuse',
+                'content' => 'Voucher đã được đánh dấu là chưa sử dụng do đơn hàng bị hủy',
+            ]);
+        }
+        if ($present->status_pay == 'paid' && $present->pay_method == 'VNPAY' || $present->pay_method == 'QR') {
+            RefundMoney::create([
+                'user_id' => $present->user_id,
+                'order_id' => $id,
+                'amount' => $present->final_amount,
+                'status' => 'admin',
+            ]);
+            $voucher = VouchersUsers::find($present->voucher_id);
+            if (!$voucher) {
+                $voucher = null;
+            }
+            $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
+            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type));
+        }
+    }
     public function db_order_change(Request $request, $id)
     {
+        // dd($request->all());
         $before = $request->change;
         // dd($before);
         // dd($request->all());
         $request->validate(
             [
                 'content' => 'nullable|string|max:255',
+                'notes' => 'nullable|string|max:255',
+                'image_ship' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ],
             [
                 'content.max' => 'Nội dung không được quá 255 ký tự',
                 'content.string' => 'Nội dung phải là chuỗi ký tự',
+                'notes.max' => 'Ghi chú không được quá 255 ký tự',
+                'notes.string' => 'Ghi chú phải là chuỗi ký tự',
+                'image_ship.image' => 'Ảnh giao hàng phải là một tệp hình ảnh',
+                'image_ship.mimes' => 'Ảnh giao hàng phải có định dạng jpeg, png, jpg, gif hoặc svg',
+                'image_ship.max' => 'Ảnh giao hàng không được vượt quá 2MB',
+                'image_ship.required' => 'Ảnh giao hàng là bắt buộc khi cập nhật trạng thái giao hàng thành công',
             ]
         );
         if (!$request->content) {
@@ -326,14 +389,11 @@ class OrderController extends Controller
         if ($before && !in_array($before, $data_change)) {
             return  abort(403, "Hành động không hợp lệ");
         }
-        if ($before == 'failed' || $before == 'cancelled') {
-            $id = $request->order_id;
-        }
         // dd($id);
         $old_status = Order::find($id);
         $present = Order::find($id);
 
-        $count = OrderHistories::where('from_status', 'failed')->count();
+        $count = OrderHistories::where('from_status', 'failed')->where('order_id', $id)->count();
 
         if (!$present || !$old_status) {
             return abort(403, 'Không thấy đơn hàng này vui lòng kiểm tra lại');
@@ -360,7 +420,16 @@ class OrderController extends Controller
                     return abort(403, 'Bạn không thể đổi sang trạng thái đã giao hàng khi đơn hàng không ở trạng thái đang giao hàng ');
                 } else {
                     $present->status = 'success';
-                    $note = 'Đơn hàng đã được giao thành công';
+                    $note = $request->notes ?? 'Đơn hàng đã được giao thành công';
+                    if ($request->hasFile('image_ship')) {
+                        $image = $request->file('image_ship');
+
+                        $filename = time() . '_' . $image->getClientOriginalName();
+
+                        $image->move(public_path('uploads/orders'), $filename);
+
+                        $present->image_ship = 'uploads/orders/' . $filename;
+                    }
                 }
                 break;
             case 'failed':
@@ -390,57 +459,8 @@ class OrderController extends Controller
         }
         // dd($present);
         if ($present->status == 'cancelled') {
-            OrderItem::where('order_id', $id)->get()->each(function ($item) {
-                $item->productVariant->increment('stock', $item->quantity);
-            });
-            $voucher = Vouchers::find($present->voucher_id);
-            if ($present->voucher_id && $voucher->end_date < now()) {
-                VouchersUsers::updateOrCreate(
-                    [
-                        'user_id' => $present->user_id,
-                        'voucher_id' => $present->voucher_id,
-                    ],
-                    [
-                        'is_used'    => 'unused',
-                        'start_date' => now(),
-                        'end_date'   => now()->addDays(7),
-                    ]
-                );
-                VouchersLog::create([
-                    'user_id' => $present->user_id,
-                    'voucher_id' => $present->voucher_id,
-                    'order_id' => $id,
-                    'type' => 'refund_new',
-                    'content' => 'Voucher đã được tạo lại do đơn hàng bị hủy',
-                ]);
-            } else if ($present->voucher_id) {
-                VouchersUsers::where('user_id', $present->user_id)
-                    ->where('voucher_id', $present->voucher_id)
-                    ->update([
-                        'is_used' => 'unused',
-                    ]);
-                VouchersLog::create([
-                    'user_id' => $present->user_id,
-                    'voucher_id' => $present->voucher_id,
-                    'order_id' => $id,
-                    'type' => 'refund_reuse',
-                    'content' => 'Voucher đã được đánh dấu là chưa sử dụng do đơn hàng bị hủy',
-                ]);
-            }
-            if ($present->status_pay == 'paid' && $present->pay_method == 'VNPAY' || $present->pay_method == 'QR') {
-                RefundMoney::create([
-                    'user_id' => $present->user_id,
-                    'order_id' => $id,
-                    'amount' => $present->final_amount,
-                    'status' => 'admin',
-                ]);
-                $voucher = VouchersUsers::find($present->voucher_id);
-                if (!$voucher) {
-                    $voucher = null;
-                }
-                $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
-                Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type));
-            }
+
+            $this->refund($present, $id);
             // dd($present);
 
         }
@@ -466,13 +486,16 @@ class OrderController extends Controller
                 'note' => 'Đơn hàng đã tự động hủy do giao thất bại 3 lần',
                 'content' => "",
             ]);
+            $this->refund($present, $id);
         }
 
 
         return redirect()->back()->with('success', 'Cập nhật trạng thái đơn hàng thành công!');
     }
+
     public function db_order_show($id)
     {
+
         $data_order = Order::leftJoin('vouchers', 'vouchers.id', 'orders.voucher_id')->leftJoin('address_books', 'address_books.id', 'orders.address_books_id')->join('users', 'users.id', 'orders.user_id')->select(
             'orders.*',
             'vouchers.code',

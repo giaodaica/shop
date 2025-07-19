@@ -52,11 +52,12 @@
                                                 <td>
                                                     <div class="d-flex">
                                                         <div class="flex-shrink-0 avatar-md bg-light rounded p-1">
-                                                            <img src="{{ asset($rende_order_items->product_image_url) }}" alt=""
-                                                                class="img-fluid d-block">
+                                                            <img src="{{ asset($rende_order_items->product_image_url) }}"
+                                                                alt="" class="img-fluid d-block">
                                                         </div>
                                                         <div class="flex-grow-1 ms-3">
-                                                            <h5 class="fs-15"><a rel="noopener noreferrer" target="_blank" href="{{url('dashboard/variants/'.$rende_order_items->product_variant_id)}}"
+                                                            <h5 class="fs-15"><a rel="noopener noreferrer" target="_blank"
+                                                                    href="{{ url('dashboard/variants/' . $rende_order_items->product_variant_id) }}"
                                                                     class="link-primary">{{ $rende_order_items->product_name . ' ' . $rende_order_items->color_name }}</a>
                                                             </h5>
                                                             <p class="text-muted mb-0">Màu: <span
@@ -86,7 +87,7 @@
                                                                 {{ number_format($data_order->total_amount) }}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>Giảm giá :  <br>
+                                                            <td>Giảm giá : <br>
                                                                 <b><a rel="noopener noreferrer" target="_blank"
                                                                         href="{{ url("dashboard/voucher/s/$data_order->voucher_id") }}">{{ $data_order->code }}</a></b>
                                                             </td>
@@ -95,7 +96,10 @@
                                                                 -{{ number_format($data_order->discount_amount) }}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>Phí giao hàng <span>{{ $data_order->shipping_method == 'express' ? '(Giao hàng nhanh)' : '(Giao hàng tiêu chuẩn)' }}</span> : </td>
+                                                            <td>Phí giao hàng
+                                                                <span>{{ $data_order->shipping_method == 'express' ? '(Giao hàng nhanh)' : '(Giao hàng tiêu chuẩn)' }}</span>
+                                                                :
+                                                            </td>
                                                             <td class="text-end">
                                                                 {{ number_format($data_order->shipping_fee) }}</td>
                                                         </tr>
@@ -125,8 +129,6 @@
                                 <div class="flex-shrink-0 mt-2 mt-sm-0">
                                     <a href="javascript:void(0);" class="btn btn-soft-info btn-sm mt-2 mt-sm-0"><i
                                             class="ri-map-pin-line align-middle me-1"></i> Thay đổi địa chỉ</a>
-                                    <a href="javascript:void(0);" class="btn btn-soft-danger btn-sm mt-2 mt-sm-0"><i
-                                            class="mdi mdi-archive-remove-outline align-middle me-1"></i> Hủy đơn</a>
                                 </div>
                             </div>
                         </div>
@@ -146,7 +148,7 @@
                                     <tbody>
                                         @forelse ($histoty_order as $key => $history)
                                             <tr>
-                                            <td>{{ count($histoty_order) - $key }}</td>
+                                                <td>{{ count($histoty_order) - $key }}</td>
                                                 <td>{{ $history->user_name }}</td>
                                                 <td>{{ formatDate($history->created_at) }}</td>
                                                 @php
@@ -176,6 +178,66 @@
                                         @endforelse
                                     </tbody>
                                 </table>
+                                <div>
+                                    <td class="">
+                                        @switch($data_order->status)
+                                            @case('pending')
+                                                <div class="d-flex justify-content-end gap-2 pt-3 px-3">
+                                                    <form action="{{ url("dashboard/order/change/$data_order->id") }}"
+                                                        method="post">
+                                                        @csrf
+                                                        <input type="hidden" name="change" value="pending">
+                                                        <button class="btn btn-success">Xác nhận</button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-danger add-btn" data-bs-toggle="modal"
+                                                        data-id="{{ $data_order->id }}" id="create-btn"
+                                                        data-bs-target="#showModalcancel">Hủy đơn</button>
+                                                </div>
+                                            @break
+
+                                            @case('confirmed')
+                                                <div class="d-flex justify-content-end gap-2 pt-3 px-3">
+                                                    <form action="{{ url("dashboard/order/change/$data_order->id") }}"
+                                                        method="post">
+                                                        @csrf
+                                                        <input type="hidden" name="change" value="confirmed">
+                                                        <button class="btn btn-success">Giao Hàng</button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-danger add-btn" data-bs-toggle="modal"
+                                                        data-id="{{ $data_order->id }}" id="create-btn"
+                                                        data-bs-target="#showModalcancel">Hủy đơn</button>
+                                                </div>
+                                            @break
+
+                                            @case('shipping')
+                                                <div class="d-flex justify-content-end gap-2 pt-3 px-3">
+                                                    <button type="button" class="btn btn-success add-btn" data-bs-toggle="modal"
+                                                        data-id="{{ $data_order->id }}" id="create-btn"
+                                                        data-bs-target="#showModalsuccess">Đã Giao</button>
+                                                    <button type="button" class="btn btn-danger add-btn" data-bs-toggle="modal"
+                                                        data-id="{{ $data_order->id }}" id="create-btn"
+                                                        data-bs-target="#showModalfailed">Giao Thất Bại</button>
+                                                </div>
+                                            @break
+
+                                            @case('failed')
+                                                <div class="d-flex justify-content-end gap-2 pt-3 px-3">
+                                                    <form action="{{ url("dashboard/order/change/$data_order->id") }}"
+                                                        method="post">
+                                                        @csrf
+                                                        <input type="hidden" name="change" value="return">
+                                                        <button class="btn btn-success">Giao lại</button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-danger add-btn" data-bs-toggle="modal"
+                                                        data-id="{{ $data_order->id }}" id="create-btn"
+                                                        data-bs-target="#showModalcancel">Hủy đơn</button>
+                                                </div>
+                                            @break
+
+                                            @default
+                                        @endswitch
+                                    </td>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -187,7 +249,8 @@
                         <div class="card-header">
                             <div class="d-flex">
                                 <h5 class="card-title flex-grow-1 mb-0"><i
-                                        class="mdi mdi-truck-fast-outline align-middle me-1 text-muted"></i> Vận chuyển</h5>
+                                        class="mdi mdi-truck-fast-outline align-middle me-1 text-muted"></i> Vận chuyển
+                                </h5>
                             </div>
                         </div>
                         <div class="card-body">
@@ -195,7 +258,7 @@
                                 <lord-icon src="https://cdn.lordicon.com/uetqnvvg.json" trigger="loop"
                                     colors="primary:#405189,secondary:#0ab39c" style="width:80px;height:80px"></lord-icon>
                                 <h5 class="fs-16 mt-2">Giaodaica Logistics</h5>
-                                <p class="text-muted mb-0">ID: {{ $data_order->code_order}}</p>
+                                <p class="text-muted mb-0">ID: {{ $data_order->code_order }}</p>
                                 <p class="text-muted mb-0">Phương thức thanh toán : {{ $data_order->pay_method }}</p>
                             </div>
                         </div>
@@ -216,7 +279,7 @@
                                 <li>
                                     <div class="d-flex align-items-center">
                                         <div class="flex-shrink-0">
-                                            <img src="{{asset('assets/images/avt.jpg')}}" alt=""
+                                            <img src="{{ asset('assets/images/avt.jpg') }}" alt=""
                                                 class="avatar-sm rounded">
                                         </div>
                                         <div class="flex-grow-1 ms-3">
@@ -317,6 +380,31 @@
                         </div>
                     </div>
                     <!--end card-->
+                    @if (!empty($data_order->image_ship))
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="ri-image-line align-middle me-1 text-muted"></i> Ảnh giao hàng
+                                </h5>
+                            </div>
+                            <div class="row gallery-wrapper">
+                                <div class="element-item col-xxl-3 col-xl-4 col-sm-6 project designing development"
+                                    data-category="designing development">
+                                    <div class="gallery-box card">
+                                        <div class="gallery-container">
+                                            <a class="image-popup" href="{{ asset($data_order->image_ship) }}" title="">
+                                                <img class="gallery-img img-fluid mx-auto"
+                                                    src="{{ asset($data_order->image_ship) }}" alt="" />
+                                                <div class="gallery-overlay">
+                                                    <h5 class="overlay-caption">Glasses and laptop from above</h5>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
                 <!--end col-->
             </div>
@@ -324,6 +412,145 @@
 
         </div><!-- container-fluid -->
     </div><!-- End Page-content -->
+    {{-- show modal --}}
+    <div class="modal fade" id="showModalfailed" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light p-3">
+                    <h5 class="modal-title" id="exampleModalLabel">Giao hàng thất bại</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        id="close-modal"></button>
+                </div>
+                <form action="{{ url("dashboard/order/change/$data_order->id") }}" method="post" class="tablelist-form"
+                    autocomplete="off" id="reasonFormFailed">
+                    <div class="modal-body">
+                        @csrf
+                        <input type="hidden" name="change" value="failed">
+                        <input type="hidden" name="order_id" id="order_id_failed">
+
+                        <div class="mb-3">
+                            <label for="reason-select-failed" class="form-label">Lý do</label>
+                            <select id="reason-select-failed" name="content1" class="form-control">
+                                <option value="">-- Chọn lý do --</option>
+                                <option value="Khách không nhận hàng">Khách không nhận hàng
+                                </option>
+                                <option value="Không liên lạc được">Không liên lạc được</option>
+                                <option value="Địa chỉ không đúng">Địa chỉ không đúng</option>
+                                <option value="Lý do khác">Lý do khác</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="other-reason-group-failed" style="display:none;">
+                            <label for="other-reason-failed" class="form-label">Nhập lý do
+                                khác</label>
+                            <input type="text" id="other-reason-failed" name="content" class="form-control"
+                                placeholder="Nhập lý do khác" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="hstack gap-2 justify-content-end">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-success" id="add-btn">Cập
+                                Nhật</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="showModalcancel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light p-3">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                        Hủy đơn hàng
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        id="close-modal"></button>
+                </div>
+                <form action="{{ url("dashboard/order/change/$data_order->id") }}" class="tablelist-form"
+                    autocomplete="off" id="reasonFormCancel" method="post">
+                    @csrf
+                    <input type="hidden" name="change" value="cancelled">
+                    <input type="hidden" name="order_id" id="order_id_cancel">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="reason-select-cancel" class="form-label">Lý do</label>
+                            <select id="reason-select-cancel" name="content1" class="form-control">
+                                <option value="">-- Chọn lý do --</option>
+                                <option value="Khách không nhận hàng">Khách không nhận hàng
+                                </option>
+                                <option value="Không liên lạc được">Không liên lạc được</option>
+                                <option value="Địa chỉ không đúng">Địa chỉ không đúng</option>
+                                <option value="Lý do khác">Lý do khác</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="other-reason-group-cancel" style="display:none;">
+                            <label for="other-reason-cancel" class="form-label">Nhập lý do
+                                khác</label>
+                            <input type="text" id="other-reason-cancel" name="content" class="form-control"
+                                placeholder="Nhập lý do khác" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="hstack gap-2 justify-content-end">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-success">Cập
+                                Nhật</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="showModalsuccess" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light p-3">
+                    <h5 class="modal-title" id="exampleModalLabel">Ảnh giao hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        id="close-modal"></button>
+                </div>
+                <form action="{{ url("dashboard/order/change/$data_order->id") }}" value="success" method="post"
+                    class="tablelist-form" autocomplete="off" id="reasonFormFailed" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        @csrf
+                        <input type="hidden" name="change" value="shipping">
+                        <input type="hidden" name="_form" value="success">
+                        <div class="mb-3">
+                            <label for="reason-select-failed" class="form-label">Ảnh giao hàng</label>
+                            <input type="file" id="reason-select-failed" name="image_ship" class="form-control">
+                            @error('image_ship')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label for="reason-select-failed" class="form-label">Ghi chú</label>
+                            <textarea id="reason-select-failed" name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
+                            @error('notes')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="hstack gap-2 justify-content-end">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-success" id="add-btn">Cập
+                                Nhật</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
 @endsection
 @section('js-content')
+  
+    <script>
+        @if ($errors->any() && old('_form') === 'success')
+            var myModal = new bootstrap.Modal(document.getElementById('showModalsuccess'));
+            myModal.show();
+        @endif
+    </script>
 @endsection
