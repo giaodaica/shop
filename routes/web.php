@@ -37,6 +37,7 @@ Route::get('shop', [ProductController::class, 'index'])->name('home.shop');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/search/suggestions', [SearchController::class, 'suggestions']);
 Route::get('/search/filter', [SearchController::class, 'search'])->name('search.filter');
+Route::get('/search/trending-categories', [SearchController::class, 'trendingCategories']);
 Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware('auth');
 Route::get('/reviews/list/{product_id}', [ReviewController::class, 'list'])->name('reviews.list');
 
@@ -154,6 +155,7 @@ Route::prefix('dashboard')->name('dashboard.')->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
     Route::post('roles/order', [RoleController::class, 'order'])->name('roles.order');
+    Route::post('permissions/order', [PermissionController::class, 'order'])->name('permissions.order');
     //  Route::post('permission/order', [RoleController::class, 'order'])->name('permission.order');
 });
 

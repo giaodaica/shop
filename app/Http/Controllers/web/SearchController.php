@@ -247,4 +247,22 @@ class SearchController extends Controller
             $filteredData
         ));
     }
+
+    public function trendingCategories()
+    {
+        // Lấy 5 danh mục có tổng views_page sản phẩm cao nhất
+        $categories = \App\Models\Categories::select('categories.id', 'categories.name', 'categories.image')
+            ->join('products', 'categories.id', '=', 'products.category_id')
+            ->whereNull('categories.deleted_at')
+            ->whereNull('products.deleted_at')
+            ->groupBy('categories.id', 'categories.name', 'categories.image')
+            ->selectRaw('SUM(products.views_page) as total_views')
+            ->orderByDesc('total_views')
+            ->take(5)
+            ->get();
+
+        return response()->json([
+            'data' => $categories
+        ]);
+    }
 }

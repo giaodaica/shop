@@ -16,6 +16,8 @@ class ProductDetailController extends Controller
         $product = Products::with(['category', 'variants.color', 'variants.size'])
             ->where('slug', $slug)
             ->firstOrFail();
+        $product->increment('views_page');
+
         // dd($product);
         // Lấy tất cả biến thể của sản phẩm
         $variants = Product_variants::with(['color', 'size'])
@@ -36,7 +38,6 @@ class ProductDetailController extends Controller
                 }, $images);
             }
         }
-
         // Debug để kiểm tra colorImageMap
         // dd($colorImageMap);
 
