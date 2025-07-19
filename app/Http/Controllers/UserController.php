@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserUnLockedMail;
 use App\Models\User;
+use App\Models\UserLock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Models\LockReason;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -12,7 +16,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $status = $request->get('status', 'active'); // active | trashed | all
-
+        $lockReasons = LockReason::all();
         $query = User::query();
 
         if ($status === 'trashed') {
@@ -22,7 +26,7 @@ class UserController extends Controller
         }
 
         $users = $query->latest()->paginate(10);
-        return view('dashboard.pages.users.index', compact('users', 'status'));
+        return view('dashboard.pages.users.index', compact('users', 'status', 'lockReasons'));
     }
 
     // Hiển thị form tạo mới
@@ -197,24 +201,44 @@ class UserController extends Controller
 
     public function lock(Request $request)
     {
-        // dd($request);
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'reason'  => 'required|string|max:255',
-            'note'    => 'nullable|string',
-        ]);
-
         $user = User::findOrFail($request->user_id);
-        $user->update([
-            'status' => 'inactive',
+
+        // Không cho khóa nếu chỉ còn 1 admin đang active
+        if ($user->role === 'admin') {
+            $adminCount = User::where('role', 'admin')->where('status', 'active')->count();
+
+            if ($adminCount <= 1) {
+                return redirect()->back()->with('warning', 'Không thể khóa người dùng này vì chỉ còn 1 quản trị viên.');
+            }
+        }
+
+        $reason = LockReason::findOrFail($request->lock_reason_id);
+        $note = $request->note;
+
+        // Lưu vào bảng user_locks
+        UserLock::create([
+            'user_id' => $user->id,
+            'lock_reason_id' => $reason->id,
+            'note' => $note,
         ]);
 
-        return back()->with('warning', 'Tài khoản đã bị khóa.');
+        // Cập nhật trạng thái user
+        $user->status = 'inactive';
+        $user->save();
+
+        // Gửi mail
+        Mail::to($user->email)->send(new \App\Mail\UserLockedMail($user, $reason->name, $note));
+
+        return redirect()->back()->with('success', 'Đã khóa tài khoản và gửi email.');
     }
+
+
 
     public function unlock(User $user)
     {
         $user->update(['status' => 'active']);
+        Mail::to($user->email)->send(new UserUnLockedMail($user));
+
         return back()->with('success', 'Tài khoản đã được mở lại.');
     }
 }
