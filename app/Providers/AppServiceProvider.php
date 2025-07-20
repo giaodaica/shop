@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\CategoriesVouchers;
 use App\Models\Vouchers;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -27,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
         //
          if ($this->app->runningInConsole()) {
         $this->app->booted(function () {
-            $schedule = app(Schema::class);
+            $schedule = app(Schedule::class);
 
             // chạy command mỗi ngày lúc 00:00
             $schedule->command('app:expire-vouchers')->dailyAt('00:00');
