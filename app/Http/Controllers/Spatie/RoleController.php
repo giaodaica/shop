@@ -250,6 +250,7 @@ class RoleController extends Controller
                         break;
                     }
                 }
+                // Sửa tại đây: hiển thị theo name thay vì title
                 $result .= "<option value='" . $item->id . "'" . $checked . ">" . e($stringSpecial . ' ' . $item->title) . "</option>";
                 $result .= self::buildMenuDropdownList($dataCategory, $selected, $item->id, $stringSpecial . "¦– – ");
             }

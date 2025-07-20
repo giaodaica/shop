@@ -14,7 +14,7 @@
             Thêm mới
         @endif
     </h5>
-    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
         <i aria-hidden="true" class="ki ki-close"></i>
     </button>
 </div>
@@ -43,7 +43,7 @@
     <div class="form-group {{ $errors->has('title') ? 'has-danger' : '' }}">
         <label class="form-control-label">{{ __('Tiêu đề') }}</label>
         <input type="text" class="form-control" name="title"
-            value="{{ old('title', isset($data) ? $data->title : null) }}">
+            value="{{ old('title', isset($data) ? $data->title : null) }}" >
         @if ($errors->has('title'))
             <div class="form-control-feedback">{{ $errors->first('title') }}</div>
         @endif
@@ -81,9 +81,7 @@
         value="{{ implode(',', old('permission_ids', isset($permissionsSelected) ? $permissionsSelected : [])) }}">
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- jsTree CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
-    <!-- jsTree JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -95,11 +93,8 @@
                     jsondata = [];
                 }
             }
-            // Debug xem có dữ liệu không
-            console.log('jsondata:', jsondata);
-            if (jsondata && jsondata.length > 0) {
-                $('#kt_tree_3').jstree('destroy');
-                $('#kt_tree_3').jstree({
+            $('#kt_tree_3').jstree('destroy');
+            $('#kt_tree_3').jstree({
                     "plugins": ["wholerow", "checkbox", "types", "search"],
                     "core": {
                         "dblclick_toggle": false,
@@ -109,6 +104,10 @@
                             "dots": true,
                         },
                         "data": jsondata
+                    },
+                    "checkbox": {
+                        "three_state": false,
+                        "cascade": "down"
                     },
                     "types": {
                         "default": {
@@ -132,9 +131,6 @@
                     }
                     $('#permission_ids').val(r.join(','));
                 });
-            } else {
-                $('#kt_tree_3').html('<div class="text-danger">Không có quyền nào để chọn!</div>');
-            }
         });
     </script>
 </div>
