@@ -175,19 +175,29 @@ class RefundMoneyController extends Controller
             $file->move(public_path('uploads/refund'), $fileName);
             $data_change['images'] = 'uploads/refund/' . $fileName;
         }
+        if ($data_change['status'] == 'rejected') {
+            RefundLogs::create([
+                'user_id' => Auth::user()->id,
+                'money' => $refund->amount,
+                'action' => $request->status_new,
+                'refund_id' => $id,
+                'notes' => $request->notes
+            ]);
+            return redirect()->back()->with('success', 'Thành công');
+        }
         RefundLogs::create([
             'user_id' => Auth::user()->id,
             'money' => $refund->amount,
             'action' => $request->status_new,
             'refund_id' => $id,
-            'notes'=> $request->notes
+            'notes' => $request->notes
         ]);
-         RefundMoney::create([
-                'user_id' => $refund->user_id,
-                'order_id' => $id,
-                'amount' => $refund->amount,
-                'status' => 'admin',
-            ]);
+        RefundMoney::create([
+            'user_id' => $refund->user_id,
+            'order_id' => $id,
+            'amount' => $refund->amount,
+            'status' => 'admin',
+        ]);
         $refund->update($data_change);
         $email = $refund->user->email;
         Mail::to($email)->send(new RefundMoneyMail($refund, $code_order));
