@@ -192,7 +192,7 @@
                                                 <input type="hidden" name="status_old" value="pending">
                                                 <input type="hidden" name="status_new" value="rejected">
                                                 <div class="mb-3">
-                                                    <input type="text" name="admin_notes" id=""
+                                                    <input type="text" name="notes" id=""
                                                         class="form-control">
                                                 </div>
                                                 <div class="text-end">
