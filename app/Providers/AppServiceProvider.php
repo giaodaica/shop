@@ -4,8 +4,8 @@ namespace App\Providers;
 
 use App\Models\CategoriesVouchers;
 use App\Models\Vouchers;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
