@@ -179,7 +179,8 @@ class RefundMoneyController extends Controller
             'user_id' => Auth::user()->id,
             'money' => $refund->amount,
             'action' => $request->status_new,
-            'refund_id' => $id
+            'refund_id' => $id,
+            'notes'=> $request->notes
         ]);
          RefundMoney::create([
                 'user_id' => $refund->user_id,
