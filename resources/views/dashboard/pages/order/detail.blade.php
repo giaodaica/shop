@@ -326,7 +326,7 @@
                             <ul class="list-unstyled vstack gap-2 fs-13 mb-0">
                                 <li class="fw-medium fs-14">Họ Tên : {{ $data_order->ad_name ?? $data_order->name }}</li>
                                 <li>Số điện thoại : {{ $data_order->ad_phone ?? $data_order->phone }}</li>
-                                <li>Địa chỉ : {{ $data_order->ad_address ?? $data_order->address }}</li>
+                                <li>Địa chỉ : {{ $data_order->ad_address ?? $data_order->address }} - {{ $data_order->ward_b ?? $data_order->ward_o }} - {{ $data_order->province_b ?? $data_order->province_o }} </li>
                                 {{-- <li>California - 24567</li> --}}
                                 {{-- <li>United States</li> --}}
                             </ul>

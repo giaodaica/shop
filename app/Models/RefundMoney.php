@@ -19,7 +19,8 @@ class RefundMoney extends Model
         'reason',
         'images',
         'QR_images',
-        'stk'
+        'stk',
+        'admin_notes'
     ];
 
     public function user()

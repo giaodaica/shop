@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\RefundMoneyMail;
+use App\Models\RefundLogs;
 use Illuminate\Http\Request;
 use App\Models\RefundMoney;
 use Illuminate\Support\Facades\Auth;
@@ -116,39 +117,44 @@ class RefundMoneyController extends Controller
         $total = $order->final_amount ?? 0;
         return view('pages.shop.refund-request', compact('order', 'total', 'refund'));
     }
-    public function index()  {
+    public function index()
+    {
         $data_refund = RefundMoney::join('users', 'refund_money.user_id', '=', 'users.id')->join('orders', 'refund_money.order_id', '=', 'orders.id')
             ->select('refund_money.*', 'users.name as customer_name', 'users.default_phone as customer_phone', 'orders.code_order as order_code')
             ->get();
-            // dd($data_refund);
+        // dd($data_refund);
         return view('dashboard.pages.order.refund', compact('data_refund'));
     }
     public function show($id)
     {
         $refund = RefundMoney::findOrFail($id);
+        $log = RefundLogs::where('refund_id', $id)->join('users', 'refund_logs.user_id', 'users.id')->get();
+        // dd($log);
         $order = $refund->order;
         $user = $refund->user;
-        return view('dashboard.pages.order.refund_detail', compact('refund', 'order', 'user'));
+        return view('dashboard.pages.order.refund_detail', compact('refund', 'order', 'user', 'log'));
     }
-    public function change(Request $request,$id){
+    public function change(Request $request, $id)
+    {
         // dd($request->all());
 
         $data_change = $request->validate([
-            'images' => 'required|image|max:4096',
+            'images' => 'required_if:status_new,approved|image|max:4096',
             'status_old' => 'required|in:pending',
             'status_new' => 'required|in:approved,rejected',
-        ],
-        [
-            'images.required' => 'Vui lòng tải lên ảnh bill',
-            'images.image' => 'Ảnh bill phải là một tệp hình ảnh',
-            'images.max' => 'Ảnh bill không được vượt quá 4MB',
-            'status.required' => 'Vui lòng chọn trạng thái',
-            'status.in' => 'Trạng thái không hợp lệ',
+        ], [
+            'images.required_if' => 'Vui lòng tải lên ảnh bill khi duyệt hoàn tiền.',
+            'images.image' => 'Ảnh bill phải là một tệp hình ảnh.',
+            'images.max' => 'Ảnh bill không được vượt quá 4MB.',
+            'status_old.required' => 'Thiếu trạng thái cũ.',
+            'status_old.in' => 'Trạng thái cũ không hợp lệ.',
+            'status_new.required' => 'Vui lòng chọn trạng thái.',
+            'status_new.in' => 'Trạng thái không hợp lệ.',
         ]);
 
 
 
-        switch($request->status_new){
+        switch ($request->status_new) {
             case 'approved':
                 $data_change['status'] = $request->status_new;
                 break;
@@ -169,6 +175,18 @@ class RefundMoneyController extends Controller
             $file->move(public_path('uploads/refund'), $fileName);
             $data_change['images'] = 'uploads/refund/' . $fileName;
         }
+        RefundLogs::create([
+            'user_id' => Auth::user()->id,
+            'money' => $refund->amount,
+            'action' => $request->status_new,
+            'refund_id' => $id
+        ]);
+         RefundMoney::create([
+                'user_id' => $refund->user_id,
+                'order_id' => $id,
+                'amount' => $refund->amount,
+                'status' => 'admin',
+            ]);
         $refund->update($data_change);
         $email = $refund->user->email;
         Mail::to($email)->send(new RefundMoneyMail($refund, $code_order));
