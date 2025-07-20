@@ -331,6 +331,7 @@ class OrderController extends Controller
                 'user_id' => $present->user_id,
                 'voucher_id' => $present->voucher_id,
                 'order_id' => $id,
+                'actor' => Auth::id(),
                 'type' => 'refund_new',
                 'content' => 'Voucher đã được tạo lại do đơn hàng bị hủy',
             ]);
@@ -345,6 +346,7 @@ class OrderController extends Controller
                 'voucher_id' => $present->voucher_id,
                 'order_id' => $id,
                 'type' => 'refund_reuse',
+                'actor' => Auth::id(),
                 'content' => 'Voucher đã được đánh dấu là chưa sử dụng do đơn hàng bị hủy',
             ]);
         }
@@ -498,14 +500,24 @@ class OrderController extends Controller
     public function db_order_show($id)
     {
 
-        $data_order = Order::leftJoin('vouchers', 'vouchers.id', 'orders.voucher_id')->leftJoin('address_books', 'address_books.id', 'orders.address_books_id')->join('users', 'users.id', 'orders.user_id')->select(
-            'orders.*',
-            'vouchers.code',
-            'address_books.name as ad_name',
-            'address_books.address as ad_address',
-            'address_books.phone as ad_phone',
-            'users.email',
-        )->where('orders.id', $id)
+        $data_order = Order::leftJoin('vouchers', 'vouchers.id', 'orders.voucher_id')
+        ->leftJoin('address_books', 'address_books.id', 'orders.address_books_id')
+        ->leftJoin('users', 'users.id', 'orders.user_id')
+        ->leftJoin('provinces as province_order', 'orders.province_code', 'province_order.province_code')
+        ->leftJoin('wards as ward_order', 'orders.ward_code', 'ward_order.ward_code')
+        ->leftJoin('provinces as province_book', 'address_books.province_code', 'province_book.province_code')
+        ->leftJoin('wards as ward_book', 'address_books.ward_code', 'ward_book.ward_code')->select(
+                'orders.*',
+                'vouchers.code',
+                'address_books.name as ad_name',
+                'address_books.address as ad_address',
+                'address_books.phone as ad_phone',
+                'users.email',
+                'province_order.name as province_o',
+                'ward_order.name as ward_o',
+                'province_book.name as province_b',
+                'ward_book.name as ward_b',
+            )->where('orders.id', $id)
             ->first();
         // dd($data_order);
         $data_order_items = OrderItem::join('orders', 'orders.id', 'order_items.order_id')->join('product_variants', 'product_variants.id', 'order_items.product_variant_id')->join('sizes', 'sizes.id', 'product_variants.size_id')->join('colors', 'colors.id', 'product_variants.color_id')->where('order_id', $id)->select(
@@ -523,7 +535,7 @@ class OrderController extends Controller
         // dd($historyItems);
         // dd($data_order);
         // dd($data_order_items);
-        $data_provinces = Provinces::all();
+        $data_provinces = Provinces::orderBy('place_type', 'ASC')->get();
         if (!$data_order) {
             return abort(403, "không có đơn này");
         }
@@ -981,7 +993,7 @@ class OrderController extends Controller
             return abort(403, "Hành Động Không Hợp Lệ");
         }
         $data_order = Order::find($id);
-        if(!$data_order){
+        if (!$data_order) {
             return abort(403, "Không tìm thấy đơn này");
         }
         $request->validate([
@@ -1014,7 +1026,6 @@ class OrderController extends Controller
             'note' => 'Khách hàng yêu cầu đổi địa chỉ giao hàng',
             'users' => Auth::user()->id,
         ]);
-        return redirect()->back()->with('success','Sửa địa chỉ thành công');
-
+        return redirect()->back()->with('success', 'Sửa địa chỉ thành công');
     }
 }

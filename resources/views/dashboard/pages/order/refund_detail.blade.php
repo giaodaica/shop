@@ -93,6 +93,11 @@
                                     data-bs-target="#adminQrModal">
                                     Thành công
                                 </button>
+                                <button type="button" class="btn btn-danger"
+                                    {{ $refund->status != 'pending' ? 'disabled' : '' }} data-bs-toggle="modal"
+                                    data-bs-target="#adminQrModalcancel">
+                                    Từ chối
+                                </button>
                             </div>
 
                             <!-- Modal hiển thị ảnh QR khách gửi -->
@@ -107,8 +112,8 @@
                                         </div>
                                         <div class="modal-body text-center">
                                             @if (!empty($refund->QR_images))
-                                                <img src="{{ asset( $refund->QR_images) }}" alt="QR Image"
-                                                    class="img-fluid" style="max-height:90vh;">
+                                                <img src="{{ asset($refund->QR_images) }}" alt="QR Image" class="img-fluid"
+                                                    style="max-height:90vh;">
                                             @else
                                                 <p>Không có ảnh QR.</p>
                                             @endif
@@ -170,6 +175,81 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="modal fade" id="adminQrModalcancel" tabindex="-1"
+                                aria-labelledby="adminQrModalcancelLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="adminQrModalcancelLabel">Lý do</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Đóng"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="{{ url('dashboard/change/refund/' . $refund->id) }}"
+                                                method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                @method('POST')
+                                                <input type="hidden" name="status_old" value="pending">
+                                                <input type="hidden" name="status_new" value="rejected">
+                                                <div class="mb-3">
+                                                    <input type="text" name="admin_notes" id=""
+                                                        class="form-control">
+                                                </div>
+                                                <div class="text-end">
+                                                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+
+                            <h5 class="card-title">Lịch sử xử lý hoàn tiền</h5>
+
+                            @if ($log->isEmpty())
+                                <p class="text-muted">Chưa có log nào được ghi nhận.</p>
+                            @else
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Thời gian</th>
+                                                <th>Người thực hiện</th>
+                                                <th>Số tiền</th>
+                                                <th>Hành Động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($log as $index => $logs)
+                                                <tr>
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ formatDate($logs->created_at) }}
+                                                    </td>
+                                                    <td><a
+                                                            href="{{ route('users.show', $logs->id) }}">{{ $logs->name ?? 'System' }}</a>
+                                                    </td>
+                                                    <td>{{ $logs->money }}</td>
+                                                    <td>
+                                                        @switch($logs->action)
+                                                            @case('approved')
+                                                                Đồng ý
+                                                            @break
+
+                                                            @case('rejected')
+                                                              Từ Chối
+                                                            @break
+
+                                                            @default
+                                                        @endswitch
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
 
                         </div>
                     </div>
@@ -184,23 +264,23 @@
     <!-- End Page-content -->
 @endsection
 @section('js-content')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    @if (session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Thành công!',
-            text: "{{ session('success') }}",
-        });
-    @endif
+    <script>
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: "{{ session('success') }}",
+            });
+        @endif
 
-    @if (session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Lỗi!',
-            text: "{{ session('error') }}",
-        });
-    @endif
-</script>
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: "{{ session('error') }}",
+            });
+        @endif
+    </script>
 @endsection
