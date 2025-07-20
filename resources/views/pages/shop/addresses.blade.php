@@ -146,9 +146,18 @@
                     </div>
 
                     <div class="text-center mt-4">
-                        <a href="{{ route('home.checkout') }}" class="btn btn-outline-dark-gray">
-                            <i class="fas fa-arrow-left me-1"></i>Quay lại thanh toán
-                        </a>
+                        @php
+                            $from = request('from', 'checkout'); // mặc định là checkout nếu không có
+                        @endphp
+                        @if($from === 'info')
+                            <a href="{{ route('home.info') }}" class="btn btn-outline-dark-gray" style="display: inline-flex !important; align-items: center !important; white-space: nowrap !important;">
+                                <i class="fas fa-arrow-left me-1"></i> Quay lại
+                            </a>
+                        @else
+                            <a href="{{ route('home.checkout') }}" class="btn btn-outline-dark-gray" style="display: inline-flex !important; align-items: center !important; white-space: nowrap !important;">
+                                <i class="fas fa-arrow-left me-1"></i> Quay lại
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>

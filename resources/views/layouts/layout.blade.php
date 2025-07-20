@@ -12,7 +12,7 @@
 {{-- @vite(['resources/js/app.js']) --}}
     <body data-mobile-nav-style="classic">
         <!-- start header -->
-        @if (session('error'))
+        {{-- @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show m-3" role="alert" style="position: fixed; top: 0; right: 0; z-index: 9999; max-width: 400px;">
                 <i class="fas fa-exclamation-triangle me-2"></i>
                 {{ session('error') }}
@@ -26,7 +26,7 @@
                 {{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        @endif
+        @endif --}}
         
         <header class="header-with-topbar">
             <!-- start header top bar -->
