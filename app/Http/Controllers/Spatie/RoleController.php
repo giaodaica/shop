@@ -19,7 +19,6 @@ class RoleController extends Controller
         $this->middleware(function ($request, $next) {
             return $next($request);
         });
-
     }
     public function index(Request $request)
     {
@@ -54,7 +53,7 @@ class RoleController extends Controller
             $array[] = [
                 "id" => $permission->id . "",
                 "parent" => $permission->parent_id . "",
-                "text" => htmlentities($permission->title) . "",
+                "text" => htmlentities($permission->name) . "",
                 "state" => [
                     'opened' => true
                 ],
@@ -128,7 +127,7 @@ class RoleController extends Controller
             $array[] = [
                 "id" => $permission->id . "",
                 "parent" => $permission->parent_id . "",
-                "text" => htmlentities($permission->title) . "",
+                "text" => htmlentities($permission->name) . "",
                 "state" => [
                     'opened' => true
                 ],
@@ -219,37 +218,21 @@ class RoleController extends Controller
         foreach ($menu as $item)
             if ($item->parent_id == $parent_id) {
                 $result .= "<li class='dd-item nested-list-item' data-order='{$item->order}' data-id='{$item->id}'>
-          <div class='dd-handle nested-list-handle'>
-            <span class='la la-arrows-alt'></span>
-          </div>
-          <div class='nested-list-content' >";
-                if ($parent_id != 0) {
-                    $result .= "<div class=\"m-checkbox\">
-                                <label class=\"checkbox checkbox-outline\">
-                                <input  type=\"checkbox\" rel=\"{$item->id}\" class=\"children_of_{$item->parent_id}\"  >
-                                <span></span> " . htmlspecialchars($item->title, ENT_QUOTES, 'UTF-8') . "
-                                </label>
-                            </div>";
-                } else {
-                    $result .= "<div class=\"m-checkbox\">
-                                <label class=\"checkbox checkbox-outline\">
-                                <input  type=\"checkbox\" rel=\"{$item->id}\" class=\"children_of_{$item->parent_id}\"  >
-                                <span></span> " . htmlspecialchars($item->title, ENT_QUOTES, 'UTF-8') . "
-                                </label>
-                            </div>";
-                }
+      <div class='nested-list-content'>
+        <span class='dd-handle nested-list-handle' style='cursor:move; margin-right:10px;'><span class='la la-arrows-alt'></span></span>";
+                // Chỉ còn tên vai trò, KHÔNG còn checkbox
+                $result .= "<div style=\"margin:0 10px 0 0; flex:1 1 auto; display:flex; align-items:center;\">" . htmlspecialchars($item->title, ENT_QUOTES, 'UTF-8') . "</div>";
                 $description = "Đang cập nhật...";
                 if ($item->description) {
                     $description = $item->description;
                 }
                 $result .= "<div class='btnControll'>";
-                $result .= " <button tabindex=\"0\" class='btn btn-sm btn-info btn-show' data-toggle=\"popover\" data-trigger=\"click\" title=\"Mô tả nhóm quyền: $item->title\" data-content=\"$description\">Mô tả</button>
-            <a href='#' class='btn btn-sm btn-primary edit_toggle' data-url='" . route("dashboard.roles.edit", $item->id) . "' rel='{$item->id}' >Sửa</a>
-                <a href=\"#\" class=\"btn btn-sm btn-danger  delete_toggle \" rel=\"{$item->id}\">
-                                    Xóa
-                </a>
-            </div>
-          </div>" . $this->buildMenu($menu, $item->id) . "</li>";
+                $result .= "<a href='#' class='btn btn-sm btn-primary edit_toggle' data-url='" . route("dashboard.roles.edit", $item->id) . "' rel='{$item->id}' >Sửa</a>
+            <a href=\"#\" class=\"btn btn-sm btn-danger  delete_toggle \" rel=\"{$item->id}\">
+                                Xóa
+            </a>
+        </div>
+      </div>" . $this->buildMenu($menu, $item->id) . "</li>";
             }
         return $result ? "\n<ol class=\"dd-list\">\n$result</ol>\n" : null;
     }
