@@ -47,7 +47,7 @@ class InfoController extends Controller
 
         $user = Auth::user();
 
-        $addresses = AddressBook::where('user_id', $user->id)->limit(2)->get();
+        $addresses = AddressBook::where('user_id', $user->id)->with(['province', 'ward'])->limit(2)->get();
         $pendingOrders = $orders->where('status', 'pending')->values();
         $confirmedOrders = $orders->where('status', 'confirmed')->values();
         $shippingOrders = $orders->where('status', 'shipping')->values();

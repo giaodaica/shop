@@ -26,15 +26,15 @@
             <select name="parent_id" class="form-control select2 col-md-5" id="kt_select2_2" style="width: 100%">
                 <option value=''>-- Không chọn --</option>
                 @if( !empty(old('parent_id')) )
-                    {!!\App\Library\Helpers::buildMenuDropdownList($dataCategory,old('parent_id')) !!}
+                    {!!\App\Http\Controllers\Spatie\RoleController::buildMenuDropdownList($dataCategory,old('parent_id')) !!}
                 @elseif(isset($id))
-                    {!!\App\Library\Helpers::buildMenuDropdownList($dataCategory,$id) !!}
+                    {!!\App\Http\Controllers\Spatie\RoleController::buildMenuDropdownList($dataCategory,$id) !!}
                 @else
                     <?php $itSelect = [] ?>
                     @if(isset($data))
                         <?php array_push($itSelect, $data->parent_id);?>
                     @endif
-                    {!!\App\Library\Helpers::buildMenuDropdownList($dataCategory,$itSelect) !!}
+                    {!!\App\Http\Controllers\Spatie\RoleController::buildMenuDropdownList($dataCategory,$itSelect) !!}
                 @endif
             </select>
             @if($errors->has('parent_id'))

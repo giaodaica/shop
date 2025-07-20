@@ -28,7 +28,7 @@ class Order extends Model
         'user_comment',
         'user_confirm',
         'province_code',
-        'wards_code'
+        'ward_code'
     ];
 
     public function user()
@@ -54,5 +54,15 @@ class Order extends Model
     public function orderHistories()
     {
         return $this->hasMany(OrderHistories::class);
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Provinces::class, 'province_code', 'province_code');
+    }
+
+    public function ward()
+    {
+        return $this->belongsTo(Wards::class, 'ward_code', 'ward_code');
     }
 }
