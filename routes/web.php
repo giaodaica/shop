@@ -126,7 +126,7 @@ Route::prefix('dashboard')->group(function () {
     Route::post('order/change-address/{id}',[OrderController::class,'change_address']);
     // route thống kê
     Route::get('thong-ke', [RevenueController::class, 'index'])->name('dashboard.revenue');
-    Route::post('fillter-revenue',[RevenueController::class,'index'])->name('dashboard.order.fillter');
+    Route::post('fillter-revenue', [RevenueController::class, 'index'])->name('dashboard.order.fillter');
     // Route resource cho color và size
     Route::resource('colors', ColorController::class);
     Route::resource('sizes', SizeController::class);
@@ -147,9 +147,9 @@ Route::prefix('dashboard')->group(function () {
     Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
     Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
     Route::post('/users/lock', [UserController::class, 'lock'])->name('users.lock');
+
     Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
     Route::get('order/{id}', [OrderController::class, 'db_order_show'])->name('orders.show');
-
 });
 
 

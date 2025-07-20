@@ -33,7 +33,7 @@
                 </div>
             @endif
 
-              @if (session('warning'))
+            @if (session('warning'))
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                     {{ session('warning') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
@@ -85,7 +85,7 @@
 
                                             <th>Vai trò</th>
                                             <th>Hành động</th>
-                                         
+
                                         </tr>
                                     </thead>
                                     <tbody class="list form-check-all">
@@ -112,7 +112,7 @@
                                                     <a href="{{ route('users.show', $user->id) }}" class="text-primary">Chi
                                                         tiết</a> |
                                                     <a href="{{ route('users.edit', $user->id) }}" class="text-info">Sửa</a>
-                                                    |                                                   @if ($user->status === 'active')
+                                                    | @if ($user->status === 'active')
                                                         <a href="javascript:void(0);" class="text-warning lock-user-link"
                                                             data-user-id="{{ $user->id }}" data-bs-toggle="modal"
                                                             data-bs-target="#lockUserModal">
@@ -131,7 +131,7 @@
                                                         </form>
                                                     @endif
                                                 </td>
-                                             
+
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -158,13 +158,12 @@
                                             <div class="modal-body">
                                                 <div class="mb-3">
                                                     <label for="reason" class="form-label">Lý do khóa</label>
-                                                    <select class="form-select" name="reason" required>
+                                                    <select class="form-select" name="lock_reason_id" required>
                                                         <option value="">-- Chọn lý do --</option>
-                                                        <option value="Bùng hàng">Bùng hàng</option>
-                                                        <option value="Spam / Lạm dụng">Spam / Lạm dụng</option>
-                                                        <option value="Thông tin không hợp lệ">Thông tin không hợp lệ
-                                                        </option>
-                                                        <option value="Khác">Khác</option>
+                                                        @foreach ($lockReasons as $reason)
+                                                            <option value="{{ $reason->id }}">{{ $reason->name }}
+                                                            </option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
                                                 <div class="mb-3">
