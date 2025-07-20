@@ -91,7 +91,17 @@
                                     <span class="bg-hover bg-base-color"></span>
                                 </a>
                             </li>
-
+                            @if(Auth::user() && Auth::user()->hasRole('admin'))
+                                <li class="nav-item">
+                                    <a href="{{ route('dashboard.index') }}" class="nav-link text-danger">
+                                        <span>
+                                            <span class="me-5px"><i class="bi bi-speedometer2"></i></span>
+                                            <span>Vào quản trị</span>
+                                        </span>
+                                        <span class="bg-hover bg-base-color"></span>
+                                    </a>
+                                </li>
+                            @endif
                             <li class="nav-item">
                                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                                     @csrf

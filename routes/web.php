@@ -25,6 +25,7 @@ use App\Http\Controllers\web\ProductDetailController;
 use App\Http\Controllers\web\ReviewController;
 use App\Http\Controllers\AddressBookController;
 use App\Http\Controllers\RefundMoneyController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Contracts\Role;
@@ -71,7 +72,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('addresses/wards', [AddressBookController::class, 'getWards'])->name('addresses.wards');
 });
 
-Route::get('dashboard', [HomeController::class, 'admin']);
+// Dashboard Authentication Routes
+//Route::get('dashboard/login', [DashboardController::class, 'login'])->name('dashboard.login')->middleware('dashboard.guest');
+//Route::post('dashboard/login', [DashboardController::class, 'authenticate'])->name('dashboard.authenticate')->middleware('dashboard.guest');
+//Route::post('dashboard/logout', [DashboardController::class, 'logout'])->name('dashboard.logout');
+
+// Dashboard Main Route (protected)
+Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.index')->middleware('dashboard.auth');
 
 
 
@@ -99,7 +106,7 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
 
 
 
-Route::prefix('dashboard')->group(function () {
+Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
     Route::get('/voucher/{id}', [VouchersController::class, 'show'])->name('dashboard.voucher');
     Route::post('voucher/add_voucher', [VouchersController::class, 'store']);
     Route::get('voucher/{action}/{id}', [VouchersController::class, 'detail']);
@@ -154,7 +161,7 @@ Route::prefix('dashboard')->group(function () {
 });
 
 
-Route::prefix('dashboard')->name('dashboard.')->group(function () {
+Route::prefix('dashboard')->name('dashboard.')->middleware('dashboard.auth')->group(function () {
     // Phân quyền
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
