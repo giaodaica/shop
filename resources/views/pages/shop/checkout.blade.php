@@ -88,7 +88,7 @@
                                             <input type="radio" name="address_id" value="{{ $address->id }}"
                                                 class="address-radio d-none" {{ $loop->first ? 'checked' : '' }}>
                                             <div class="address-info">
-                                                <div class="address-card border p-3 rounded mb-2">
+                                                <div class="address-card border p-3 rounded mb-2" data-province-code="{{ $address->province_code }}">
                                                     <div class="mb-2">
                                                         <strong>Địa chỉ {{ $loop->iteration }}</strong>
                                                     </div>
@@ -96,7 +96,7 @@
                                                         <strong>Tên người nhận:</strong> {{ $address->name }}
                                                     </div>
                                                     <div class="mb-1">
-                                                        <strong>Địa chỉ:</strong> {{ $address->address }}
+                                                        <strong>Địa chỉ:</strong> {{ $address->address }}, {{ $address->ward->name ?? '' }}, {{ $address->province->name ?? '' }}
                                                     </div>
                                                     <div class="mb-0">
                                                         <strong>Số điện thoại:</strong> {{ $address->phone }}
@@ -345,24 +345,20 @@
             if (!checkedRadio) return;
 
             const addressCard = checkedRadio.parentElement.querySelector('.address-card');
-
-            let addressText = '';
-            if (addressCard) {
-                addressText = addressCard.innerText
-                    .toLowerCase()
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "");
-               
-            }
-            const isHanoi = /\b(ha\s*noi|hn)\b/.test(addressText);
+            
+            // Lấy province_code từ data attribute
+            const provinceCode = addressCard ? addressCard.getAttribute('data-province-code') : null;
+            
+            // Hà Nội có province_code = "01"
+            const isHanoi = provinceCode === "01";
 
             const expressRadio = document.querySelector('input[name="shipping_type"][value="express"]');
             if (expressRadio) {
                 expressRadio.disabled = !isHanoi;
                 if (!isHanoi && expressRadio.checked) {
-                    // Nếu đang chọn express mà không hợp lệ thì chuyển về thường
-                    const standardRadio = document.querySelector('input[name="shipping_type"][value="standard"]');
-                    if (standardRadio) standardRadio.checked = true;
+                    // Nếu đang chọn express mà không hợp lệ thì chuyển về basic
+                    const basicRadio = document.querySelector('input[name="shipping_type"][value="basic"]');
+                    if (basicRadio) basicRadio.checked = true;
                 }
             }
         }

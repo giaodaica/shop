@@ -12,7 +12,7 @@ class AddressBook extends Model
         'phone',
         'user_id',
         'province_code',
-        'wards_code'
+        'ward_code'
     ];
 
     public function user()
@@ -23,5 +23,15 @@ class AddressBook extends Model
     public function orders()
     {
         return $this->hasMany(Order::class, 'address_books_id');
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Provinces::class, 'province_code', 'province_code');
+    }
+
+    public function ward()
+    {
+        return $this->belongsTo(Wards::class, 'ward_code', 'ward_code');
     }
 }

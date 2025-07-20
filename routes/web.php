@@ -68,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('addresses', [AddressBookController::class, 'store'])->name('addresses.store');
     Route::put('addresses/{id}', [AddressBookController::class, 'update'])->name('addresses.update');
     Route::delete('addresses/{id}', [AddressBookController::class, 'destroy'])->name('addresses.destroy');
+    Route::get('addresses/wards', [AddressBookController::class, 'getWards'])->name('addresses.wards');
 });
 
 Route::get('dashboard', [HomeController::class, 'admin']);

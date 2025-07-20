@@ -238,7 +238,7 @@
                                                         <div class="card border-0 shadow-sm h-100">
                                                             <div class="card-body position-relative">
                                                                 <h6 class="fw-bold mb-1">{{ $addr->name }}</h6>
-                                                                <p class="text-muted mb-1"><i class="bi bi-geo-alt-fill me-1"></i>{{ $addr->address }}</p>
+                                                                <p class="text-muted mb-1"><i class="bi bi-geo-alt-fill me-1"></i>{{ $addr->address }}, {{ $addr->ward->name ?? '' }}, {{ $addr->province->name ?? '' }}</p>
                                                                 <p class="text-muted mb-0"><i class="bi bi-telephone-fill me-1"></i>{{ $addr->phone }}</p>
                                                             </div>
                                                         </div>

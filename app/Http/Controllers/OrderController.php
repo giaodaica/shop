@@ -73,7 +73,7 @@ class OrderController extends Controller
         $total = $subtotal - $voucherDiscount + $shippingFee;
 
         // Lấy địa chỉ giao hàng
-        $addresses = AddressBook::where('user_id', $userId)->get();
+        $addresses = AddressBook::where('user_id', $userId)->with(['province', 'ward'])->get();
 
         // Lấy voucher đã áp dụng
         $appliedVoucher = null;
@@ -205,6 +205,8 @@ class OrderController extends Controller
                 'name' => $address->name,
                 'phone' => $address->phone,
                 'address' => $address->address,
+                'province_code' => $address->province_code,
+                'ward_code' => $address->ward_code,
                 'total_amount' => $subtotal,
                 'final_amount' => $finalAmount,
                 'discount_amount' => $voucherDiscount,

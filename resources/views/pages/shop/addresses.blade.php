@@ -56,7 +56,7 @@
                                                             <i class="fas fa-ellipsis-v"></i>
                                                         </button>
                                                         <ul class="dropdown-menu">
-                                                            <li><a class="dropdown-item" href="#" onclick="editAddress({{ $address->id }}, '{{ $address->name }}', '{{ $address->address }}', '{{ $address->phone }}')">
+                                                            <li><a class="dropdown-item" href="#" onclick="editAddress({{ $address->id }}, '{{ $address->name }}', '{{ $address->phone }}', '{{ $address->province_code }}', '{{ $address->ward_code }}', '{{ $address->address }}')">
                                                                 <i class="fas fa-edit me-2"></i>Sửa
                                                             </a></li>
                                                             <li><hr class="dropdown-divider"></li>
@@ -68,7 +68,7 @@
                                                 </div>
                                                 <p class="card-text mb-2">
                                                     <i class="fas fa-map-marker-alt me-2 text-muted"></i>
-                                                    {{ $address->address }}
+                                                    {{ $address->address }}, {{ $address->ward->name ?? '' }}, {{ $address->province->name ?? '' }}
                                                 </p>
                                                 <p class="card-text mb-0">
                                                     <i class="fas fa-phone me-2 text-muted"></i>
@@ -110,8 +110,26 @@
                                     </div>
                                 </div>
                                 
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="province_code" class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                        <select class="form-control" id="province_code" name="province_code" required>
+                                            <option value="">Chọn tỉnh/thành phố</option>
+                                            @foreach($provinces as $province)
+                                                <option value="{{ $province->province_code }}">{{ $province->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="ward_code" class="form-label">Xã/Phường <span class="text-danger">*</span></label>
+                                        <select class="form-control" id="ward_code" name="ward_code" required disabled>
+                                            <option value="">Chọn xã/phường</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
                                 <div class="mb-3">
-                                    <label for="address" class="form-label">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                                    <label for="address" class="form-label">Địa chỉ chi tiết (số nhà, đường,...) <span class="text-danger">*</span></label>
                                     <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
                                 </div>
                                 
@@ -139,24 +157,70 @@
     <!-- end section -->
 
     <script>
-        function editAddress(id, name, address, phone) {
+        // Load wards khi chọn province
+        document.getElementById('province_code').addEventListener('change', function() {
+            const provinceCode = this.value;
+            const wardSelect = document.getElementById('ward_code');
+            
+            if (provinceCode) {
+                fetch(`/addresses/wards?province_code=${provinceCode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
+                        data.forEach(ward => {
+                            wardSelect.innerHTML += `<option value="${ward.ward_code}">${ward.name}</option>`;
+                        });
+                        wardSelect.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        wardSelect.innerHTML = '<option value="">Có lỗi xảy ra</option>';
+                    });
+            } else {
+                wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
+                wardSelect.disabled = true;
+            }
+        });
+
+        function editAddress(id, name, phone, provinceCode, wardCode, address) {
             document.getElementById('formTitle').textContent = 'Sửa địa chỉ';
             document.getElementById('addressId').value = id;
             document.getElementById('name').value = name;
-            document.getElementById('address').value = address;
             document.getElementById('phone').value = phone;
+            document.getElementById('address').value = address;
             document.getElementById('isEdit').value = 'PUT';
             document.getElementById('addressForm').action = `/addresses/${id}`;
             document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save me-1"></i>Cập nhật';
             document.getElementById('cancelBtn').style.display = 'inline-block';
+            
+            // Set province và load wards
+            const provinceSelect = document.getElementById('province_code');
+            provinceSelect.value = provinceCode;
+            
+            if (provinceCode) {
+                fetch(`/addresses/wards?province_code=${provinceCode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const wardSelect = document.getElementById('ward_code');
+                        wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
+                        data.forEach(ward => {
+                            const selected = ward.ward_code === wardCode ? 'selected' : '';
+                            wardSelect.innerHTML += `<option value="${ward.ward_code}" ${selected}>${ward.name}</option>`;
+                        });
+                        wardSelect.disabled = false;
+                    });
+            }
         }
 
         function resetForm() {
             document.getElementById('formTitle').textContent = 'Thêm địa chỉ mới';
             document.getElementById('addressId').value = '';
             document.getElementById('name').value = '';
-            document.getElementById('address').value = '';
             document.getElementById('phone').value = '';
+            document.getElementById('address').value = '';
+            document.getElementById('province_code').value = '';
+            document.getElementById('ward_code').innerHTML = '<option value="">Chọn xã/phường</option>';
+            document.getElementById('ward_code').disabled = true;
             document.getElementById('isEdit').value = 'POST';
             document.getElementById('addressForm').action = '{{ route("addresses.store") }}';
             document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus me-1"></i>Thêm địa chỉ';
