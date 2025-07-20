@@ -18,45 +18,45 @@ class PermissionController extends Controller
 	 * @return void
 	 */
 
-    protected $user;
-    protected $page_breadcrumbs;
+	protected $user;
+	protected $page_breadcrumbs;
 
 	public function __construct()
 	{
 
-        $this->middleware(function ($request, $next) {
+		$this->middleware(function ($request, $next) {
 
-//            if (strtolower(Auth::guard()->user()->username) != "admin") {
-//                abort('403');
-//            }
+			//            if (strtolower(Auth::guard()->user()->username) != "admin") {
+			//                abort('403');
+			//            }
 
-            return $next($request);
-        });
+			return $next($request);
+		});
 		//set permission to function
-        // $this->middleware('role:admin');
-        //		$this->middleware('permission:permission-list');
+		// $this->middleware('role:admin');
+		//		$this->middleware('permission:permission-list');
 		//		$this->middleware('permission:permission-create', ['only' => ['create','store']]);
 		//		$this->middleware('permission:permission-edit', ['only' => ['edit','update']]);
 		//		$this->middleware('permission:permission-delete', ['only' => ['destroy']]);
 
-        $this->page_breadcrumbs = [
-            [   'page' => route('dashboard.permissions.index'),
-                'title' => "Phân quyền truy cập",
-            ],
+		$this->page_breadcrumbs = [
+			[
+				'page' => route('dashboard.permissions.index'),
+				'title' => "Phân quyền truy cập",
+			],
 
-        ];
+		];
 	}
 
 	public function index(Request $request)
 	{
-       
-		$data=Permission::orderBy('order','asc')->get();
-		$datatable=$this->getHTMLCategory($data);
+
+		$data = Permission::orderBy('order', 'asc')->get();
+		$datatable = $this->getHTMLCategory($data);
 
 		return view('dashboard.pages.permission.index')
-        ->with('page_breadcrumbs',$this->page_breadcrumbs)
-        ->with('datatable',$datatable);
-
+			->with('page_breadcrumbs', $this->page_breadcrumbs)
+			->with('datatable', $datatable);
 	}
 
 
@@ -65,18 +65,18 @@ class PermissionController extends Controller
 	 *
 	 * @return Response
 	 */
-    public function create(Request $request)
-    {
-        $dataCategory= Permission::orderBy('order','asc')->get();
-        $id = null;
+	public function create(Request $request)
+	{
+		$dataCategory = Permission::orderBy('order', 'asc')->get();
+		$id = null;
 
-        if (count($request->all())){
-            $all = $request->all();
-            $id = $all['id'];
-        }
+		if (count($request->all())) {
+			$all = $request->all();
+			$id = $all['id'];
+		}
 
-        return view('dashboard.pages.permission.create_edit', compact('dataCategory','id'));
-    }
+		return view('dashboard.pages.permission.create_edit', compact('dataCategory', 'id'));
+	}
 
 	/**
 	 * Store a newly created newscategory in storage.
@@ -86,20 +86,19 @@ class PermissionController extends Controller
 	public function store(Request $request)
 	{
 
-        $this->validate($request,[
-            'title'=>'required',
-            'name'=>'required|unique:permissions'
-        ],[
-            'title.required' => __('Vui lòng nhật tiêu đề'),
-            'name.required' =>__('Vui lòng nhâp từ khóa name'),
-            'name.unique' =>__('Keyword đã tồn tại')
-        ]);
-		$input=$request->all();
-        $data=Permission::create($input);
+		$this->validate($request, [
+			'title' => 'required',
+			'name' => 'required|unique:permissions'
+		], [
+			'title.required' => __('Vui lòng nhật tiêu đề'),
+			'name.required' => __('Vui lòng nhâp từ khóa name'),
+			'name.unique' => __('Keyword đã tồn tại')
+		]);
+		$input = $request->all();
+		$data = Permission::create($input);
 
 		return redirect()->route('dashboard.permissions.index')
-            ->with('success',__('Thêm mới thành công !'));
-
+			->with('success', __('Thêm mới thành công !'));
 	}
 
 	/**
@@ -110,8 +109,8 @@ class PermissionController extends Controller
 	 */
 	public function show($id)
 	{
-        //$data = Permission::findOrFail($id);
-        //ActivityLog::add($request, 'Show permission #'.$data->id);
+		//$data = Permission::findOrFail($id);
+		//ActivityLog::add($request, 'Show permission #'.$data->id);
 		//return view('admin.permission.show', compact('item'));
 	}
 
@@ -121,12 +120,11 @@ class PermissionController extends Controller
 	 * @param  int $id
 	 * @return Response
 	 */
-	public function edit(Request $request,$id)
+	public function edit(Request $request, $id)
 	{
 		$data = Permission::findOrFail($id);
-		$dataCategory= Permission::where('id','!=',$id)->orderBy('order','asc')->get();
-		return view('dashboard.pages.permission.create_edit', compact('data','dataCategory'));
-
+		$dataCategory = Permission::where('id', '!=', $id)->orderBy('order', 'asc')->get();
+		return view('dashboard.pages.permission.create_edit', compact('data', 'dataCategory'));
 	}
 
 	/**
@@ -135,23 +133,22 @@ class PermissionController extends Controller
 	 * @param  int $id
 	 * @return Response
 	 */
-	public function update(Request $request,$id)
+	public function update(Request $request, $id)
 	{
 		$data = Permission::findOrFail($id);
 
-        $this->validate($request,[
-            'title'=>'required',
-            'name'=>'required|unique:permissions,name,'.$id
-        ],[
-            'title.required' => __('Vui lòng nhật tiêu đề'),
-            'name.required' =>__('Vui lòng nhâp từ khóa name'),
-            'name.unique' =>__('Keyword đã tồn tại')
-        ]);
+		$this->validate($request, [
+			'title' => 'required',
+			'name' => 'required|unique:permissions,name,' . $id
+		], [
+			'title.required' => __('Vui lòng nhật tiêu đề'),
+			'name.required' => __('Vui lòng nhâp từ khóa name'),
+			'name.unique' => __('Keyword đã tồn tại')
+		]);
 
 		$input = $request->all();
-        $data->update($input);
-		return redirect()->route('dashboard.permissions.index')->with('success',__('Cập nhật thành công !'));
-
+		$data->update($input);
+		return redirect()->route('dashboard.permissions.index')->with('success', __('Cập nhật thành công !'));
 	}
 
 	/**
@@ -163,9 +160,9 @@ class PermissionController extends Controller
 	public function destroy(Request $request)
 	{
 
-		$input=explode(',',$request->id);
+		$input = explode(',', $request->id);
 		Permission::destroy($input);
-		return redirect()->route('dashboard.permissions.index')->with('success',__('Xóa thành công !'));
+		return redirect()->route('dashboard.permissions.index')->with('success', __('Xóa thành công !'));
 	}
 
 
@@ -178,7 +175,7 @@ class PermissionController extends Controller
 		$destination = $request->get('destination');
 
 		$item = Permission::find($source);
-		$item->parent_id = isset($destination)?$destination:0;
+		$item->parent_id = isset($destination) ? $destination : 0;
 		$item->save();
 
 		$ordering = json_decode($request->get('order'));
@@ -213,45 +210,16 @@ class PermissionController extends Controller
 		foreach ($menu as $key => $item)
 			if ($item->parent_id == $parent_id) {
 				$result .= "<li class='dd-item nested-list-item' data-order='{$item->order}' data-id='{$item->id}'>
-              <div class='dd-handle nested-list-handle'>
-                <span class='la la-arrows-alt'></span>
-              </div>
-              <div class='nested-list-content'>";
-				$url = $item->url ?? "#";
-				if($parent_id!=0){
-                    $result.="<div class=\"m-checkbox\">
-                                    <label class=\"checkbox checkbox-outline\">
-                                    <input  type=\"checkbox\" rel=\"{$item->id}\" class=\"children_of_{$item->parent_id}\"  >
-                                      <span></span><a href=\"$url\" style='color:#333' target='_blank'>".e($item->title).' - ['.e($item->name)."]</a>
-                                    </label>
-                                </div>";
-
-
-				}
-				else{
-
-                    $result.="<div class=\"m-checkbox\">
-                                    <label class=\"checkbox checkbox-outline\">
-                                    <input  type=\"checkbox\" rel=\"{$item->id}\" class=\"children_of_{$item->parent_id}\"  >
-                                    <span></span> <a href=\"$url\" style='color:#333' target='_blank'>".e($item->title).' - ['.e($item->name)."]</a>
-                                    </label>
-                                </div>";
-				}
+              <div class='nested-list-content'>
+                <span class='dd-handle nested-list-handle' style='cursor:move; margin-right:10px;'><span class='la la-arrows-alt'></span></span>";
+				// Chỉ còn tên permission, KHÔNG còn checkbox, KHÔNG còn url
+				$result .= "<div style=\"margin:0 10px 0 0; flex:1 1 auto; display:flex; align-items:center;\">" . e($item->title) . ' - [' . e($item->name) . "]</div>";
 				$result .= "<div class='btnControll'>";
 				$result .= "<a href='#' class='btn btn-sm btn-primary edit_toggle' data-url='" . route("dashboard.permissions.edit", $item->id) . "' rel='{$item->id}' >Sửa</a> ";
 				$result .= "<a href='#' class='btn btn-sm btn-danger delete_toggle' rel='{$item->id}'>Xóa</a>";
-				$result .= "</div>" . $this->buildMenu($menu, $item->id) . "</li>";
+				$result .= "</div>
+              </div>" . $this->buildMenu($menu, $item->id) . "</li>";
 			}
 		return $result ? "\n<ol class=\"dd-list\">\n$result</ol>\n" : null;
 	}
-
-
-
-
-
-
-
-
-
-
 }

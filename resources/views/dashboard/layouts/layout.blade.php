@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="sm" data-sidebar-image="none" data-preloader="disable">
 
+
 @include('dashboard.card.head')
 @yield('css-content')
 

@@ -9,17 +9,70 @@
             background-color: #f5f5f6;
             border: 1px solid #e2e2e5;
             border-radius: 3px;
+            overflow: auto;
         }
         *, :after, :before {
             box-sizing: border-box;
         }
+        .dd-list, .dd-list .dd-list {
+            padding-left: 0 !important;
+            margin-bottom: 0 !important;
+            border: none !important;
+            background: none !important;
+        }
+        .dd-item {
+            list-style: none !important;
+            margin-bottom: 0 !important;
+        }
         .nested-list-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            padding: 5px 10px;
-            height: auto;
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            padding: 0 !important;
+            min-height: 44px !important;
+            background: #f8f9fa !important;
+            border-bottom: 1px solid #e2e2e5 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            margin-bottom: 0 !important;
+            position: relative;
+        }
+        .nested-list-content:last-child {
+            border-bottom: none !important;
+        }
+        .dd-handle, .nested-list-handle {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 40px !important;
+            min-width: 40px !important;
+            height: 44px !important;
+            background: #e2e2e5 !important;
+            border-right: 1px solid #d1d1d1 !important;
+            cursor: move !important;
+            font-size: 18px !important;
+            color: #888 !important;
+            margin-right: 0 !important;
+            border-radius: 0 !important;
+        }
+        .m-checkbox {
+            margin: 0 10px 0 0 !important;
+            flex: 1 1 auto !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+        .btnControll {
+            margin-left: auto !important;
+            display: flex !important;
+            gap: 6px !important;
+        }
+        .nested-list-content > * {
+            vertical-align: middle !important;
+        }
+        .dd-list .dd-list {
+            margin-left: 40px !important;
+            border-left: none !important;
+            background: none !important;
         }
     </style>
     <div class="page-content" id="kt_page_sticky_card">
@@ -30,15 +83,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="lead text-right">
                                 <div class="float-right">
-                                    <a href="#" id="nestable-menu-action" data-action="collapse-all" class="btn btn-info m-btn">
-                                        {{__('Thu gọn')}}
-                                    </a>
-                                    <a href="#" id="nestable-menu-checkall" data-action="0" class="btn btn-primary m-btn">
-                                        {{__('Chọn tất cả')}}
-                                    </a>
-                                    <a href="#" class="btn btn-danger m-btn delete_selected">
-                                        {{__('Xóa mục đã chọn')}}
-                                    </a>
+                                    <!-- Đã xóa các nút Thu gọn, Chọn tất cả, Xóa mục đã chọn -->
                                 </div>
                             </div>
                             <button type="button" data-url="{{ route('dashboard.permissions.create') }}" class="btn btn-success font-weight-bolder loadModal_toggle">
