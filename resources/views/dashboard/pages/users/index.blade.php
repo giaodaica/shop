@@ -146,6 +146,7 @@
                             <div class="modal fade" id="lockUserModal" tabindex="-1" aria-labelledby="lockUserLabel"
                                 aria-hidden="true">
                                 <div class="modal-dialog">
+                                    
                                     <form action="{{ route('users.lock') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="user_id" id="lock-user-id">

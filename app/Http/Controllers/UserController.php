@@ -156,7 +156,7 @@ class UserController extends Controller
         $user = User::with([
             'orders.orderItems',
             'vouchers.cate_vouchers',
-            'lockedByUser'
+            'lockedByUser','addressBooks.province', 'addressBooks.ward'
         ])->findOrFail($id);
 
         $activeTab = request('tab', 'overview');
@@ -172,7 +172,7 @@ class UserController extends Controller
             'failed' => $user->orders->where('status', 'failed')->count(),
         ];
 
-        // Chuẩn hóa dữ liệu voucher để truyền ra view
+     
         $vouchers = $user->vouchers->map(function ($voucher) {
             $now = now();
             $status = 'Chưa dùng';
