@@ -155,7 +155,8 @@ class UserController extends Controller
     {
         $user = User::with([
             'orders.orderItems',
-            'vouchers.cate_vouchers'
+            'vouchers.cate_vouchers',
+            'lockedByUser'
         ])->findOrFail($id);
 
         $activeTab = request('tab', 'overview');
@@ -224,6 +225,7 @@ class UserController extends Controller
 
         // Cập nhật trạng thái user
         $user->status = 'inactive';
+        $user->locked_by = auth()->id();
         $user->save();
 
         // Gửi mail

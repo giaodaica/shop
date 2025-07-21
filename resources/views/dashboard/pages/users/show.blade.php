@@ -107,6 +107,20 @@
                                                     <td class="text-muted">
                                                         {{ $user->role === 'admin' ? 'Quản trị' : 'Khách hàng' }}</td>
                                                 </tr>
+                                                <tr>
+                                                    <th class="ps-0">Tình trạng:</th>
+                                                    <td class="text-muted">
+                                                        @if ($user->status === 'inactive')
+                                                            <span class="text-danger">Khóa
+                                                                @if ($user->lockedByUser)
+                                                                    (do {{ $user->lockedByUser->name }} khóa)
+                                                                @endif
+                                                            </span>
+                                                        @else
+                                                            <span class="text-success">Mở</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
                                                 @if ($user->role !== 'admin')
                                                     <tr>
                                                         <th class="ps-0">Hạng:</th>
@@ -335,7 +349,6 @@
                                                 <tr>
                                                     <th>STT</th>
                                                     <th>Mã đơn hàng</th>
-
                                                     <th>Tổng tiền</th>
                                                     <th>Trạng thái</th>
                                                     <th>Hành động</th>
