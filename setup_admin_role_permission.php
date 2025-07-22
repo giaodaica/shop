@@ -44,5 +44,7 @@ if (!$user->hasPermissionTo('access dashboard')) {
     $user->givePermissionTo('access dashboard');
     echo "✅ Đã gán permission 'access dashboard' cho user $user->email\n";
 }
-
+// 6. Cập nhật cột 'role' trong bảng users
+$user->role = 'admin'; 
+$user->save();
 echo "\n---\nHoàn tất!\nUser $user->email đã có role 'admin' và permission 'access dashboard'.\nBạn có thể vào dashboard bình thường.\n---\n"; 

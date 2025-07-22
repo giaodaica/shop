@@ -18,20 +18,22 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('default_address')->nullable();
+            $table->string('province_code')->nullable();
+            $table->string('ward_code')->nullable();
             $table->string('default_phone')->nullable();
-            $table->enum('role',['admin','guest'])->default('guest');
+            $table->enum('role', ['admin', 'guest'])->default('guest');
             $table->rememberToken();
             $table->timestamps();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email',191)->primary();
+            $table->string('email', 191)->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
 
         Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id',191)->primary();
+            $table->string('id', 191)->primary();
             $table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();

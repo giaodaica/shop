@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Contracts\Role;
 
-    Route::get('/wards', [OrderController::class, 'getWards']);
+Route::get('/wards', [OrderController::class, 'getWards']);
 
 Route::middleware(['cache'])->group(function () {
     Auth::routes();
@@ -131,7 +131,7 @@ Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
     Route::get('refund', [RefundMoneyController::class, 'index'])->name('dashboard.order.refund');
     Route::get('refund/{id}', [RefundMoneyController::class, 'show'])->name('dashboard.order.refund.show');
     Route::post('change/refund/{id}', [RefundMoneyController::class, 'change'])->name('dashboard.change.refund');
-    Route::post('order/change-address/{id}',[OrderController::class,'change_address']);
+    Route::post('order/change-address/{id}', [OrderController::class, 'change_address']);
     // route thống kê
     Route::get('thong-ke', [RevenueController::class, 'index'])->name('dashboard.revenue');
     Route::post('fillter-revenue', [RevenueController::class, 'index'])->name('dashboard.order.fillter');
@@ -155,7 +155,6 @@ Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
     Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
     Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
     Route::post('/users/lock', [UserController::class, 'lock'])->name('users.lock');
-
     Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
     Route::get('order/{id}', [OrderController::class, 'db_order_show'])->name('orders.show');
 });
