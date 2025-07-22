@@ -20,38 +20,5 @@ class DashboardController extends Controller
         $recentOrders = Order::with(['user', 'addressBook'])->latest()->take(5)->get();
 
         return view('dashboard.index', compact('totalUsers', 'totalOrders', 'totalProducts', 'recentOrders'));
-    }
-
-    public function login()
-    {
-        return view('dashboard.auth.login');
-    }
-
-    public function authenticate(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-
-            return redirect()->intended(route('dashboard.index'));
-        }
-
-        return back()->withErrors([
-            'email' => 'Email hoặc mật khẩu không đúng.',
-        ])->onlyInput('email');
-    }
-
-    public function logout(Request $request)
-    {
-        Auth::logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()->route('dashboard.login');
-    }
+    }   
 } 
