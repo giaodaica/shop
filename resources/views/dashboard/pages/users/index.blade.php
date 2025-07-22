@@ -146,19 +146,19 @@
                             <div class="modal fade" id="lockUserModal" tabindex="-1" aria-labelledby="lockUserLabel"
                                 aria-hidden="true">
                                 <div class="modal-dialog">
-                                    
                                     <form action="{{ route('users.lock') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="user_id" id="lock-user-id">
+
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="lockUserLabel">Khóa tài khoản người dùng</h5>
+                                                <h5 class="modal-title">Khóa tài khoản người dùng</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                     aria-label="Đóng"></button>
                                             </div>
                                             <div class="modal-body">
                                                 <div class="mb-3">
-                                                    <label for="reason" class="form-label">Lý do khóa</label>
+                                                    <label class="form-label">Lý do khóa</label>
                                                     <select class="form-select" name="lock_reason_id" required>
                                                         <option value="">-- Chọn lý do --</option>
                                                         @foreach ($lockReasons as $reason)
@@ -168,8 +168,8 @@
                                                     </select>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="note" class="form-label">Ghi chú thêm (nếu có)</label>
-                                                    <textarea class="form-control" name="note" rows="2" placeholder="Nhập ghi chú..."></textarea>
+                                                    <label class="form-label">Ghi chú thêm</label>
+                                                    <textarea class="form-control" name="note" rows="2"></textarea>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
@@ -181,6 +181,7 @@
                                     </form>
                                 </div>
                             </div>
+
 
                             {{-- Modal xác nhận xoá hàng loạt --}}
                             <div class="modal fade zoomIn" id="deleteRecordModal" tabindex="-1"
@@ -235,6 +236,13 @@
             const checked = document.querySelectorAll('.user-checkbox:checked').length;
             deleteButton.classList.toggle('d-none', checked === 0);
         }
+        document.querySelectorAll('.lock-user-link').forEach(link => {
+            link.addEventListener('click', function() {
+                const userId = this.dataset.userId;
+                document.getElementById('lock-user-id').value = userId;
+            });
+        });
+
 
         checkAll.addEventListener('change', function() {
             document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = this.checked);

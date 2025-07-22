@@ -12,6 +12,11 @@ class UserLock extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function lockedByUser()
+    {
+        return $this->belongsTo(User::class, 'locked_by');
+    }
+
 
     public function reason()
     {

@@ -153,12 +153,15 @@ class UserController extends Controller
     }
     public function show($id)
     {
+
         $user = User::with([
             'orders.orderItems',
             'vouchers.cate_vouchers',
-            'lockedByUser','addressBooks.province', 'addressBooks.ward'
+            'lockedByUser',
+            'addressBooks.province',
+            'addressBooks.ward'
         ])->findOrFail($id);
-
+        // dd($user->lockedByUser);
         $activeTab = request('tab', 'overview');
 
         // Thống kê trạng thái đơn hàng
@@ -172,7 +175,7 @@ class UserController extends Controller
             'failed' => $user->orders->where('status', 'failed')->count(),
         ];
 
-     
+
         $vouchers = $user->vouchers->map(function ($voucher) {
             $now = now();
             $status = 'Chưa dùng';
@@ -202,37 +205,46 @@ class UserController extends Controller
 
     public function lock(Request $request)
     {
-        $user = User::findOrFail($request->user_id);
+        $request->validate([
+            'user_id'        => 'required|exists:users,id',
+            'lock_reason_id' => 'required|exists:lock_reasons,id',
+            'note'           => 'nullable|string|max:255',
+        ]);
 
-        // Không cho khóa nếu chỉ còn 1 admin đang active
+        $user = User::findOrFail($request->user_id);
+        // Không cho tự khóa chính mình
+        if ($user->id === auth()->id()) {
+            return redirect()->back()->with('error', 'Bạn không thể khóa tài khoản chính mình.');
+        }
+        // Không khóa admin cuối cùng
         if ($user->role === 'admin') {
             $adminCount = User::where('role', 'admin')->where('status', 'active')->count();
-
             if ($adminCount <= 1) {
-                return redirect()->back()->with('warning', 'Không thể khóa người dùng này vì chỉ còn 1 quản trị viên.');
+                return redirect()->back()->with('warning', 'Không thể khóa quản trị viên cuối cùng.');
             }
         }
 
-        $reason = LockReason::findOrFail($request->lock_reason_id);
-        $note = $request->note;
-
-        // Lưu vào bảng user_locks
+        // Ghi log vào bảng user_locks
         UserLock::create([
-            'user_id' => $user->id,
-            'lock_reason_id' => $reason->id,
-            'note' => $note,
+            'user_id'        => $user->id,
+            'lock_reason_id' => $request->lock_reason_id,
+            'note'           => $request->note,
         ]);
 
-        // Cập nhật trạng thái user
-        $user->status = 'inactive';
         $user->locked_by = auth()->id();
+        $user->status = 'inactive';
         $user->save();
 
         // Gửi mail
-        Mail::to($user->email)->send(new \App\Mail\UserLockedMail($user, $reason->name, $note));
+        Mail::to($user->email)->send(new \App\Mail\UserLockedMail(
+            $user,
+            LockReason::find($request->lock_reason_id)->name,
+            $request->note
+        ));
 
-        return redirect()->back()->with('success', 'Đã khóa tài khoản và gửi email.');
+        return back()->with('success', 'Đã khóa tài khoản và gửi email.');
     }
+
 
 
 
