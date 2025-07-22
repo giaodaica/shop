@@ -103,14 +103,16 @@
                                                     <th class="ps-0">Tình trạng:</th>
                                                     <td class="text-muted">
                                                         @if ($user->status === 'inactive')
-                                                            <span class="text-danger">Khóa
+                                                            <span class="text-danger">
+                                                                Khóa
                                                                 @if ($user->lockedByUser)
-                                                                    (do {{ $user->lockedByUser->name }} khóa)
+                                                                    (Người khóa: {{ $user->lockedByUser->name }})
                                                                 @endif
                                                             </span>
                                                         @else
                                                             <span class="text-success">Mở</span>
                                                         @endif
+
                                                     </td>
                                                 </tr>
                                                 @if ($user->role !== 'admin')
@@ -134,12 +136,14 @@
                                 </div>
                                 {{-- Sổ địa chỉ của người dùng --}}
                                 <div class="card mt-4">
-                                    <div class="card-body">
-                                        <h5 class="card-title mb-3 mt-4">Sổ địa chỉ</h5>
-                                        @if ($user->addressBooks->isEmpty())
-                                            <div class="alert alert-warning">Chưa có địa chỉ nào được thêm.</div>
-                                        @else
-                                            @foreach ($user->addressBooks as $address)
+
+
+                                    @if ($user->addressBooks->isEmpty())
+                                        <div class="alert alert-warning">Chưa có địa chỉ nào được thêm.</div>
+                                    @else
+                                        @foreach ($user->addressBooks as $address)
+                                            <div class="card-body">
+                                                <h5 class="card-title mb-3 mt-4">Địa chỉ {{ $loop->iteration }}</h5>
                                                 <table class="table table-borderless mb-2">
                                                     <tbody>
                                                         <tr>
@@ -163,12 +167,13 @@
                                                             <th class="ps-0">Xã/Phường:</th>
                                                             <td class="text-muted">{{ $address->ward->name ?? '-' }}</td>
                                                         </tr>
-                                                  
+
                                                     </tbody>
                                                 </table>
-                                            @endforeach
-                                        @endif
-                                    </div>
+                                            </div>
+                                        @endforeach
+                                    @endif
+
                                 </div>
                             </div>
 
