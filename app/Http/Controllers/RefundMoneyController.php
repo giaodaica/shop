@@ -120,15 +120,24 @@ class RefundMoneyController extends Controller
     public function index()
     {
         $data_refund = RefundMoney::join('users', 'refund_money.user_id', '=', 'users.id')->join('orders', 'refund_money.order_id', '=', 'orders.id')
-            ->select('refund_money.*', 'users.name as customer_name', 'users.default_phone as customer_phone', 'orders.code_order as order_code')
-            ->get();
+            ->select('refund_money.*', 'users.name as customer_name', 'users.default_phone as customer_phone', 'orders.code_order as order_code')->where('refund_money.status','!=','admin')
+            ->orderBy('refund_money.created_at','desc')->get();
         // dd($data_refund);
         return view('dashboard.pages.order.refund', compact('data_refund'));
     }
     public function show($id)
     {
         $refund = RefundMoney::findOrFail($id);
-        $log = RefundLogs::where('refund_id', $id)->join('users', 'refund_logs.user_id', 'users.id')->get();
+        $log = RefundLogs::where('refund_id', $id)->
+        join('users', 'refund_logs.user_id', 'users.id')->select(
+            'refund_logs.created_at as time',
+                    'users.id as id',
+                    'users.name as name',
+                    'refund_logs.money as tongtien',
+                    'refund_logs.notes as ghichu',
+                    'refund_logs.action as hanhdong'
+        )->orderBy('refund_logs.created_at','desc')->
+        get();
         // dd($log);
         $order = $refund->order;
         $user = $refund->user;
@@ -142,6 +151,7 @@ class RefundMoneyController extends Controller
             'images' => 'required_if:status_new,approved|image|max:4096',
             'status_old' => 'required|in:pending',
             'status_new' => 'required|in:approved,rejected',
+            'notes' => 'nullable|string'
         ], [
             'images.required_if' => 'Vui lòng tải lên ảnh bill khi duyệt hoàn tiền.',
             'images.image' => 'Ảnh bill phải là một tệp hình ảnh.',
@@ -150,6 +160,7 @@ class RefundMoneyController extends Controller
             'status_old.in' => 'Trạng thái cũ không hợp lệ.',
             'status_new.required' => 'Vui lòng chọn trạng thái.',
             'status_new.in' => 'Trạng thái không hợp lệ.',
+            'notes.string' => 'Nội dung không hợp lệ'
         ]);
 
 
@@ -175,7 +186,7 @@ class RefundMoneyController extends Controller
             $file->move(public_path('uploads/refund'), $fileName);
             $data_change['images'] = 'uploads/refund/' . $fileName;
         }
-        if ($data_change['status'] == 'rejected') {
+            if ($data_change['status'] == 'rejected') {
             RefundLogs::create([
                 'user_id' => Auth::user()->id,
                 'money' => $refund->amount,
@@ -183,6 +194,13 @@ class RefundMoneyController extends Controller
                 'refund_id' => $id,
                 'notes' => $request->notes
             ]);
+            RefundMoney::create([
+            'user_id' => $refund->user_id,
+            'order_id' => $refund->order_id,
+            'amount' => $refund->amount,
+            'status' => 'admin',
+        ]);
+        $refund->update($data_change);
             return redirect()->back()->with('success', 'Thành công');
         }
         RefundLogs::create([
@@ -192,15 +210,9 @@ class RefundMoneyController extends Controller
             'refund_id' => $id,
             'notes' => $request->notes
         ]);
-        RefundMoney::create([
-            'user_id' => $refund->user_id,
-            'order_id' => $id,
-            'amount' => $refund->amount,
-            'status' => 'admin',
-        ]);
         $refund->update($data_change);
         $email = $refund->user->email;
         Mail::to($email)->send(new RefundMoneyMail($refund, $code_order));
         return redirect()->route('dashboard.order.refund.show', $id)->with('success', 'Cập nhật yêu cầu hoàn tiền thành công!');
     }
-}
+    }
