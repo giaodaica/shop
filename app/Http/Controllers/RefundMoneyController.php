@@ -27,11 +27,11 @@ class RefundMoneyController extends Controller
             abort(403, 'Đơn hàng này đã được hoàn tiền!');
         }
 
-        $refund = RefundMoney::where('order_id', $id)->where('user_id', $user->id)->first();
+        $refund = RefundMoney::where('order_id', $id)->where('user_id', $user->id)->where('status','admin')->first();
+
         if ($refund && $refund->status !== 'admin') {
             return back()->with('error', 'Yêu cầu hoàn tiền đã được xử lý hoặc đang chờ duyệt.');
         }
-
         // Debug: log dữ liệu request
         \Log::info('Refund request data:', $request->all());
 
@@ -94,6 +94,7 @@ class RefundMoneyController extends Controller
 
     public function showRefundRequest($id)
     {
+
         $order = \App\Models\Order::findOrFail($id);
 
         // Chỉ cho phép chủ đơn hàng truy cập
@@ -107,7 +108,11 @@ class RefundMoneyController extends Controller
         }
 
         $user = Auth::user();
-        $refund = \App\Models\RefundMoney::where('order_id', $id)->where('user_id', $user->id)->first();
+        $refund = \App\Models\RefundMoney::where('order_id', $id)
+        ->where('user_id', $user->id)->
+        where('status','admin')->first();
+
+
 
         // Nếu đã gửi yêu cầu hoàn tiền và chưa bị admin từ chối, chặn truy cập
         if ($refund && in_array($refund->status, ['pending'])) {
