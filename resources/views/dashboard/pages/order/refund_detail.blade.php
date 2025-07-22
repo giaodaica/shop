@@ -35,7 +35,7 @@
                                 </tr>
                                 <tr>
                                     <th>Đơn hàng liên quan</th>
-                                    <td>{{ $refund->order->code_order ?? 'N/A' }}</td>
+                                    <td><a href="{{url("dashboard/order/{$refund->order_id}")}}">{{ $refund->order->code_order ?? 'N/A' }}</a></td>
                                 </tr>
                                 <tr>
                                     <th>Số tiền hoàn</th>
@@ -218,6 +218,7 @@
                                                 <th>Thời gian</th>
                                                 <th>Người thực hiện</th>
                                                 <th>Số tiền</th>
+                                                <th>Ghi Chú</th>
                                                 <th>Hành Động</th>
                                             </tr>
                                         </thead>
@@ -225,14 +226,15 @@
                                             @foreach ($log as $index => $logs)
                                                 <tr>
                                                     <td>{{ $index + 1 }}</td>
-                                                    <td>{{ formatDate($logs->created_at) }}
+                                                    <td>{{ $logs->time }}
                                                     </td>
                                                     <td><a
                                                             href="{{ route('users.show', $logs->id) }}">{{ $logs->name ?? 'System' }}</a>
                                                     </td>
-                                                    <td>{{ $logs->money }}</td>
+                                                    <td>{{ $logs->tongtien }}</td>
+                                                    <td>{{ $logs->ghichu }}</td>
                                                     <td>
-                                                        @switch($logs->action)
+                                                        @switch($logs->hanhdong)
                                                             @case('approved')
                                                                 Đồng ý
                                                             @break
