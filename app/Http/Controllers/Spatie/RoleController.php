@@ -220,7 +220,6 @@ class RoleController extends Controller
                 $result .= "<li class='dd-item nested-list-item' data-order='{$item->order}' data-id='{$item->id}'>
       <div class='nested-list-content'>
         <span class='dd-handle nested-list-handle' style='cursor:move; margin-right:10px;'><span class='la la-arrows-alt'></span></span>";
-                // Chỉ còn tên vai trò, KHÔNG còn checkbox
                 $result .= "<div style=\"margin:0 10px 0 0; flex:1 1 auto; display:flex; align-items:center;\">" . htmlspecialchars($item->title, ENT_QUOTES, 'UTF-8') . "</div>";
                 $description = "Đang cập nhật...";
                 if ($item->description) {
@@ -250,6 +249,7 @@ class RoleController extends Controller
                         break;
                     }
                 }
+                // Sửa tại đây: hiển thị theo name thay vì title
                 $result .= "<option value='" . $item->id . "'" . $checked . ">" . e($stringSpecial . ' ' . $item->title) . "</option>";
                 $result .= self::buildMenuDropdownList($dataCategory, $selected, $item->id, $stringSpecial . "¦– – ");
             }

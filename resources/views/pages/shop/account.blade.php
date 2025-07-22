@@ -236,7 +236,7 @@
                                                 class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-4">
                                                 <h6 class="text-primary text-uppercase fs-5 mb-0">Địa
                                                     chỉ giao hàng</h6>
-                                                <a href="{{ route('addresses.store') }}">
+                                                <a href="{{ route('addresses.store',['from' => 'info']) }}">
                                                     <span class="badge bg-light text-primary fw-normal"><i
                                                             class="bi bi-geo-alt-fill me-1"></i>Chỉnh sửa
                                                     </span></a>

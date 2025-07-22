@@ -95,17 +95,23 @@
                                                     <td class="text-muted">{{ $user->email }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <th class="ps-0">Điện thoại:</th>
-                                                    <td class="text-muted">{{ $user->default_phone ?? '-' }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <th class="ps-0">Địa chỉ:</th>
-                                                    <td class="text-muted">{{ $user->default_address ?? '-' }}</td>
-                                                </tr>
-                                                <tr>
                                                     <th class="ps-0">Vai trò:</th>
                                                     <td class="text-muted">
                                                         {{ $user->role === 'admin' ? 'Quản trị' : 'Khách hàng' }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="ps-0">Tình trạng:</th>
+                                                    <td class="text-muted">
+                                                        @if ($user->status === 'inactive')
+                                                            <span class="text-danger">Khóa
+                                                                @if ($user->lockedByUser)
+                                                                    (do {{ $user->lockedByUser->name }} khóa)
+                                                                @endif
+                                                            </span>
+                                                        @else
+                                                            <span class="text-success">Mở</span>
+                                                        @endif
+                                                    </td>
                                                 </tr>
                                                 @if ($user->role !== 'admin')
                                                     <tr>
@@ -124,6 +130,44 @@
                                                 @endif
                                             </tbody>
                                         </table>
+                                    </div>
+                                </div>
+                                {{-- Sổ địa chỉ của người dùng --}}
+                                <div class="card mt-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-3 mt-4">Sổ địa chỉ</h5>
+                                        @if ($user->addressBooks->isEmpty())
+                                            <div class="alert alert-warning">Chưa có địa chỉ nào được thêm.</div>
+                                        @else
+                                            @foreach ($user->addressBooks as $address)
+                                                <table class="table table-borderless mb-2">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th class="ps-0">Tên người nhận:</th>
+                                                            <td class="text-muted">{{ $address->name }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0">Số điện thoại:</th>
+                                                            <td class="text-muted">{{ $address->phone }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0">Địa chỉ:</th>
+                                                            <td class="text-muted">{{ $address->address }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0">Tỉnh/Thành:</th>
+                                                            <td class="text-muted">{{ $address->province->name ?? '-' }}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="ps-0">Xã/Phường:</th>
+                                                            <td class="text-muted">{{ $address->ward->name ?? '-' }}</td>
+                                                        </tr>
+                                                  
+                                                    </tbody>
+                                                </table>
+                                            @endforeach
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -335,7 +379,6 @@
                                                 <tr>
                                                     <th>STT</th>
                                                     <th>Mã đơn hàng</th>
-
                                                     <th>Tổng tiền</th>
                                                     <th>Trạng thái</th>
                                                     <th>Hành động</th>

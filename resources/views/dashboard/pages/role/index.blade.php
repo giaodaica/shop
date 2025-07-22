@@ -169,9 +169,7 @@
     </div>
 
     {{-- Scripts --}}
-    <script>
-        const PATH_ROOT = "{{ url('/') }}";
-    </script>
+   
     <script>
         // Đảm bảo khởi tạo lại select2 mỗi lần modal được load qua AJAX
         $(document).on('shown.bs.modal', '#loadModal', function() {
@@ -180,23 +178,30 @@
             });
         });
     </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/nestable2@1.6.0/jquery.nestable.min.js"></script>
+    
 
     <script>
         $(document).ready(function() {
-
             // Load modal edit/create
             $(document).on('click', '.loadModal_toggle, .edit_toggle', function(e) {
                 e.preventDefault();
                 const url = $(this).data("url");
-                $('#loadModal .modal-content').empty().load(url, function() {
-                    $('#loadModal').modal('show');
-                    $("#kt_select2_2, #kt_select2_3, #kt_select2_4").select2();
+
+                $('#loadModal .modal-content').html(''); // clear trước khi load
+                $('#loadModal .modal-content').load(url, function() {
+                    // Chỉ khởi tạo modal ở đây (không gọi select2 ở đây!)
+                    const modalEl = document.getElementById('loadModal');
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
                 });
             });
 
+            $(document).on('shown.bs.modal', '#loadModal', function() {
+                // Khởi tạo lại select2 trong modal
+                $('#loadModal .select2').select2({
+                    dropdownParent: $('#loadModal')
+                });
+            });
             // Xử lý nút xóa đơn
             $(document).on('click', '.delete_toggle', function(e) {
                 e.preventDefault();
@@ -204,76 +209,9 @@
                 $('#deleteModal .id').val(id);
                 $('#deleteModal').modal('toggle');
             });
-
-            // Xóa nhiều
-            $('.delete_selected').click(function(e) {
-                e.preventDefault();
-                let ids = [];
-                $("#nestable .nested-list-content input[type='checkbox']:checked").each(function() {
-                    ids.push($(this).attr('rel'));
-                });
-
-                if (ids.length > 0) {
-                    $('#deleteModal .id').val(ids.join(','));
-                    $('#deleteModal').modal('toggle');
-                } else {
-                    alert('{{ __('Vui lòng chọn dữ liệu cần xóa') }}');
-                }
+            $('#loadModal').on('hidden.bs.modal', function() {
+                $(this).find('.modal-content').html('');
             });
-
-            // Check all toggle
-            $("#nestable-menu-checkall").click(function(e) {
-                e.preventDefault();
-                const action = $(this).attr('data-action');
-                const check = action == 1;
-                $(".nested-list-content .m-checkbox input[type='checkbox']").prop('checked', check)
-                    .change();
-                $(this).attr('data-action', check ? 0 : 1).text(check ? 'Bỏ chọn tất cả' : 'Chọn tất cả');
-            });
-
-            // Nestable init
-            $('.dd').nestable({
-                dropCallback: function(details) {
-                    let order = [];
-                    $("li[data-id='" + details.destId + "']").find('ol:first').children().each(function(
-                        index, elem) {
-                        order.push($(elem).attr('data-id'));
-                    });
-
-                    let rootOrder = [];
-                    if (order.length === 0) {
-                        $("#nestable > ol > li").each(function(index, elem) {
-                            rootOrder.push($(elem).attr('data-id'));
-                        });
-                    }
-
-                    $.post('{{ route('dashboard.roles.order') }}', {
-                        _token: '{{ csrf_token() }}',
-                        source: details.sourceId,
-                        destination: details.destId,
-                        order: JSON.stringify(order),
-                        rootOrder: JSON.stringify(rootOrder)
-                    }).done(function() {
-                        $(".success-indicator").fadeIn(100).delay(1000).fadeOut();
-                    });
-                }
-            });
-
-            // Nestable expand/collapse
-            $('#nestable-menu-action').on('click', function() {
-                const action = $(this).attr('data-action');
-                const isExpand = action === 'expand-all';
-
-                $('.dd').nestable(isExpand ? 'expandAll' : 'collapseAll');
-                $(this).attr('data-action', isExpand ? 'collapse-all' : 'expand-all').text(isExpand ?
-                    'Thu gọn' : 'Mở rộng');
-            });
-
-            // Checkbox ảnh hưởng con
-            $("#nestable input[type='checkbox']").change(function() {
-                $(this).closest('.dd-item').find("input[type='checkbox']").prop('checked', this.checked);
-            });
-
         });
     </script>
 @endsection

@@ -74,11 +74,11 @@
                                 <table class="table align-middle" id="userTable">
                                     <thead class="table-light">
                                         <tr>
-                                            <th style="width: 50px;">
+                                            {{-- <th style="width: 50px;">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" id="checkAll">
                                                 </div>
-                                            </th>
+                                            </th> --}}
                                             <th>Họ tên</th>
                                             <th>Email</th>
                                             <th>Điện thoại</th>
@@ -91,12 +91,12 @@
                                     <tbody class="list form-check-all">
                                         @foreach ($users as $user)
                                             <tr>
-                                                <td>
+                                                {{-- <td>
                                                     <div class="form-check">
                                                         <input class="form-check-input user-checkbox" type="checkbox"
                                                             value="{{ $user->id }}">
                                                     </div>
-                                                </td>
+                                                </td> --}}
                                                 <td class="name">{{ $user->name }}</td>
                                                 <td class="email">{{ $user->email }}</td>
                                                 <td class="phone">{{ $user->default_phone ?? '-' }}</td>
@@ -146,6 +146,7 @@
                             <div class="modal fade" id="lockUserModal" tabindex="-1" aria-labelledby="lockUserLabel"
                                 aria-hidden="true">
                                 <div class="modal-dialog">
+                                    
                                     <form action="{{ route('users.lock') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="user_id" id="lock-user-id">

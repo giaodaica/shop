@@ -164,42 +164,6 @@ class PermissionController extends Controller
 		Permission::destroy($input);
 		return redirect()->route('dashboard.permissions.index')->with('success', __('Xóa thành công !'));
 	}
-
-
-	// AJAX Reordering function
-	public function order(Request $request)
-	{
-
-
-		$source = e($request->get('source'));
-		$destination = $request->get('destination');
-
-		$item = Permission::find($source);
-		$item->parent_id = isset($destination) ? $destination : 0;
-		$item->save();
-
-		$ordering = json_decode($request->get('order'));
-
-		$rootOrdering = json_decode($request->get('rootOrder'));
-
-		if ($ordering) {
-			foreach ($ordering as $order => $item_id) {
-				if ($itemToOrder = Permission::find($item_id)) {
-					$itemToOrder->order = $order;
-					$itemToOrder->save();
-				}
-			}
-		} else {
-			foreach ($rootOrdering as $order => $item_id) {
-				if ($itemToOrder = Permission::find($item_id)) {
-					$itemToOrder->order = $order;
-					$itemToOrder->save();
-				}
-			}
-		}
-		return 'ok ';
-	}
-	// Getter for the HTML menu builder
 	function getHTMLCategory($menu)
 	{
 		return $this->buildMenu($menu);
@@ -211,8 +175,7 @@ class PermissionController extends Controller
 			if ($item->parent_id == $parent_id) {
 				$result .= "<li class='dd-item nested-list-item' data-order='{$item->order}' data-id='{$item->id}'>
               <div class='nested-list-content'>
-                <span class='dd-handle nested-list-handle' style='cursor:move; margin-right:10px;'><span class='la la-arrows-alt'></span></span>";
-				// Chỉ còn tên permission, KHÔNG còn checkbox, KHÔNG còn url
+                <span class='dd-handle nested-list-handle' style='cursor:move; margin-right:10px;'><span class='la la-arrows-alt'></span></span>";	
 				$result .= "<div style=\"margin:0 10px 0 0; flex:1 1 auto; display:flex; align-items:center;\">" . e($item->title) . ' - [' . e($item->name) . "]</div>";
 				$result .= "<div class='btnControll'>";
 				$result .= "<a href='#' class='btn btn-sm btn-primary edit_toggle' data-url='" . route("dashboard.permissions.edit", $item->id) . "' rel='{$item->id}' >Sửa</a> ";
