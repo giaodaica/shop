@@ -151,10 +151,11 @@ Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
     Route::post('variants/{id}/restore', [ProductVariantsController::class, 'restore'])->name('variants.restore');
     Route::post('/products/upload-temp-image', [ProductsController::class, 'uploadTempImage'])->name('products.uploadTempImage');
     Route::post('/products/upload-temp-variant-image', [ProductsController::class, 'uploadTempVariantImage'])->name('products.uploadTempVariantImage');
-    Route::resource('users', UserController::class);
+    Route::post('users/lock', [UserController::class, 'lock'])->name('users.lock');
+    Route::resource('users', UserController::class)->except(['show']);;
     Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
     Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
-    Route::post('/users/lock', [UserController::class, 'lock'])->name('users.lock');
+
     Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
     Route::get('order/{id}', [OrderController::class, 'db_order_show'])->name('orders.show');
 });
