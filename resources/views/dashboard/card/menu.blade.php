@@ -100,9 +100,16 @@
                             <a href="{{ url('dashboard/categories') }}" class="nav-link"
                                 data-key="t-horizontal">Quản lý danh mục</a>
                         </li>
+
                         <li class="nav-item">
                             <a href="{{ url('dashboard/products') }}" class="nav-link" data-key="t-horizontal">Quản
                                 lý sản phẩm</a>
+                        </li>
+
+
+                         <li class="nav-item">
+                            <a href="{{ url('dashboard/comments') }}" class="nav-link"
+                                data-key="t-horizontal">Quản lý bình luận</a>
                         </li>
 
                     </ul>

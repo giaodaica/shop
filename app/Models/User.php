@@ -77,6 +77,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(UserLock::class);
     }
+ 
+
+
     public function lockedByUser()
     {
         return $this->belongsTo(User::class, 'locked_by');

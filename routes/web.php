@@ -6,6 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ChatBotController;
 use App\Http\Controllers\ColorController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InfoController;
 use App\Http\Controllers\OrderController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\ProductVariantsController;
 
 use App\Http\Controllers\RevenueController;
+use App\Http\Controllers\ReviewReplyController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\web\SearchController;
 use App\Http\Controllers\SizeController;
@@ -43,6 +45,7 @@ Route::get('/search/filter', [SearchController::class, 'search'])->name('search.
 Route::get('/search/trending-categories', [SearchController::class, 'trendingCategories']);
 Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware('auth');
 Route::get('/reviews/list/{product_id}', [ReviewController::class, 'list'])->name('reviews.list');
+
 
 Route::post('add-to-cart/{id}', [CartController::class, 'add_to_cart']);
 Route::post('/order/{id}/cancel', [InfoController::class, 'cancel'])->name('order.cancel');
@@ -158,6 +161,7 @@ Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
 
     Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
     Route::get('order/{id}', [OrderController::class, 'db_order_show'])->name('orders.show');
+
 });
 
 
@@ -170,9 +174,28 @@ Route::prefix('dashboard')->name('dashboard.')->middleware('dashboard.auth')->gr
     //  Route::post('permission/order', [RoleController::class, 'order'])->name('permission.order');
 });
 
+    // Quản lý bình luận
+
+Route::prefix('dashboard')->name('dashboard.')->middleware('dashboard.auth')->group(function () {
+    Route::get('comments', [CommentController::class, 'index'])->name('comments.index');
+    Route::put('comments/update/{id}', [CommentController::class, 'update'])->name('comments.update');
+
+    Route::post('comments/{review}/reply', [ReviewReplyController::class, 'store'])->name('comments.reply'); // nên đặt tên rõ ràng
+
+    Route::delete('comments/reply/{id}', [ReviewReplyController::class, 'destroy'])->name('comments.reply.destroy');
+});
+
+
+
 // VNPAY Payment Routes
 Route::post('/vnpay/ipn', [OrderController::class, 'vnpayIpn'])->name('vnpay.ipn');
 Route::post('/order/{id}/refund', [RefundMoneyController::class, 'store'])->name('order.refund')->middleware('auth');
 Route::get('/order/{id}/refund-request', [App\Http\Controllers\RefundMoneyController::class, 'showRefundRequest'])->name('order.refund.request')->middleware('auth');
 Route::post('/order/{id}/upload-image', [OrderController::class, 'uploadUserImage'])->name('order.upload.image')->middleware('auth');
 Route::post('/order/{id}/submit-confirmation', [InfoController::class, 'submitUserConfirmation'])->name('order.submit.confirmation')->middleware('auth');
+
+
+
+
+
+
