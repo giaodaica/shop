@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Cart;
 use App\Models\CategoriesVouchers;
 use App\Models\Vouchers;
+use Auth;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
@@ -48,6 +50,23 @@ class AppServiceProvider extends ServiceProvider
             }
             $view->with('vouchers',$vouchers);
         });
+         View::composer('card.nav', function ($view) {
+        if (Auth::check()) {
+            $cartItems = Cart::with('product','productVariant')->where('user_id', Auth::id())->get();
+            $cartCount = $cartItems->count();
+            $cartSubtotal = $cartItems->sum(fn ($item) => $item->quantity * $item->price_at_time);
+        } else {
+            $cartItems = collect();
+            $cartCount = 0;
+            $cartSubtotal = 0;
+        }
+// dd($cartItems);
+        $view->with([
+            'cartItems' => $cartItems,
+            'cartCount' => $cartCount,
+            'cartSubtotal' => $cartSubtotal,
+        ]);
+    });
         Paginator::useBootstrapFive();
     }
 }

@@ -119,26 +119,34 @@
                     </div>
                     <form action="{{ url('add-to-cart', $product->id) }}" method="post">
                         @csrf
-                        <div class="d-flex align-items-center mb-20px">
-                            <label class="text-dark-gray alt-font me-15px fw-500">Color</label>
-                            <ul class="shop-color mb-0">
+                        <div class="mb-20px">
+                            <div class="d-flex align-items-center">
+                                <label class="text-dark-gray alt-font fw-500 mb-0">Màu :</label>
+                                <span id="selected-color-name" class="fw-500 text-dark-gray ms-1"></span>
+                            </div>
+                            <ul class="shop-color mb-0 mt-2">
                                 @foreach ($colors as $color)
                                     <li>
                                         <input class="d-none" type="radio" id="color-{{ $color->id }}" name="color"
-                                            value="{{ $color->id }}" {{ old('color') == $color->id ? 'checked' : '' }}>
-                                        <label class="" for="color-{{ $color->id }}"><span
+                                            value="{{ $color->id }}" data-color-name="{{ $color->color_name }}"
+                                            {{ old('color') == $color->id ? 'checked' : '' }}>
+                                        <label for="color-{{ $color->id }}"><span
                                                 style="background-color: {{ $color->color_code ?? '#000' }}"></span></label>
                                     </li>
                                 @endforeach
                             </ul>
                         </div>
-                        <div class="d-flex align-items-center mb-35px">
-                            <label class="text-dark-gray me-15px fw-500">Size</label>
-                            <ul class="shop-size mb-0">
+                        <div class="mb-35px">
+                            <div class="d-flex align-items-center">
+                                <label class="text-dark-gray fw-500">Kích cỡ :</label>
+                                <span id="selected-size-name" class="fw-500 text-dark-gray ms-1"></span>
+                            </div>
+                            <ul class="shop-size mb-0 mt-2">
                                 @foreach ($sizes as $size)
                                     <li>
                                         <input class="d-none" type="radio" id="size-{{ $size->id }}" name="size"
-                                            value="{{ $size->id }}" {{ old('size') == $size->id ? 'checked' : '' }}>
+                                            value="{{ $size->id }}" data-size-name="{{ $size->size_name }}"
+                                            {{ old('size') == $size->id ? 'checked' : '' }}>
                                         <label for="size-{{ $size->id }}"><span>{{ $size->size_name }}</span></label>
                                     </li>
                                 @endforeach
@@ -599,6 +607,7 @@
             font-size: 13px;
             margin-right: 10px;
         }
+        
     </style>
 
     <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
