@@ -104,6 +104,10 @@
                             <a href="{{ url('dashboard/categories') }}" class="nav-link"
                                 data-key="t-horizontal">Quản lý danh mục</a>
                         </li>
+                         <li class="nav-item">
+                            <a href="{{ url('dashboard/comments') }}" class="nav-link"
+                                data-key="t-horizontal">Quản lý bình luận</a>
+                        </li>
                     </ul>
                 </div>
                 <a class="nav-link menu-link" href="#sidebarAttributes" data-bs-toggle="collapse" role="button"

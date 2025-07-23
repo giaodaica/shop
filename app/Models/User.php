@@ -77,4 +77,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(UserLock::class);
     }
+    public function comments() {
+    return $this->hasMany(Comment::class);
+}
+
 }
