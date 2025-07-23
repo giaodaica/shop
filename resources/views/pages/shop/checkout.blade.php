@@ -115,7 +115,7 @@
                         @endif
 
                         <div class="col-12 mb-20px">
-                            <a href="{{ route('addresses.index') }}" class="btn btn-outline-dark-gray btn-small">
+                            <a href="{{ route('addresses.index',['from' => 'checkout']) }}" class="btn btn-outline-dark-gray btn-small">
                                 <i class="fas fa-plus me-1"></i>Thêm địa chỉ mới
                             </a>
                         </div>
