@@ -347,3 +347,21 @@ $('.qty-plus').click(function () {
     
     // Gọi lần đầu khi trang load
     updateProductPrice();
+     function updateColorName() {
+            const checked = document.querySelector('input[name="color"]:checked');
+            const nameSpan = document.getElementById('selected-color-name');
+            nameSpan.textContent = checked ? checked.getAttribute('data-color-name') : '';
+        }
+        function updateSizeName() {
+            const checked = document.querySelector('input[name="size"]:checked');
+            const nameSpan = document.getElementById('selected-size-name');
+            nameSpan.textContent = checked ? checked.getAttribute('data-size-name') : '';
+        }
+        document.querySelectorAll('input[name="color"]').forEach(input => {
+            input.addEventListener('change', updateColorName);
+        });
+        document.querySelectorAll('input[name="size"]').forEach(input => {
+            input.addEventListener('change', updateSizeName);
+        });
+        updateColorName();
+        updateSizeName();
