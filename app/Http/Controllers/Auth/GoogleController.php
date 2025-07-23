@@ -29,10 +29,12 @@ class GoogleController extends Controller
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
                     'password' => bcrypt('google_' . $googleUser->getId()),
-                    'email_verified_at' => null, 
+                    'email_verified_at' => null,
                 ]);
             }
-
+            if ($user->status === 'inactive') {
+                return redirect()->route('login')->with('error', 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+            }
             Auth::login($user);
 
             if (!$user->hasVerifiedEmail()) {

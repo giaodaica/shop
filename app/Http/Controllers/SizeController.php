@@ -35,7 +35,7 @@ class SizeController extends Controller
             'size_name' => $request->size_name,
         ]);
 
-        return redirect()->route('sizes.index')->with('success', 'Thêm kích cỡ thành công!');
+        return redirect()->route('sizes.create')->with('success', 'Thêm kích cỡ thành công!');
     }
 
     // Hiển thị form sửa
