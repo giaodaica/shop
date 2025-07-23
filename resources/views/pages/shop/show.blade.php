@@ -336,13 +336,30 @@
                                                             @endif
                                                         @endfor
                                                     </span>
-                                                    <p class="w-85 sm-w-100 sm-mt-15px">{{ $review->content }}</p>
-                                                    @if ($review->admin_reply)
-                                                        <div class="bg-light p-3 mt-2 border rounded">
-                                                            <strong class="text-primary">Admin trả lời:</strong>
-                                                            <div>{{ $review->admin_reply }}</div>
-                                                        </div>
+                                                  <p class="w-85 sm-w-100 sm-mt-15px">{{ $review->content }}</p>
+
+                                                @if ($review->admin_reply)
+                                                    <div class="bg-light p-3 mt-2 border-start border-4 border-primary rounded">
+                                                        <strong class="text-primary">Admin trả lời:</strong>
+                                                        <div>{{ $review->admin_reply }}</div>
+                                                    </div>
+                                                @endif
+
+                                                {{-- Nếu là admin thì hiển thị nút Ẩn / Hiện --}}
+                                                @auth
+                                                    @if (auth()->user()->role === 'admin') {{-- hoặc check role phù hợp --}}
+                                                        <form method="POST" action="{{ route('dashboard.comments.update', $review->id) }}" class="mt-2">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <input type="hidden" name="is_show" value="{{ $review->is_show ? 0 : 1 }}">
+                                                            <button type="submit"
+                                                                class="btn btn-xs {{ $review->is_show ? 'btn-warning' : 'btn-success' }}">
+                                                                {{ $review->is_show ? 'Ẩn bình luận' : 'Hiện bình luận' }}
+                                                            </button>
+                                                        </form>
                                                     @endif
+                                                @endauth
+
                                                 </div>
                                             </div>
                                         </div>
@@ -375,7 +392,7 @@
                                                     <h4 class="alt-font text-dark-gray fw-500 mb-15px">Thêm bình luận</h4>
                                                 </div>
                                             </div>
-                                            <form action="{{ route('reviews.store') }}#comments" method="post"
+                                            <form action="{{ route('reviews.store', $product->id) }}#comments" method="post"
                                                 class="row contact-form-style-02">
                                                 @csrf
                                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
