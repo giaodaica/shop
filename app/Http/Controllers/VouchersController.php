@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Route;
 
 class VouchersController extends Controller
 {
+    // public function __construct()
+    // {
+    //     $this->middleware('permission:view khuyenmai')->only(['index', 'show']);
+    //     $this->middleware('permission:create khuyenmai')->only(['create', 'store']);
+    //     $this->middleware('permission:edit khuyenmai')->only(['edit', 'update']);
+    //     $this->middleware('permission:delete khuyenmai')->only(['destroy']);
+    // }
     public function show($id, Request $request)
     {
         $action = $request->query('type');

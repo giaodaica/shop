@@ -92,7 +92,7 @@
     <div class="page-content" id="kt_page_sticky_card">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-8">
+                <div class="col-sm-12">
                     <div class="well">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="lead text-right">
@@ -113,14 +113,7 @@
                         </form>
                     </div>
                 </div>
-                <div class="col-sm-4 d-none d-sm-block">
-                    <div class="well">
-                        <div class="m-demo-icon">
-                            <i class="flaticon-light icon-lg"></i> {{ __('Kéo thả để sắp xếp danh mục') }}
-                        </div>
-                        <br>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>

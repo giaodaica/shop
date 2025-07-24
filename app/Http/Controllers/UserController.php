@@ -12,6 +12,14 @@ use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
+    // public function __construct()
+    // {
+    //     $this->middleware('permission:view taikhoan')->only(['index', 'show']);
+    //     $this->middleware('permission:create taikhoan')->only(['create', 'store']);
+    //     $this->middleware('permission:edit taikhoan')->only(['edit', 'update']);
+    //     $this->middleware('permission:delete taikhoan')->only(['destroy']);
+    // }
+
     // Hiển thị danh sách người dùng (có thể lọc theo trạng thái)
     public function index(Request $request)
     {

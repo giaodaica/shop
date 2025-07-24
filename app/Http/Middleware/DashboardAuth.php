@@ -23,7 +23,7 @@ class DashboardAuth
 
         // Kiểm tra user có role admin không
         $user = Auth::user();
-        if (!$user->hasRole('admin')) {
+        if (!$user->hasRole('admin') && !$user->hasRole('staff')) {
             return abort(403, 'Bạn không có quyền truy cập trang này.');
         }
 

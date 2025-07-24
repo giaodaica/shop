@@ -29,6 +29,7 @@ use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Contracts\Role;
+use App\Http\Controllers\Auth\VerificationController;
 
     Route::get('/wards', [OrderController::class, 'getWards']);
 
@@ -176,3 +177,7 @@ Route::post('/order/{id}/refund', [RefundMoneyController::class, 'store'])->name
 Route::get('/order/{id}/refund-request', [App\Http\Controllers\RefundMoneyController::class, 'showRefundRequest'])->name('order.refund.request')->middleware('auth');
 Route::post('/order/{id}/upload-image', [OrderController::class, 'uploadUserImage'])->name('order.upload.image')->middleware('auth');
 Route::post('/order/{id}/submit-confirmation', [InfoController::class, 'submitUserConfirmation'])->name('order.submit.confirmation')->middleware('auth');
+
+Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verifyWithoutAuth'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
