@@ -31,6 +31,7 @@ use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Contracts\Role;
+use App\Http\Controllers\Auth\VerificationController;
 
 Route::get('/wards', [OrderController::class, 'getWards']);
 
@@ -197,7 +198,7 @@ Route::post('/order/{id}/upload-image', [OrderController::class, 'uploadUserImag
 Route::post('/order/{id}/submit-confirmation', [InfoController::class, 'submitUserConfirmation'])->name('order.submit.confirmation')->middleware('auth');
 
 
-
-
-
+Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verifyWithoutAuth'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
 
