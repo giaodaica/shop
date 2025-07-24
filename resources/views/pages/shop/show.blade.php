@@ -323,6 +323,7 @@
                                                         class="text-dark-gray fw-600 d-block">{{ $review->user->name }}</span>
                                                     <div class="fs-14 lh-18">{{ $review->created_at->format('d/m/Y') }}
                                                     </div>
+                                                    <button>xóa</button>
                                                 </div>
                                                 <div
                                                     class="w-100 last-paragraph-no-margin sm-ps-0 position-relative text-center text-md-start">
