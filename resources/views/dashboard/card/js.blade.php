@@ -1,3 +1,5 @@
+    <script src="https://unpkg.com/just-validate@4.3.0/dist/just-validate.production.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script src="{{ asset('admin/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
 {{-- <script src="{{ asset('admin/libs/flatpickr/flatpickr.min.js') }}"></script> --}}
