@@ -119,26 +119,34 @@
                     </div>
                     <form action="{{ url('add-to-cart', $product->id) }}" method="post">
                         @csrf
-                        <div class="d-flex align-items-center mb-20px">
-                            <label class="text-dark-gray alt-font me-15px fw-500">Color</label>
-                            <ul class="shop-color mb-0">
+                        <div class="mb-20px">
+                            <div class="d-flex align-items-center">
+                                <label class="text-dark-gray alt-font fw-500 mb-0">Màu :</label>
+                                <span id="selected-color-name" class="fw-500 text-dark-gray ms-1"></span>
+                            </div>
+                            <ul class="shop-color mb-0 mt-2">
                                 @foreach ($colors as $color)
                                     <li>
                                         <input class="d-none" type="radio" id="color-{{ $color->id }}" name="color"
-                                            value="{{ $color->id }}" {{ old('color') == $color->id ? 'checked' : '' }}>
-                                        <label class="" for="color-{{ $color->id }}"><span
+                                            value="{{ $color->id }}" data-color-name="{{ $color->color_name }}"
+                                            {{ old('color') == $color->id ? 'checked' : '' }}>
+                                        <label for="color-{{ $color->id }}"><span
                                                 style="background-color: {{ $color->color_code ?? '#000' }}"></span></label>
                                     </li>
                                 @endforeach
                             </ul>
                         </div>
-                        <div class="d-flex align-items-center mb-35px">
-                            <label class="text-dark-gray me-15px fw-500">Size</label>
-                            <ul class="shop-size mb-0">
+                        <div class="mb-35px">
+                            <div class="d-flex align-items-center">
+                                <label class="text-dark-gray fw-500">Kích cỡ :</label>
+                                <span id="selected-size-name" class="fw-500 text-dark-gray ms-1"></span>
+                            </div>
+                            <ul class="shop-size mb-0 mt-2">
                                 @foreach ($sizes as $size)
                                     <li>
                                         <input class="d-none" type="radio" id="size-{{ $size->id }}" name="size"
-                                            value="{{ $size->id }}" {{ old('size') == $size->id ? 'checked' : '' }}>
+                                            value="{{ $size->id }}" data-size-name="{{ $size->size_name }}"
+                                            {{ old('size') == $size->id ? 'checked' : '' }}>
                                         <label for="size-{{ $size->id }}"><span>{{ $size->size_name }}</span></label>
                                     </li>
                                 @endforeach
@@ -323,6 +331,7 @@
                                                         class="text-dark-gray fw-600 d-block">{{ $review->user->name }}</span>
                                                     <div class="fs-14 lh-18">{{ $review->created_at->format('d/m/Y') }}
                                                     </div>
+                                                    <button>xóa</button>
                                                 </div>
                                                 <div
                                                     class="w-100 last-paragraph-no-margin sm-ps-0 position-relative text-center text-md-start">
@@ -336,13 +345,30 @@
                                                             @endif
                                                         @endfor
                                                     </span>
-                                                    <p class="w-85 sm-w-100 sm-mt-15px">{{ $review->content }}</p>
-                                                    @if ($review->admin_reply)
-                                                        <div class="bg-light p-3 mt-2 border rounded">
-                                                            <strong class="text-primary">Admin trả lời:</strong>
-                                                            <div>{{ $review->admin_reply }}</div>
-                                                        </div>
+                                                  <p class="w-85 sm-w-100 sm-mt-15px">{{ $review->content }}</p>
+
+                                                @if ($review->admin_reply)
+                                                    <div class="bg-light p-3 mt-2 border-start border-4 border-primary rounded">
+                                                        <strong class="text-primary">Admin trả lời:</strong>
+                                                        <div>{{ $review->admin_reply }}</div>
+                                                    </div>
+                                                @endif
+
+                                                {{-- Nếu là admin thì hiển thị nút Ẩn / Hiện --}}
+                                                @auth
+                                                    @if (auth()->user()->role === 'admin') {{-- hoặc check role phù hợp --}}
+                                                        <form method="POST" action="{{ route('dashboard.comments.update', $review->id) }}" class="mt-2">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <input type="hidden" name="is_show" value="{{ $review->is_show ? 0 : 1 }}">
+                                                            <button type="submit"
+                                                                class="btn btn-xs {{ $review->is_show ? 'btn-warning' : 'btn-success' }}">
+                                                                {{ $review->is_show ? 'Ẩn bình luận' : 'Hiện bình luận' }}
+                                                            </button>
+                                                        </form>
                                                     @endif
+                                                @endauth
+
                                                 </div>
                                             </div>
                                         </div>
@@ -375,7 +401,7 @@
                                                     <h4 class="alt-font text-dark-gray fw-500 mb-15px">Thêm bình luận</h4>
                                                 </div>
                                             </div>
-                                            <form action="{{ route('reviews.store') }}#comments" method="post"
+                                            <form action="{{ route('reviews.store', $product->id) }}#comments" method="post"
                                                 class="row contact-form-style-02">
                                                 @csrf
                                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
@@ -582,6 +608,7 @@
             font-size: 13px;
             margin-right: 10px;
         }
+        
     </style>
 
     <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>

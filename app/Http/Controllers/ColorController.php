@@ -41,7 +41,7 @@ class ColorController extends Controller
             'color_code' => $request->color_code
         ]);
 
-        return redirect()->route('colors.index')->with('success', 'Thêm màu thành công!');
+        return redirect()->route('colors.create')->with('success', 'Thêm màu thành công!');
     }
 
     // Hiển thị form sửa màu
