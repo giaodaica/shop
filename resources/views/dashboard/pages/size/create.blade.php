@@ -20,7 +20,12 @@
                 </div>
             </div>
             <!-- Kết thúc tiêu đề -->
-
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
             <form action="{{ route('sizes.store') }}" method="POST">
                 @csrf
                 <div class="row">
@@ -34,14 +39,14 @@
                                 <div class="mb-3">
                                     <label for="size_name" class="form-label">Tên size</label>
                                     <input type="text" name="size_name"
-                                        class="form-control @error('size_name') is-invalid @enderror" value="{{ old('size_name') }}"
-                                        id="size_name" placeholder="Nhập tên size">
+                                        class="form-control @error('size_name') is-invalid @enderror"
+                                        value="{{ old('size_name') }}" id="size_name" placeholder="Nhập tên size">
                                     @error('size_name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                        
+
 
                                 <button type="submit" class="btn btn-primary mt-3 w-100">Tạo size</button>
                                 <a href="{{ route('sizes.index') }}" class="btn btn-secondary mt-2 w-100">Quay lại</a>

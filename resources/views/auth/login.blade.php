@@ -17,6 +17,7 @@
         </div>
     </section>
     <!-- end section -->
+
     <!-- start section -->
     <section class="pt-0">
         <div class="container">
@@ -27,7 +28,13 @@
                 </div>
                 <div class="col-lg-6 col-md-10 offset-xl-2 offset-lg-1 p-6 box-shadow-extra-large border-radius-6px"
                     data-anime='{ "translateY": [0, 0], "opacity": [0,1], "duration": 600, "delay":150, "staggervalue": 150, "easing": "easeOutQuad" }'>
+                    @if (session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                    @endif
                     <span class="fs-26 xs-fs-24 alt-font fw-600 text-dark-gray mb-20px d-block">Đăng nhập</span>
+
                     <form action="{{ route('login') }}" method="post">
                         @csrf
                         <div>
@@ -65,8 +72,10 @@
                                 <span class="box fs-14">Ghi nhớ</span>
                             </label>
                             @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}" class="fs-14 text-dark-gray fw-500 text-decoration-line-bottom ms-auto">Quên Mật Khẩu</a>
-                        @endif
+                                <a href="{{ route('password.request') }}"
+                                    class="fs-14 text-dark-gray fw-500 text-decoration-line-bottom ms-auto">Quên Mật
+                                    Khẩu</a>
+                            @endif
                         </div>
 
                         <span class="fs-13 lh-22 w-90 lg-w-100 md-w-90 sm-w-100 d-block mb-30px">Dữ liệu cá nhân của bạn sẽ
@@ -74,9 +83,9 @@
                             bạn và cho các mục đích khác được mô tả trong <a href="#"
                                 class="text-dark-gray text-decoration-line-bottom fw-500">chính sách bảo mật</a> của chúng
                             tôi.</span>
-                            <a href="{{route('register')}}" class="text-primary">Chưa có tài khoản đăng ký ngay</a>
-                        <button class="btn btn-medium btn-round-edge btn-dark-gray btn-box-shadow w-100"
-                            type="submit">Đăng nhập</button>
+                        <a href="{{ route('register') }}" class="text-primary">Chưa có tài khoản đăng ký ngay</a>
+                        <button class="btn btn-medium btn-round-edge btn-dark-gray btn-box-shadow w-100" type="submit">Đăng
+                            nhập</button>
                         <div class="form-results mt-20px d-none"></div>
                     </form>
                     <!-- Thêm nút Đăng nhập bằng Google -->

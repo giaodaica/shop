@@ -56,4 +56,14 @@ class LoginController extends Controller
             'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự.',
         ]);
     }
+    protected function authenticated(Request $request, $user)
+    {
+        if ($user->status == 'inactive') {
+            Auth::logout(); // Đăng xuất user ngay sau khi login
+            return redirect()->route('login')->with('error', 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+        }
+
+        // Nếu không bị khoá thì vẫn redirect như bình thường
+        return redirect()->intended($this->redirectPath());
+    }
 }

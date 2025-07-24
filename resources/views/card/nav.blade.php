@@ -179,48 +179,45 @@
                                 class="d-none d-xxl-inline-block">Đăng nhập</span></a>
                     @endif
                 </div>
-                <div class="header-cart-icon icon">
-                    <div class="header-cart dropdown">
-                        <a href="javascript:void(0);"><i class="feather icon-feather-shopping-bag"></i><span
-                                class="cart-count alt-font text-white bg-dark-gray">2</span></a>
-                        <ul class="cart-item-list">
-                            <li class="cart-item align-items-center">
-                                <a href="javascript:void(0);" class="alt-font close">×</a>
-                                <div class="product-image">
-                                    <a href="demo-fashion-store-single-product.html"><img
-                                            src="{{ asset('assets/images/shop/demo-fashion-store-product-01.jpg') }}"
-                                            class="cart-thumb" alt=""></a>
-                                </div>
-                                <div class="product-detail fw-600">
-                                    <a href="demo-fashion-store-single-product.html">Ribbed tank</a>
-                                    <span class="item-ammount fw-400">1 x $23.00</span>
-                                </div>
-                            </li>
-                            <li class="cart-item align-items-center">
-                                <a href="javascript:void(0);" class="alt-font close">×</a>
-                                <div class="product-image">
-                                    <a href="demo-fashion-store-single-product.html"><img
-                                            src="{{ asset('assets/images/shop/demo-fashion-store-product-01.jpg') }}"
-                                            class="cart-thumb" alt=""></a>
-                                </div>
-                                <div class="product-detail fw-600">
-                                    <a href="demo-fashion-store-single-product.html">Pleated dress</a>
-                                    <span class="item-ammount fw-400">2 x $15.00</span>
-                                </div>
-                            </li>
-                            <li class="cart-total">
-                                <div class="fs-18 alt-font mb-15px"><span
-                                        class="w-50 fw-500 text-start">Subtotal:</span><span
-                                        class="w-50 text-end fw-700">$199.99</span></div>
-                                <a href="{{ url('cart') }}"
-                                    class="btn btn-large btn-transparent-light-gray border-color-extra-medium-gray">View
-                                    cart</a>
-                                <a href="demo-fashion-store-checkout.html"
-                                    class="btn btn-large btn-dark-gray btn-box-shadow">Checkout</a>
-                            </li>
-                        </ul>
+<div class="header-cart-icon icon">
+    <div class="header-cart dropdown">
+        <a href="javascript:void(0);">
+            <i class="feather icon-feather-shopping-bag"></i>
+            <span class="cart-count alt-font text-white bg-dark-gray">{{ $cartCount }}</span>
+        </a>
+
+        <ul class="cart-item-list">
+            @forelse($cartItems as $item)
+                <li class="cart-item align-items-center">
+                    <a href="#" class="alt-font close">×</a>
+                    <div class="product-image">
+                        <a href="{{ route('home.show', $item->product->slug) }}">
+                            <img src="{{ asset( $item->productVariant->variant_image_url) }}" class="cart-thumb" alt="">
+                        </a>
                     </div>
-                </div>
+                    
+                    <div class="product-detail fw-600">
+                        <a href="{{ route('home.show', $item->product->slug) }}">{{ Str::limit($item->product->name, 30) }}</a>
+                        <span class="item-ammount fw-400">{{ $item->quantity }} x {{ number_format($item->price_at_time, 0, ',', '.') }}đ</span>
+                    </div>
+                </li>
+            @empty
+                <li class="cart-item">Chưa có sản phẩm nào trong giỏ.</li>
+            @endforelse
+
+            @if($cartItems->isNotEmpty())
+                <li class="cart-total">
+                    <div class="fs-18 alt-font mb-15px">
+                        <span class="w-50 fw-500 text-start">Tạm tính:</span>
+                        <span class="w-50 text-end fw-700">{{ number_format($cartSubtotal, 0, ',', '.') }}đ</span>
+                    </div>
+                    <a href="{{ url('cart') }}" class="btn btn-large btn-transparent-light-gray border-color-extra-medium-gray">Xem giỏ hàng</a>
+                    <a href="{{ url('checkout') }}" class="btn btn-large btn-dark-gray btn-box-shadow">Thanh toán</a>
+                </li>
+            @endif
+        </ul>
+    </div>
+</div>
             </div>
             <div class="col-auto col-xxl-3 col-lg-2 d-flex align-items-center">
 
