@@ -1,8 +1,5 @@
 @extends('dashboard.layouts.layout')
 @section('main-content')
-    @if ($errors->any())
-        <pre>{{ print_r($errors->all(), true) }}</pre>
-    @endif
     <div class="page-content">
         <div class="container-fluid">
 
