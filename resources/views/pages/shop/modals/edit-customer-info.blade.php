@@ -29,11 +29,8 @@
                                id="default_phone"
                                name="default_phone"
                                value="{{ Auth::user()->default_phone }}"
-                               placeholder="Nhập số điện thoại"
-                               {{ Auth::user()->default_phone ? 'readonly' : '' }}>
-                        @if(Auth::user()->default_phone)
-                            <small class="text-muted fst-italic">Bạn không thể thay đổi số điện thoại sau khi đã nhập.</small>
-                        @endif
+                               placeholder="Nhập số điện thoại">
+                        
                     </div>
 
                     <!-- Email -->
