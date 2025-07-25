@@ -199,13 +199,13 @@
 
                                     <div class="product-detail fw-600">
                                         <a
-                                            href="{{ route('home.show', $item->product->slug) }}">{{ Str::limit($item->product->name, 30) }}</a>
+                                            href="{{ route('home.show', $item->product->slug) }}">{{ Str::limit($item->product->name, 20) }}</a>
                                         <span class="item-ammount fw-400">{{ $item->quantity }} x
                                             {{ number_format($item->price_at_time, 0, ',', '.') }}đ</span>
                                     </div>
                                 </li>
                             @empty
-                                <li class="cart-item">Chưa có sản phẩm nào trong giỏ.</li>
+                                <li class="cart-item1">Chưa có sản phẩm nào trong giỏ.</li>
                             @endforelse
 
                             @if ($cartItems->isNotEmpty())
@@ -234,7 +234,7 @@
     </div>
 </nav>
 <style>
-    .cart-item {
+    .cart-item1 {
         font-family: Arial, sans-serif;
         font-size: 16px;
         line-height: 1.5;

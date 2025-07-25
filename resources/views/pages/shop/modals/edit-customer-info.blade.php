@@ -18,7 +18,7 @@
                     <div class="mb-3">
                         <label for="name" class="form-label fw-semibold">Họ và tên</label>
                         <input type="text" class="form-control rounded-3 shadow-sm" id="name" name="name"
-                               value="{{ Auth::user()->name }}" required>
+                               value="{{ Auth::user()->name }}"  {{ Auth::user()->name ? 'readonly' : '' }}>
                     </div>
 
                     <!-- Số điện thoại -->
@@ -29,15 +29,18 @@
                                id="default_phone"
                                name="default_phone"
                                value="{{ Auth::user()->default_phone }}"
-                               placeholder="Nhập số điện thoại">
-                        
+                               placeholder="Nhập số điện thoại"
+                              >
+                        {{-- @if(Auth::user()->default_phone)
+                            <small class="text-muted fst-italic">Bạn không thể thay đổi số điện thoại sau khi đã nhập.</small>
+                        @endif --}}
                     </div>
 
                     <!-- Email -->
                     <div class="mb-3">
                         <label for="email" class="form-label fw-semibold">Email</label>
                         <input type="email" class="form-control rounded-3 shadow-sm" id="email" name="email"
-                               value="{{ Auth::user()->email }}" required>
+                               value="{{ Auth::user()->email }}"  {{ Auth::user()->email ? 'readonly' : '' }}>
                     </div>
 
                     <!-- Buttons -->

@@ -37,7 +37,7 @@ class HomeController extends Controller
                 $query->where('is_show', 1)->whereNull('deleted_at');
             })
             ->whereNull('deleted_at')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('views_page', 'desc')
             ->paginate(10);
         // Sản Phẩm Nổi Bật
         $featured = Products::with(['category', 'variants.color', 'variants.size'])
