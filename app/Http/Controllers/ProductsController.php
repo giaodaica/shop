@@ -13,6 +13,14 @@ use Illuminate\Support\Str;
 
 class ProductsController extends Controller
 {
+    // public function __construct()
+    // {
+    //     $this->middleware('permission:view product')->only(['index', 'show']);
+    //     $this->middleware('permission:create product')->only(['create', 'store']);
+    //     $this->middleware('permission:edit product')->only(['edit', 'update']);
+    //     $this->middleware('permission:delete product')->only(['destroy']);
+    // }
+
     public function index(Request $request)
     {
         $status = $request->get('status', 'active'); // active | trashed | all

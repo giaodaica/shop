@@ -1,6 +1,8 @@
+    <script src="https://unpkg.com/just-validate@4.3.0/dist/just-validate.production.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script src="{{ asset('admin/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
-<script src="{{ asset('admin/libs/flatpickr/flatpickr.min.js') }}"></script>
+{{-- <script src="{{ asset('admin/libs/flatpickr/flatpickr.min.js') }}"></script> --}}
 <script src="{{ asset('admin/libs/simplebar/simplebar.min.js') }}"></script>
 <script src="{{ asset('admin/libs/node-waves/waves.min.js') }}"></script>
 <script src="{{ asset('admin/libs/feather-icons/feather.min.js') }}"></script>
@@ -16,4 +18,4 @@
 <!-- Dashboard init -->
 <script src="{{ asset('admin/js/pages/dashboard-ecommerce.init.js') }}"></script>
 <script src="{{ asset('admin/js/app.js') }}"></script>
-    
+

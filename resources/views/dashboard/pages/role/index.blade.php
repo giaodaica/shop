@@ -99,9 +99,9 @@
     <div class="page-content" id="kt_page_sticky_card">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-8">
+                <div class="col-sm-12">
                     <div class="well">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
                             <div class="lead text-right">
                                 <div class="float-right">
                                     <!-- Đã xóa các nút Thu gọn, Chọn tất cả, Xóa mục đã chọn -->
@@ -122,14 +122,7 @@
                     </div>
                 </div>
 
-                <div class="col-sm-4 d-none d-sm-block">
-                    <div class="well">
-                        <div class="m-demo-icon">
-                            <i class="flaticon-light icon-lg"></i> {{ __('Kéo thả để sắp xếp vai trò') }}
-                        </div>
-                        <br>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>

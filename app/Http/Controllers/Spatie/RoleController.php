@@ -13,13 +13,13 @@ class RoleController extends Controller
     protected $user;
     protected $page_breadcrumbs;
 
-    public function __construct()
-    {
-
-        $this->middleware(function ($request, $next) {
-            return $next($request);
-        });
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('permission:view phanquyen')->only(['index', 'show']);
+    //     $this->middleware('permission:create phanquyen')->only(['create', 'store']);
+    //     $this->middleware('permission:edit phanquyen')->only(['edit', 'update']);
+    //     $this->middleware('permission:delete phanquyen')->only(['destroy']);
+    // }
     public function index(Request $request)
     {
         $data = Role::orderBy('order', 'asc')->get();

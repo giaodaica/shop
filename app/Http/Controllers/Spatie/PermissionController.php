@@ -46,6 +46,10 @@ class PermissionController extends Controller
 			],
 
 		];
+		// $this->middleware('permission:view phanquyen')->only(['index', 'show']);
+		// $this->middleware('permission:create phanquyen')->only(['create', 'store']);
+		// $this->middleware('permission:edit phanquyen')->only(['edit', 'update']);
+		// $this->middleware('permission:delete phanquyen')->only(['destroy']);
 	}
 
 	public function index(Request $request)

@@ -18,14 +18,14 @@ public function index()
 {
     $userId = Auth::id();
 
-   
+
     $cartItems = Cart::with('productVariant.color')->where('user_id', $userId)->get();
     $cartItems = Cart::with('productVariant.color', 'productVariant.size', 'productVariant.product')->where('user_id', $userId)->get();
 
-   
+
     $selectedIds = session('cart_selected_ids', []);
 
-   
+
     $selectedItems = $cartItems->whereIn('id', $selectedIds);
 
     $subtotal = $selectedItems->sum(fn($item) => $item->quantity * $item->price_at_time);
@@ -33,12 +33,12 @@ public function index()
     $voucherDiscount = session()->has('voucher_code') && session()->has('voucher_discount')
         ? session('voucher_discount')
         : 0;
-    
+
     $total = $subtotal - $voucherDiscount;
 
     $voucherDiscount = 0;
 
-    
+
     if (count($selectedItems) > 0 && session()->has('voucher_code')) {
         $voucherCode = session('voucher_code');
         $voucher = DB::table('vouchers')
@@ -60,7 +60,7 @@ public function index()
 
     $total = $subtotal - $voucherDiscount;
 
-    
+
     $availableVouchers = DB::table('vouchers')
         ->join('vouchers_users', 'vouchers.id', '=', 'vouchers_users.voucher_id')
         ->where('vouchers_users.user_id', $userId)
@@ -70,7 +70,7 @@ public function index()
 
     return view('pages.shop.cart', compact(
         'cartItems',
-        'selectedIds', 
+        'selectedIds',
         'subtotal',
         'voucherDiscount',
         'total',
@@ -318,17 +318,17 @@ public function applyVoucher(Request $request)
         return redirect()->back()->with('error', 'Không thể áp dụng mã vì không có sản phẩm hợp lệ được chọn.');
     }
 
-    
+
     $subtotal = $cartItems->sum(function ($item) {
         return $item->quantity * $item->price_at_time;
     });
 
-   
+
     if ($voucher->min_order_value && $subtotal < $voucher->min_order_value) {
         return redirect()->back()->with('error', 'Đơn hàng phải tối thiểu ' . number_format($voucher->min_order_value, 0, ',', '.') . ' đ để sử dụng mã này.');
     }
 
-   
+
     $discount = 0;
     if ($voucher->type_discount === 'percent') {
         $discount = round($subtotal * ($voucher->value / 100));
@@ -339,7 +339,7 @@ public function applyVoucher(Request $request)
         $discount = $voucher->value;
     }
 
-   
+
     session([
         'voucher_code' => $voucher->code,
         'voucher_discount' => $discount
@@ -357,7 +357,7 @@ public function removeVoucher()
 }
 
     public function add_to_cart($id,request $request){
-
+        // validate
         $request->validate([
             'color' => 'required|exists:colors,id',
             'size' => 'required|exists:sizes,id',
@@ -372,10 +372,12 @@ public function removeVoucher()
             'quantity.min' => 'Số lượng sản phẩm tối thiểu phải là 1',
 
         ]);
+        // kiểm tra sản phẩm này có tồn tại k
         $product = Products::find($id);
         if(!$product){
             return redirect()->back()->with('error', 'Sản phẩm không tồn tại');
         }
+        // kiểm tra biến thể
         $variants = Product_variants::where('product_id',$id)->
         where('color_id',$request->color)->
         where('size_id',$request->size)->first();
@@ -383,6 +385,7 @@ public function removeVoucher()
         if(!$variants){
             return redirect()->back()->with('error','Sản phẩm này đã hết hàng hoặc không có xin vui lòng thao tác lại');
         }
+        // kiểm tra tồn kho
         if($variants->stock < $request->quantity){
             return redirect()->back()->with('error',"Số lượng sản phẩm tồn kho chỉ còn $variants->stock");
         }

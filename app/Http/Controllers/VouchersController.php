@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Route;
 
 class VouchersController extends Controller
 {
+    // public function __construct()
+    // {
+    //     $this->middleware('permission:view khuyenmai')->only(['index', 'show']);
+    //     $this->middleware('permission:create khuyenmai')->only(['create', 'store']);
+    //     $this->middleware('permission:edit khuyenmai')->only(['edit', 'update']);
+    //     $this->middleware('permission:delete khuyenmai')->only(['destroy']);
+    // }
     public function show($id, Request $request)
     {
         $action = $request->query('type');
@@ -43,6 +50,9 @@ class VouchersController extends Controller
         } else {
             $data['image'] = null;
         }
+        if ($data['type_discount'] == "value") {
+            $data['max_discount'] = 0;
+        }
         Vouchers::create($data);
         return redirect()->back();
     }
@@ -55,28 +65,30 @@ class VouchersController extends Controller
         }
         return view('dashboard.pages.voucher.detail', compact('data_voucher', 'action', 'categories'));
     }
- public function update(VoucherRequest $request, $id)
-{
-    $data_voucher = Vouchers::findOrFail($id);
+    public function update(VoucherRequest $request, $id)
+    {
+        $data_voucher = Vouchers::findOrFail($id);
 
-    if ($data_voucher->status !== 'draft') {
-        abort(403, 'Không được phép sửa');
+        if ($data_voucher->status !== 'draft') {
+            abort(403, 'Không được phép sửa');
+        }
+
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/vouchers'), $filename);
+            $data['image'] = 'uploads/vouchers/' . $filename;
+        } else {
+            $data['image'] = $data_voucher->image;
+        }
+        if ($data['type_discount'] == "value") {
+            $data['max_discount'] = 0;
+        }
+        $data_voucher->update($data);
+        return redirect()->back();
     }
-
-    $data = $request->validated();
-
-    if ($request->hasFile('image')) {
-        $file = $request->file('image');
-        $filename = time() . '.' . $file->getClientOriginalExtension();
-        $file->move(public_path('uploads/vouchers'), $filename);
-        $data['image'] = 'uploads/vouchers/' . $filename;
-    } else {
-        $data['image'] = $data_voucher->image;
-    }
-
-    $data_voucher->update($data);
-    return redirect()->back();
-}
 
     public function ads(AdsRequest $request)
     {

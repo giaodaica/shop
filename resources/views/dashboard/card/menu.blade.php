@@ -88,7 +88,20 @@
                         </li>
                     </ul>
                 </div>
-                <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Product</span></li>
+                <a class="nav-link menu-link" href="#sidebarDashboards2" data-bs-toggle="collapse" role="button"
+                    aria-expanded="false" aria-controls="sidebarDashboards">
+                    <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards">Flash Sale</span>
+                </a>
+                <div class="collapse menu-dropdown" id="sidebarDashboards2">
+                    <ul class="nav nav-sm flex-column">
+                        <li class="nav-item">
+                            <a href="" class="nav-link"
+                                data-key="t-analytics">Xem 
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Sản phẩm</span></li>
 
                 <a class="nav-link menu-link" href="#sidebarProducts" data-bs-toggle="collapse" role="button"
                     aria-expanded="false" aria-controls="sidebarProducts">
@@ -97,13 +110,21 @@
                 <div class="collapse menu-dropdown" id="sidebarProducts">
                     <ul class="nav nav-sm flex-column">
                         <li class="nav-item">
-                            <a href="{{ url('dashboard/products') }}" class="nav-link" data-key="t-horizontal">Quản
-                                lý sản phẩm</a>
-                        </li>
-                        <li class="nav-item">
                             <a href="{{ url('dashboard/categories') }}" class="nav-link"
                                 data-key="t-horizontal">Quản lý danh mục</a>
                         </li>
+
+                        <li class="nav-item">
+                            <a href="{{ url('dashboard/products') }}" class="nav-link" data-key="t-horizontal">Quản
+                                lý sản phẩm</a>
+                        </li>
+
+
+                        <li class="nav-item">
+                            <a href="{{ url('dashboard/comments') }}" class="nav-link" data-key="t-horizontal">Quản
+                                lý bình luận</a>
+                        </li>
+
                     </ul>
                 </div>
                 <a class="nav-link menu-link" href="#sidebarAttributes" data-bs-toggle="collapse" role="button"
@@ -119,8 +140,7 @@
                     </ul>
                     <ul class="nav nav-sm flex-column">
                         <li class="nav-item">
-                            <a href="{{ url('dashboard/sizes') }}" class="nav-link" data-key="t-horizontal">Kích
-                                thước</a>
+                            <a href="{{ url('dashboard/sizes') }}" class="nav-link" data-key="t-horizontal">Size</a>
                         </li>
                     </ul>
                     <ul class="nav nav-sm flex-column">

@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('wards', function (Blueprint $table) {
-            $table->string('ward_code')->primary();
-            $table->string('name');
-            $table->string('province_code');
-
-            $table->foreign('province_code')->references('province_code')->on('provinces')->onDelete('cascade');
+        Schema::create('review_replies', function (Blueprint $table) {
+           $table->id();
+            $table->foreignId('review_id')->constrained('reviews')->onDelete('cascade');
+            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade'); // giả sử admin là user
+            $table->text('reply');
             $table->timestamps();
         });
-        
     }
 
     /**
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('wards');
+        Schema::dropIfExists('review_replies');
     }
 };
