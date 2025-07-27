@@ -24,7 +24,7 @@
                     <!-- Số điện thoại -->
                     <div class="mb-3">
                         <label for="default_phone" class="form-label fw-semibold">Số điện thoại</label>
-                        <input type="tel"
+                        <input type="number"
                                class="form-control rounded-3 shadow-sm"
                                id="default_phone"
                                name="default_phone"

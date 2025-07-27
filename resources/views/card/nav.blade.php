@@ -189,7 +189,7 @@
                         <ul class="cart-item-list">
                             @forelse($cartItems as $item)
                                 <li class="cart-item align-items-center">
-                                    <a href="#" class="alt-font close">×</a>
+                                    {{-- <a href="#" class="alt-font close">×</a> --}}
                                     <div class="product-image">
                                         <a href="{{ route('home.show', $item->product->slug) }}">
                                             <img src="{{ asset($item->productVariant->variant_image_url) }}"
@@ -218,8 +218,7 @@
                                     <a href="{{ url('cart') }}"
                                         class="btn btn-large btn-transparent-light-gray border-color-extra-medium-gray">Xem
                                         giỏ hàng</a>
-                                    <a href="{{ url('checkout') }}"
-                                        class="btn btn-large btn-dark-gray btn-box-shadow">Thanh toán</a>
+                                  
                                 </li>
                             @endif
                         </ul>
