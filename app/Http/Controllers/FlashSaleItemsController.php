@@ -89,4 +89,13 @@ class FlashSaleItemsController extends Controller
         }
            return redirect()->back()->with('success', 'Thành công.');
     }
+    public function remove_flash_sale_items($id){
+        $data_item = FlashSaleItems::where('product_variant_id',$id)->first();
+        if(!$data_item){
+            return redirect()->back()->with('error','Không tìm thấy sản phẩm này');
+        }
+        $data_item->delete();
+            return redirect()->back()->with('success','Thành công');
+        // dd($data_item);
+    }
 }
