@@ -153,6 +153,7 @@ Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
     route::post('add-flash-sale/{id}',[ProductsController::class,'add_flash_sale'])->name('addflashsale');
     route::get('remove-flash-sale/{id}',[ProductsController::class,'remove_flashsale']);
     route::post('create-items-flashsale/{id}',[FlashSaleItemsController::class,'add_flash_sale_items'])->name('create-items-flashsale');
+    route::get('remove-items-flashsale/{id}',[FlashSaleItemsController::class,'remove_flash_sale_items'])->name('remove-items-flashsale');
 
     // route thống kê
     Route::get('thong-ke', [RevenueController::class, 'index'])->name('dashboard.revenue');

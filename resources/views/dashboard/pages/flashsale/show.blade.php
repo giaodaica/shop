@@ -105,10 +105,10 @@
                                     <p><strong>Số sản phẩm đã bán:</strong> {{ $variant->sold_quantity }}</p>
 
                                     <div class="mt-2">
-                                        <a href="{{ route('variants.edit', $variant->id) }}"
+                                        <a href="{{ route('variants.edit', $variant->product_variant_id) }}"
                                             class="btn btn-sm btn-primary me-1">Chỉnh sửa</a>
-                                        <a href="{{ route('variants.show', $variant->id) }}"
-                                            class="btn btn-sm btn-secondary">Xem chi tiết</a>
+                                        <a href="{{ route('remove-items-flashsale', $variant->product_variant_id) }}"
+                                            class="btn btn-sm btn-secondary">Xóa</a>
                                     </div>
                                 </div>
                             </div>
@@ -116,10 +116,29 @@
                     </div>
                 </div>
             </div>
-
+                <a href="{{route('flash-sale')}}" class="btn btn-success">Quay Lại</a>
         </div>
     </div>
 @endsection
 
 @section('js-content')
+       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: "{{ session('success') }}",
+        });
+    @endif
+
+    @if (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi!',
+            html: `{!! session('error') !!}`, // Dùng `html:` thay vì `text:`
+        });
+    @endif
+</script>
 @endsection
