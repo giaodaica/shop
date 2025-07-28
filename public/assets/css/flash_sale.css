@@ -1,0 +1,523 @@
+
+    /* Flash Sale Banner */
+    .flash-sale-banner {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        margin: 20px 0;
+        padding: 20px;
+    }
+
+    .flash-sale-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .flash-sale-text {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .flash-sale-text h1 {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #ff6b6b;
+        margin: 0 0 5px 0;
+    }
+
+    .flash-sale-text p {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
+    }
+
+    /* Countdown Section */
+    .countdown-section {
+        /* background: gray; */
+        border-radius: 8px;
+        padding: 3px 8px;
+        display: inline-block;
+        /* margin-top: 8px; */
+        text-align: center;
+    }
+
+    .countdown-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        /* margin-bottom: 4px; */
+        display: block;
+        color: black;
+    }
+
+    .countdown-timer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* gap: 3px; */
+
+    }
+
+    .time-block {
+        background: white;
+        padding: 0px 5px;
+        border-radius: 4px;
+        min-width: 6px;
+        min-height: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .time-number {
+        font-size: 0.7rem;
+        font-weight: bold;
+        display: block;
+        color: black
+    }
+
+
+
+    .time-separator {
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: #fff;
+        margin: 0 1px;
+    }
+
+    /* Upcoming Section */
+    .upcoming-section {
+        margin-top: 8px;
+        text-align: center;
+        color: black;
+    }
+
+    .upcoming-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .upcoming-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        /* margin-bottom: -24px; */
+        display: block;
+        color: black;
+    }
+
+    .upcoming-time {
+        font-size: 0.9rem;
+        font-weight: bold;
+        display: block;
+        color: black;
+        margin-bottom: 7px
+    }
+
+    /* Product Tabs Menu */
+    .product-tabs-container {
+        background: white;
+        border-bottom: 1px solid #e9ecef;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .tabs-menu {
+        display: flex;
+        gap: 5px;
+        overflow-x: auto;
+        padding: 15px 0;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .tab-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 12px 16px;
+        border: none;
+        background: #d4d7da;
+        color: #6c757d;
+        border-radius: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        min-width: 100px;
+        justify-content: center;
+        min-height: 40px;
+    }
+
+
+
+    .tab-btn.active {
+        background: #fee300;
+        color: white !important;
+    }
+
+    .tab-btn i {
+        font-size: 0.9rem;
+    }
+
+    /* Tab Content */
+    .tab-content-container {
+        margin-bottom: 50px;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* Product Grid */
+    .product-grid {
+        display: flex;
+        /* grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px; */
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* margin-left: 1px;  */
+    }
+
+    .product-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-image {
+        position: relative;
+        height: 224px;
+        width: 224px;
+        overflow: hidden;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .flash-sale-badge {
+        background: #ff6b6b;
+    }
+
+    .upcoming-badge {
+        background: #17a2b8;
+    }
+
+    .new-badge {
+        background: #28a745;
+    }
+
+    .best-seller-badge {
+        background: #ffc107;
+        color: #212529;
+    }
+
+    .discount-badge {
+        background: #dc3545;
+    }
+
+    .trending-badge {
+        background: #17a2b8;
+    }
+
+    .product-info {
+        padding: 15px;
+    }
+
+    .product-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0 0 10px 0;
+        line-height: 1.3;
+        color: #333;
+        height: 2.4em;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .product-price {
+        margin-bottom: 8px;
+    }
+
+    .current-price {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #ff6b6b;
+        margin-right: 8px;
+    }
+
+    .original-price {
+        font-size: 0.9rem;
+        color: #999;
+        text-decoration: line-through;
+    }
+
+    .product-status {
+        font-size: 0.8rem;
+        color: #666;
+        margin-bottom: 12px;
+    }
+
+    .buy-now-btn {
+        width: 100%;
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .buy-now-btn:hover {
+        background: #ff5252;
+    }
+
+    .upcoming-btn {
+        background: #6c757d !important;
+        cursor: not-allowed;
+    }
+
+    .upcoming-btn:hover {
+        background: #6c757d !important;
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 20px;
+        color: #6c757d;
+    }
+
+    .loading-spinner i {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        color: #ff6b6b;
+    }
+
+    .loading-spinner p {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 20px;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #dee2e6;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 10px 0;
+        font-size: 1.2rem;
+        color: #495057;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .flash-sale-content {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .flash-sale-text {
+            min-width: auto;
+        }
+
+        .countdown-section {
+            min-width: auto;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .upcoming-section {
+            min-width: auto;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .tabs-menu {
+            gap: 3px;
+            padding: 6px 0;
+            /* Giảm padding dọc */
+        }
+
+        .tab-btn {
+            padding: 5px 8px;
+            /* Giảm padding dọc và ngang */
+            min-height: 20px;
+            /* Giảm chiều cao tối thiểu */
+            min-width: 70px;
+            /* Có thể giảm nếu muốn nhỏ hơn nữa */
+            font-size: 0.85rem;
+            /* Giảm cỡ chữ nếu muốn */
+        }
+
+        .tab-btn i {
+            font-size: 0.8rem;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .flash-sale-banner {
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .flash-sale-text h1 {
+            font-size: 1.5rem;
+        }
+
+        .flash-sale-text p {
+            font-size: 0.8rem;
+        }
+
+        .countdown-section {
+            padding: 12px 15px;
+        }
+
+        .time-block {
+            min-width: 30px;
+            padding: 4px 6px;
+        }
+
+        .time-number {
+            font-size: 0.9rem;
+        }
+
+        .time-label {
+            font-size: 0.5rem;
+        }
+
+        .tabs-menu {
+            gap: 2px;
+            padding: 8px 0;
+        }
+
+        .tab-btn {
+            padding: 8px 12px;
+            min-width: 80px;
+            font-size: 0.7rem;
+        }
+
+        .tab-btn i {
+            font-size: 0.7rem;
+        }
+
+        .product-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+    }
+
+    .countdown-label {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .countdown-section {
+        padding-top: 0 !important;
+    }
+
+    .tab-btn {
+        padding-top: 2px !important;
+    }
+
+    .flash-sale-progress {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .flash-sale-progress .fire-icon {
+        font-size: 1.2rem;
+        margin-right: 2px;
+        filter: drop-shadow(0 0 2px #ffb300);
+    }
+
+    .flash-sale-progress .progress-label {
+        white-space: nowrap;
+        margin-right: 8px;
+        color: #222;
+        font-weight: 600;
+    }
+
+    .progress-bar-bg {
+        flex: 1;
+        height: 18px;
+        background: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        min-width: 60px;
+        max-width: 120px;
+        margin-left: 4px;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ffe066 60%, #ffd600 100%);
+        border-radius: 10px 0 0 10px;
+        transition: width 0.5s cubic-bezier(.4,2.3,.3,1);
+    }

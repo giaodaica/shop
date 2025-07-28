@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FlashSale;
 use App\Models\Vouchers;
 use App\Models\Products;
 use Illuminate\Http\Request;
@@ -50,9 +51,15 @@ class HomeController extends Controller
             ->whereNull('deleted_at')
             ->orderBy('created_at', 'desc')
             ->paginate(5);
-        return view('pages.shop.index', compact('voucher_block_3', 'bestSellers', 'featured'));
+        // Lấy flash sale active
+        $activeFlashSales = FlashSale::getActiveFlashSales();
+
+        // Lấy flash sale upcoming  
+        $upcomingFlashSales = FlashSale::getUpcomingFlashSales();
+
+        return view('pages.shop.index', compact('voucher_block_3', 'bestSellers', 'featured', 'activeFlashSales','upcomingFlashSales'));
     }
-    
+
     public function show($id)
     {
         return view('pages.shop.show');
@@ -62,9 +69,37 @@ class HomeController extends Controller
         return view('dashboard.index');
     }
 
-    public function shop(){
+    public function shop()
+    {
         return view('pages.shop.index');
     }
 
+    /**
+     * Lấy tất cả sản phẩm flash sale có status là active
+     */
+    public function getActiveFlashSales()
+    {
+        $activeFlashSales = FlashSale::getActiveFlashSales();
+        return response()->json([
+            'success' => true,
+            'data' => $activeFlashSales
+        ]);
+    }
 
+    /**
+     * Lấy tất cả sản phẩm flash sale có status là upcoming
+     */
+    public function getUpcomingFlashSales()
+    {
+        $upcomingFlashSales = FlashSale::getUpcomingFlashSales();
+        return response()->json([
+            'success' => true,
+            'data' => $upcomingFlashSales
+        ]);
+    }
+
+    /**
+     * Hiển thị trang flash sale
+     */
+   
 }
