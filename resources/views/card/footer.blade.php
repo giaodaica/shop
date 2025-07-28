@@ -3,18 +3,14 @@
         <div class="row align-items-center pt-35px pb-35px">
             <!-- start footer column -->
             <div class="col-12 col-md-auto sm-mb-15px text-center text-md-start">
-                <a href="demo-fashion-store.html" class="footer-logo"><img src="{{asset('assets/images/demo-fashion-store-logo-white.png')}}" data-at2x="{{asset('assets/images/demo-fashion-store-logo-white@2x.png')}}" alt="" class="default-logo"></a>
+                <a href="demo-fashion-store.html" class="footer-logo"><img src="{{asset('assets/images/logooutfitly.png')}}" data-at2x="{{asset('assets/images/logooutfitly.png')}}" alt="" class="default-logo"></a>
             </div>
             <!-- end footer column -->
             <!-- start footer column -->
             <div class="col">
                 <ul class="footer-navbar text-center text-md-end">
-                    <li class="nav-item"><a href="demo-fashion-store.html" class="nav-link">Home</a></li>
-                    <li class="nav-item"><a href="demo-fashion-store-shop.html" class="nav-link">Shop</a></li>
-                    <li class="nav-item"><a href="demo-fashion-store-collection.html" class="nav-link">Collection</a></li>
-                    <li class="nav-item"><a href="demo-fashion-store-magazine.html" class="nav-link">Magazine</a></li>
-                    <li class="nav-item"><a href="demo-fashion-store-about.html" class="nav-link">About</a></li>
-                    <li class="nav-item"><a href="demo-fashion-store-contact.html" class="nav-link">Contact</a></li>
+                    <li class="nav-item"><a href="{{url('/')}}" class="nav-link">Trang trủ</a></li>
+                    <li class="nav-item"><a href="{{url('shop')}}" class="nav-link">Cửa hàng</a></li>
                 </ul>
             </div>
             <!-- end footer column -->

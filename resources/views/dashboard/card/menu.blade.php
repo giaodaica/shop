@@ -95,8 +95,8 @@
                 <div class="collapse menu-dropdown" id="sidebarDashboards2">
                     <ul class="nav nav-sm flex-column">
                         <li class="nav-item">
-                            <a href="" class="nav-link"
-                                data-key="t-analytics">Xem 
+                            <a href="{{route('flash-sale')}}" class="nav-link"
+                                data-key="t-analytics">Xem
                             </a>
                         </li>
                     </ul>
