@@ -60,68 +60,10 @@
     @include('card.banner')
     <!-- end section -->
     <!-- start section -->
-    <section class="half-section">
-        <div class="container">
-            <div class="row row-cols-1 row-cols-xl-4 row-cols-lg-4 row-cols-md-2 row-cols-sm-2"
-                data-anime='{ "el": "childs", "translateX": [30, 0], "opacity": [0,1], "duration": 800, "delay": 200, "staggervalue": 300, "easing": "easeOutQuad" }'>
-                <!-- start features box item -->
-                <div class="col icon-with-text-style-01 md-mb-35px">
-                    <div class="feature-box feature-box-left-icon-middle last-paragraph-no-margin">
-                        <div class="feature-box-icon me-20px">
-                            <i class="line-icon-Box-Close icon-large text-dark-gray"></i>
-                        </div>
-                        <div class="feature-box-content">
-                            <span class="alt-font fs-20 fw-500 d-block text-dark-gray">Free shipping</span>
-                            <p class="fs-16 lh-24">Free shipping on first order</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- end features box item -->
-                <!-- start features box item -->
-                <div class="col icon-with-text-style-01 md-mb-35px">
-                    <div class="feature-box feature-box-left-icon-middle last-paragraph-no-margin">
-                        <div class="feature-box-icon me-20px">
-                            <i class="line-icon-Reload-3 icon-large text-dark-gray"></i>
-                        </div>
-                        <div class="feature-box-content">
-                            <span class="alt-font fs-20 fw-500 d-block text-dark-gray">15 days returns</span>
-                            <p class="fs-16 lh-24">Moneyback guarantee</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- end features box item -->
-                <!-- start features box item -->
-                <div class="col icon-with-text-style-01 xs-mb-35px">
-                    <div class="feature-box feature-box-left-icon-middle last-paragraph-no-margin">
-                        <div class="feature-box-icon me-20px">
-                            <i class="line-icon-Credit-Card2 icon-large text-dark-gray"></i>
-                        </div>
-                        <div class="feature-box-content">
-                            <span class="alt-font fs-20 fw-500 d-block text-dark-gray">Secure payment</span>
-                            <p class="fs-16 lh-24">100% protected payment</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- end features box item -->
-                <!-- start features box item -->
-                <div class="col icon-with-text-style-01">
-                    <div class="feature-box feature-box-left-icon-middle last-paragraph-no-margin">
-                        <div class="feature-box-icon me-20px">
-                            <i class="line-icon-Phone-2 icon-large text-dark-gray"></i>
-                        </div>
-                        <div class="feature-box-content">
-                            <span class="alt-font fs-20 fw-500 d-block text-dark-gray">Online support</span>
-                            <p class="fs-16 lh-24">24/7 days a week support</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- end features box item -->
-            </div>
-        </div>
-    </section>
+    
     <!-- end section -->
     <!-- start section -->
-    @include('card.category_top')
+    @include('card.new_product')
     <!-- end section -->
     <!-- start section -->
     @include('card.best_sale_product')
@@ -172,7 +114,8 @@
     @endif
     <!-- end section -->
     <!-- start section -->
-    @include('card.new_product')
+    @include('card.category_top')
+    
     <!-- end section -->
     <!-- start section -->
     <section class="half-section border-bottom border-color-extra-medium-gray">

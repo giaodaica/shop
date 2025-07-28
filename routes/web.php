@@ -43,6 +43,8 @@ Route::middleware(['cache'])->group(function () {
 });
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('shop', [ProductController::class, 'index'])->name('home.shop');
+// Flash Sale Routes
+
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/search/suggestions', [SearchController::class, 'suggestions']);
 Route::get('/search/filter', [SearchController::class, 'search'])->name('search.filter');

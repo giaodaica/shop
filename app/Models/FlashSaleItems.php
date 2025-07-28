@@ -21,4 +21,14 @@ class FlashSaleItems extends Model
         'import_price',
         'listed_price',
         'sale_price'];
+
+    public function flashSale()
+    {
+        return $this->belongsTo(FlashSale::class, 'flash_sale_id');
+    }
+
+    public function productVariant()
+    {
+        return $this->belongsTo(Product_variants::class, 'product_variant_id');
+    }
 }
