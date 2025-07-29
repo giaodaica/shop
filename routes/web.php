@@ -28,6 +28,7 @@ use App\Http\Controllers\web\ReviewController;
 use App\Http\Controllers\AddressBookController;
 use App\Http\Controllers\RefundMoneyController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Middleware\CheckUserStatus;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Contracts\Role;
@@ -41,6 +42,7 @@ Route::get('/wards', [OrderController::class, 'getWards']);
 Route::middleware(['cache'])->group(function () {
     Auth::routes();
 });
+Route::middleware([CheckUserStatus::class])->group(function () {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('shop', [ProductController::class, 'index'])->name('home.shop');
 // Flash Sale Routes
@@ -218,4 +220,7 @@ Route::post('/order/{id}/submit-confirmation', [InfoController::class, 'submitUs
 Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verifyWithoutAuth'])
     ->middleware(['signed', 'throttle:6,1'])
     ->name('verification.verify');
+});
+
+
 

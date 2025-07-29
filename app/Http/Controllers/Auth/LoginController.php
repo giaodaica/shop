@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
@@ -58,12 +59,13 @@ class LoginController extends Controller
     }
     protected function authenticated(Request $request, $user)
     {
-        if ($user->status == 'inactive') {
-            Auth::logout(); // Đăng xuất user ngay sau khi login
+        if ($user->status === 'inactive') {
+            Auth::logout();
+
+            // Dùng flash message thủ công
             return redirect()->route('login')->with('error', 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
         }
 
-        // Nếu không bị khoá thì vẫn redirect như bình thường
         return redirect()->intended($this->redirectPath());
     }
 }
