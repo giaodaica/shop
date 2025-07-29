@@ -20,7 +20,8 @@ class FlashSaleItems extends Model
         'size_id',
         'import_price',
         'listed_price',
-        'sale_price'];
+        'sale_price'
+    ];
 
     public function flashSale()
     {
@@ -30,5 +31,19 @@ class FlashSaleItems extends Model
     public function productVariant()
     {
         return $this->belongsTo(Product_variants::class, 'product_variant_id');
+    }
+    public function product()
+    {
+        return $this->belongsTo(Products::class);
+    }
+
+    public function color()
+    {
+        return $this->belongsTo(Color::class);
+    }
+
+    public function size()
+    {
+        return $this->belongsTo(Size::class);
     }
 }

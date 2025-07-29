@@ -35,7 +35,10 @@ use Spatie\Permission\Contracts\Role;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\FlashSaleController;
 use App\Http\Controllers\FlashSaleItemsController;
+use App\Http\Controllers\web\Flash_Sale;
 use App\Models\FlashSale;
+
+// Route::get('aonam/{flash_sale_id}/{variant_id}', [Flash_Sale::class, 'index'])->name('flashsale.show');
 
 Route::get('/wards', [OrderController::class, 'getWards']);
 
@@ -45,6 +48,7 @@ Route::middleware(['cache'])->group(function () {
 Route::middleware([CheckUserStatus::class])->group(function () {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('shop', [ProductController::class, 'index'])->name('home.shop');
+Route::get('/flash', [ProductController::class, 'flash']);
 // Flash Sale Routes
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
@@ -62,14 +66,14 @@ Route::post('/order/{id}/cancel', [InfoController::class, 'cancel'])->name('orde
 Route::get('info', [InfoController::class, 'account'])->name('home.info')->middleware('auth', 'cache');
 Route::get('show/{id}', [InfoController::class, 'orderDetail'])->name('home.orderDetail')->middleware('auth', 'cache');
 Route::get('aonam/{slug}', [ProductDetailController::class, 'index'])->name('home.show');
-Route::get('cart', [CartController::class, 'index'])->name('home.cart');
+Route::get('cart', action: [CartController::class, 'index'])->name('home.cart');
 Route::delete('/cart/delete-selected', [CartController::class, 'deleteSelected'])->name('cart.deleteSelected');
 Route::post('/cart/update-quantity', [CartController::class, 'updateQuantity'])->name('cart.updateQuantity');
 Route::post('/cart/calculate-total', [CartController::class, 'calculateTotal'])->name('cart.calculateTotal');
 Route::post('/cart/apply-voucher', [CartController::class, 'applyVoucher'])->name('cart.applyVoucher');
 Route::get('/cart/remove-voucher', [CartController::class, 'removeVoucher'])->name('cart.removeVoucher');
 Route::post('/cart/update-selected-ajax', [CartController::class, 'ajaxUpdateSelected'])->name('cart.ajaxUpdateSelected');
-Route::get('/aonam/{slug}', [ProductDetailController::class, 'index'])->name('home.show');
+
 Route::get('/account/orders', [InfoController::class, 'filterOrders'])->name('account.orders');
 Route::middleware(['auth'])->group(function () {
     Route::get('checkout', [OrderController::class, 'index'])->name('home.checkout');
@@ -224,3 +228,5 @@ Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verifyWi
 
 
 
+// web.php
+Route::get('/flash-sales/{id}/products', [HomeController::class, 'getProducts'])->name('flash-sales.products');

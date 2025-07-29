@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\web;
 
 use App\Http\Controllers\Controller;
+use App\Models\FlashSale;
+use App\Models\FlashSaleItems;
 use Illuminate\Http\Request;
 use App\Models\Products;
 use App\Models\Product_variants;
@@ -11,8 +13,35 @@ use App\Models\Review;
 
 class ProductDetailController extends Controller
 {
-    public function index($slug)
+    public function index($slug, Request $request)
     {
+        // Lấy giá trị `flash_item_id` từ query string trên URL (vd: ?flash_item_id=3)
+        $flashItemId = request()->query('flash_item_id');
+
+        // Khởi tạo biến mặc định
+        $flashSaleItem = null;  // Biến lưu thông tin chi tiết sản phẩm trong flash sale (nếu có)
+        $isFlashSale = false;   // Biến kiểm tra sản phẩm có thuộc flash sale đang hoạt động hay không
+
+        // Nếu có truyền `flash_item_id` từ URL
+        if ($flashItemId) {
+            // Truy vấn thông tin flash sale item kèm theo các quan hệ: color, size, flashSale
+            $flashSaleItem = FlashSaleItems::with(['color', 'size', 'flashSale'])
+                // Đảm bảo chỉ lấy những flash sale đang hoạt động
+                ->whereHas('flashSale', function ($q) {
+                    $q->where('status', 'active')                      // Trạng thái active
+                        ->whereDate('start_date', '<=', now())           // Đã bắt đầu
+                        ->whereDate('end_date', '>=', now());            // Chưa kết thúc
+                })
+                ->where('id', $flashItemId)                            // So sánh đúng theo ID item
+                ->first();                                             // Lấy bản ghi đầu tiên (nếu có)
+
+            // Nếu có bản ghi flash sale hợp lệ, đánh dấu là sản phẩm flash sale thật
+            $isFlashSale = $flashSaleItem !== null;
+        }
+
+        //  dd($flashSaleItem->color->color_name);
+
+
         $product = Products::with(['category', 'variants.color', 'variants.size'])
             ->where('slug', $slug)
             ->firstOrFail();
@@ -38,21 +67,7 @@ class ProductDetailController extends Controller
                 }, $images);
             }
         }
-        // Debug để kiểm tra colorImageMap
-        // dd($colorImageMap);
 
-        // Debug chi tiết hơn
-        // dd([
-        //     'variants_count' => $variants->count(),
-        //     'colorImageMap' => $colorImageMap,
-        //     'variants_data' => $variants->map(function($v) {
-        //         return [
-        //             'id' => $v->id,
-        //             'color_id' => $v->color_id,
-        //             'variant_image_url' => $v->variant_image_url
-        //         ];
-        //     })->toArray()
-        // ]);
 
         // Lấy ảnh của từng biến thể
         $images = Product_variants::where('product_id', $product->id)
@@ -74,7 +89,19 @@ class ProductDetailController extends Controller
             ->take(4)
             ->get();
 
-      
-        return view('pages.shop.show', compact('product', 'variants', 'reviews', 'colors', 'sizes', 'images', 'colorImageMap','relatedProducts'));
+
+        return view('pages.shop.show', compact(
+            'product',
+            'variants',
+            'reviews',
+            'colors',
+            'sizes',
+            'images',
+            'colorImageMap',
+            'relatedProducts',
+            'isFlashSale',
+            'flashSaleItem',
+            'flashItemId'
+        ));
     }
 }
