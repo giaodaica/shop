@@ -5,13 +5,14 @@
         <li class="grid-item">
             <div class="shop-box mb-10px">
                 <div class="product-image mb-20px">
-                    <a href="">
+                   <a href="{{ route('flashsale.show', ['flash_sale_id' => $flashSale->id, 'variant_id' => $item->product_variant_id]) }}?type=flash_sale">
+                    
                         <img src="{{ asset($item->variant_image_url) }}" alt="{{ $item->name }}">
                         <div class="shop-overlay bg-gradient-gray-light-dark-transparent"></div>
                     </a>
                 </div>
                 <div class="shop-footer text-start">
-                    <a href=""
+                     <a href="{{ route('flashsale.show', ['flash_sale_id' => $flashSale->id, 'variant_id' => $item->product_variant_id]) }}?type=flash_sale"
                        class="alt-font text-dark-gray fs-19 fw-500 product-name-truncate">{{ $item->name }}</a>
                     <div class="price lh-22 fs-16">
                         <div class="product-price">

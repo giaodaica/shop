@@ -91,9 +91,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-lg-5 product-info">
 
+                <div class="col-12 col-lg-5 product-info">
+                     @if ($isFlashSale)
+                    <h5 class="alt-font text-dark-gray fw-500 mb-5px product-name-truncate">{{ $flashSaleItem->name }}</h5>
+                    @else
                     <h5 class="alt-font text-dark-gray fw-500 mb-5px product-name-truncate">{{ $product->name }}</h5>
+                    @endif
                     <div class="d-block d-sm-flex align-items-center mb-15px">
                         <div class="me-10px xs-me-0">
                             <a href="#tab" class="section-link ls-minus-1px icon-small">
@@ -105,53 +109,116 @@
                         </div>
                         <a href="#tab" class="me-25px text-dark-gray fw-500 section-link xs-me-0">{{ $totalReviews }}
                             Đánh giá</a>
+                    </div>
 
-                    </div>
-                    <div class="product-price mb-10px">
-                        <span class="text-red fs-28 xs-fs-24 fw-700 ls-minus-1px" id="product-sale-price">
-                            {{ number_format($variants->first()->sale_price) }}đ
-                        </span>
-                        @if ($variants->first()->listed_price != $variants->first()->sale_price)
-                            <del class="text-medium-gray me-10px fw-400" id="product-listed-price">
-                                {{ number_format($variants->first()->listed_price) }}đ
-                            </del>
-                        @endif
-                    </div>
+                    {{-- Phân biệt flash sale --}}
+
+
+                    @if ($isFlashSale)
+                        <div class="product-price mb-10px">
+                            <span class="badge bg-danger me-2">FLASH SALE</span>
+                            <span class="text-red fs-28 xs-fs-24 fw-700 ls-minus-1px" id="product-sale-price">
+                                {{ number_format($flashSaleItem['price_at_flash_sale']) }}đ
+                            </span>
+
+                            @if ($flashSaleItem['listed_price'] != $flashSaleItem['sale_price'])
+                                <del class="text-medium-gray me-10px fw-400" id="product-listed-price">
+                                    {{ number_format($flashSaleItem['listed_price']) }}đ
+                                </del>
+                            @endif
+                        </div>
+                    @else
+                        <div class="product-price mb-10px">
+                            <span class="text-red fs-28 xs-fs-24 fw-700 ls-minus-1px" id="product-sale-price">
+                                {{ number_format($variants->first()->sale_price) }}đ
+                            </span>
+                            @if ($variants->first()->listed_price != $variants->first()->sale_price)
+                                <del class="text-medium-gray me-10px fw-400" id="product-listed-price">
+                                    {{ number_format($variants->first()->listed_price) }}đ
+                                </del>
+                            @endif
+                        </div>
+                    @endif
+
                     <form action="{{ url('add-to-cart', $product->id) }}" method="post">
                         @csrf
-                        <div class="mb-20px">
-                            <div class="d-flex align-items-center">
-                                <label class="text-dark-gray alt-font fw-500 mb-0">Màu :</label>
-                                <span id="selected-color-name" class="fw-500 text-dark-gray ms-1"></span>
-                            </div>
-                            <ul class="shop-color mb-0 mt-2">
-                                @foreach ($colors as $color)
+                        @if ($isFlashSale)
+                            <div class="alert alert-danger">🔥 Sản phẩm đang trong Flash Sale!</div>
+                            <div class="mb-20px">
+                                <div class="d-flex align-items-center">
+                                    <label class="text-dark-gray alt-font fw-500 mb-0">Màu :</label>
+                                    <span id="selected-color-name"
+                                        class="fw-500 text-dark-gray ms-1">{{ $flashSaleItem->color->color_name }}</span>
+                                </div>
+                                <ul class="shop-color mb-0 mt-2">
+
                                     <li>
-                                        <input class="d-none" type="radio" id="color-{{ $color->id }}" name="color"
-                                            value="{{ $color->id }}" data-color-name="{{ $color->color_name }}"
-                                            {{ old('color') == $color->id ? 'checked' : '' }}>
-                                        <label for="color-{{ $color->id }}"><span
-                                                style="background-color: {{ $color->color_code ?? '#000' }}"></span></label>
+                                        <input class="d-none" type="radio" id="color-{{ $flashSaleItem->color_id }}"
+                                            name="color" value="{{ $flashSaleItem->id }}"
+                                            data-color-name="{{ $flashSaleItem->color->color_name }}"
+                                            {{ old('color') == $flashSaleItem->id ? 'checked' : '' }}>
+                                        <label for="color-{{ $flashSaleItem->id }}"><span
+                                                style="background-color: {{ $flashSaleItem->color->color_code ?? '#000' }}"></span></label>
                                     </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                        <div class="mb-35px">
-                            <div class="d-flex align-items-center">
-                                <label class="text-dark-gray fw-500">Kích cỡ :</label>
-                                <span id="selected-size-name" class="fw-500 text-dark-gray ms-1"></span>
+
+                                </ul>
                             </div>
-                            <ul class="shop-size mb-0 mt-2">
-                                @foreach ($sizes as $size)
-                                    <li>
-                                        <input class="d-none" type="radio" id="size-{{ $size->id }}" name="size"
-                                            value="{{ $size->id }}" data-size-name="{{ $size->size_name }}"
-                                            {{ old('size') == $size->id ? 'checked' : '' }}>
-                                        <label for="size-{{ $size->id }}"><span>{{ $size->size_name }}</span></label>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
+                            <div class="mb-35px">
+                                <div class="d-flex align-items-center">
+                                    <label class="text-dark-gray fw-500">Kích cỡ :</label>
+                                    <span id="selected-size-name" class="fw-500 text-dark-gray ms-1">{{ $flashSaleItem->size->size_name }}</span>
+                                </div>
+                                <ul class="shop-size mb-0 mt-2">
+                                   
+                                        <li>
+                                            <input class="d-none" type="radio" id="size-{{ $flashSaleItem->size_id }}"
+                                                name="size" value="{{ $flashSaleItem->size_id }}"
+                                                data-size-name="{{ $flashSaleItem->size->size_name }}"
+                                                {{ old('size') == $flashSaleItem->size_id ? 'checked' : '' }}>
+                                            <label
+                                                for="size-{{ $flashSaleItem->size_id }}"><span>{{ $flashSaleItem->size->size_name }}</span></label>
+                                        </li>
+                                    
+                                </ul>
+                            </div>
+                        @else
+                            <div class="mb-20px">
+                                <div class="d-flex align-items-center">
+                                    <label class="text-dark-gray alt-font fw-500 mb-0">Màu :</label>
+                                    <span id="selected-color-name" class="fw-500 text-dark-gray ms-1"></span>
+                                </div>
+                                <ul class="shop-color mb-0 mt-2">
+                                    @foreach ($colors as $color)
+                                        <li>
+                                            <input class="d-none" type="radio" id="color-{{ $color->id }}"
+                                                name="color" value="{{ $color->id }}"
+                                                data-color-name="{{ $color->color_name }}"
+                                                {{ old('color') == $color->id ? 'checked' : '' }}>
+                                            <label for="color-{{ $color->id }}"><span
+                                                    style="background-color: {{ $color->color_code ?? '#000' }}"></span></label>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                            <div class="mb-35px">
+                                <div class="d-flex align-items-center">
+                                    <label class="text-dark-gray fw-500">Kích cỡ :</label>
+                                    <span id="selected-size-name" class="fw-500 text-dark-gray ms-1"></span>
+                                </div>
+                                <ul class="shop-size mb-0 mt-2">
+                                    @foreach ($sizes as $size)
+                                        <li>
+                                            <input class="d-none" type="radio" id="size-{{ $size->id }}"
+                                                name="size" value="{{ $size->id }}"
+                                                data-size-name="{{ $size->size_name }}"
+                                                {{ old('size') == $size->id ? 'checked' : '' }}>
+                                            <label
+                                                for="size-{{ $size->id }}"><span>{{ $size->size_name }}</span></label>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <div class="d-flex align-items-center flex-column flex-sm-row mb-20px position-relative">
                             <div class="quantity me-15px xs-mb-15px order-1">
                                 <button type="button" class="qty-minus">-</button>
@@ -160,19 +227,30 @@
                                 <button type="button" class="qty-plus">+</button>
                             </div>
 
-                            <button
-                                class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-dark-gray left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2">
-                                <span>
-                                    <span><i class="feather icon-feather-shopping-bag"></i></span>
-                                    <span class="btn-double-text ls-0px" data-text="Thêm vào giỏ">Thêm vào giỏ</span>
-                                </span>
-                            </button>
-
+                            @if (!empty($isFlashSale) && $isFlashSale)
+                                <button
+                                    class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-danger left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2">
+                                    <span>
+                                        <span><i class="feather icon-feather-zap"></i></span>
+                                        <span class="btn-double-text ls-0px" data-text="Mua ngay Flash Sale">Mua ngay
+                                            Flash Sale</span>
+                                    </span>
+                                </button>
+                            @else
+                                <button
+                                    class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-dark-gray left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2">
+                                    <span>
+                                        <span><i class="feather icon-feather-shopping-bag"></i></span>
+                                        <span class="btn-double-text ls-0px" data-text="Thêm vào giỏ">Thêm vào giỏ</span>
+                                    </span>
+                                </button>
+                            @endif
                         </div>
                         @error('quantity')
                             <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </form>
+
                     <div class="mb-2">
                         <span id="stock-info" class="text-success d-flex align-items-center">
                             <i class="bi bi-check-circle-fill me-2 d-none" id="stock-icon"></i>
@@ -209,10 +287,9 @@
                     </div>
 
                     <div>
-                        <div class="w-100 d-block"><span class="text-dark-gray alt-font fw-500">Danh mục:</span> <a
+                        {{-- <div class="w-100 d-block"><span class="text-dark-gray alt-font fw-500">Danh mục:</span> <a
                                 href="{{ route('home.shop', ['categories[]' => $product->category->id]) }}">{{ $product->category->name }}</a>
-                        </div>
-
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -331,7 +408,7 @@
                                                         class="text-dark-gray fw-600 d-block">{{ $review->user->name }}</span>
                                                     <div class="fs-14 lh-18">{{ $review->created_at->format('d/m/Y') }}
                                                     </div>
-                                                    <button>xóa</button>
+                                                   
                                                 </div>
                                                 <div
                                                     class="w-100 last-paragraph-no-margin sm-ps-0 position-relative text-center text-md-start">
@@ -345,29 +422,34 @@
                                                             @endif
                                                         @endfor
                                                     </span>
-                                                  <p class="w-85 sm-w-100 sm-mt-15px">{{ $review->content }}</p>
+                                                    <p class="w-85 sm-w-100 sm-mt-15px">{{ $review->content }}</p>
 
-                                                @if ($review->admin_reply)
-                                                    <div class="bg-light p-3 mt-2 border-start border-4 border-primary rounded">
-                                                        <strong class="text-primary">Admin trả lời:</strong>
-                                                        <div>{{ $review->admin_reply }}</div>
-                                                    </div>
-                                                @endif
-
-                                                {{-- Nếu là admin thì hiển thị nút Ẩn / Hiện --}}
-                                                @auth
-                                                    @if (auth()->user()->role === 'admin') {{-- hoặc check role phù hợp --}}
-                                                        <form method="POST" action="{{ route('dashboard.comments.update', $review->id) }}" class="mt-2">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <input type="hidden" name="is_show" value="{{ $review->is_show ? 0 : 1 }}">
-                                                            <button type="submit"
-                                                                class="btn btn-xs {{ $review->is_show ? 'btn-warning' : 'btn-success' }}">
-                                                                {{ $review->is_show ? 'Ẩn bình luận' : 'Hiện bình luận' }}
-                                                            </button>
-                                                        </form>
+                                                    @if ($review->admin_reply)
+                                                        <div
+                                                            class="bg-light p-3 mt-2 border-start border-4 border-primary rounded">
+                                                            <strong class="text-primary">Admin trả lời:</strong>
+                                                            <div>{{ $review->admin_reply }}</div>
+                                                        </div>
                                                     @endif
-                                                @endauth
+
+                                                    {{-- Nếu là admin thì hiển thị nút Ẩn / Hiện --}}
+                                                    @auth
+                                                        @if (auth()->user()->role === 'admin')
+                                                            {{-- hoặc check role phù hợp --}}
+                                                            <form method="POST"
+                                                                action="{{ route('dashboard.comments.update', $review->id) }}"
+                                                                class="mt-2">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <input type="hidden" name="is_show"
+                                                                    value="{{ $review->is_show ? 0 : 1 }}">
+                                                                <button type="submit"
+                                                                    class="btn btn-xs {{ $review->is_show ? 'btn-warning' : 'btn-success' }}">
+                                                                    {{ $review->is_show ? 'Ẩn bình luận' : 'Hiện bình luận' }}
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    @endauth
 
                                                 </div>
                                             </div>
@@ -532,6 +614,10 @@
             direction: rtl;
             justify-content: flex-end;
         }
+.btn-danger:hover {
+    background-color: #dc3545 !important; /* màu đỏ mặc định */
+    color: #fff !important;
+}
 
         .rating-stars label {
             cursor: pointer;
@@ -608,7 +694,6 @@
             font-size: 13px;
             margin-right: 10px;
         }
-        
     </style>
 
     <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>

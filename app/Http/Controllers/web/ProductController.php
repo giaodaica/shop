@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Products;
 use App\Models\Categories;
 use App\Models\Color;
+use App\Models\FlashSale;
+use App\Models\FlashSaleItems;
 use App\Models\Size;
 use App\Traits\ProductFilterTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class ProductController extends Controller
 {
@@ -17,7 +20,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = $this->getFilteredProducts();
-        
+
         // Get selected filters
         $selectedCategories = request('categories', []);
         $selectedColors = request('colors', []);
@@ -42,17 +45,17 @@ class ProductController extends Controller
     private function getFilteredProducts()
     {
         $query = Products::with(['category', 'variants.color', 'variants.size'])
-        ->whereHas('category', function ($query) {
-            $query->where('status', '1')
-                  ->whereNull('categories.deleted_at');
-        })
-        ->whereHas('variants', function ($query) {
-            $query->where('is_show', 1)
-                  ->where('stock', '>', 0)
-                  ->whereNull('product_variants.deleted_at');
-        })
-        ->whereNull('products.deleted_at');
-    
+            ->whereHas('category', function ($query) {
+                $query->where('status', '1')
+                    ->whereNull('categories.deleted_at');
+            })
+            ->whereHas('variants', function ($query) {
+                $query->where('is_show', 1)
+                    ->where('stock', '>', 0)
+                    ->whereNull('product_variants.deleted_at');
+            })
+            ->whereNull('products.deleted_at');
+
 
         // Filter by categories
         if ($categories = request('categories')) {
@@ -87,14 +90,14 @@ class ProductController extends Controller
         $sort = request('sort');
         if (in_array($sort, ['price_asc', 'price_desc'])) {
             $query->join('product_variants', 'products.id', '=', 'product_variants.product_id')
-                  ->where('product_variants.is_show', 1)
-                  ->where('product_variants.stock', '>', 0)
-                  ->whereNull('product_variants.deleted_at')
-                  ->whereNull('products.deleted_at')
-                  ->select('products.*', 'product_variants.sale_price')
-                  ->distinct();
+                ->where('product_variants.is_show', 1)
+                ->where('product_variants.stock', '>', 0)
+                ->whereNull('product_variants.deleted_at')
+                ->whereNull('products.deleted_at')
+                ->select('products.*', 'product_variants.sale_price')
+                ->distinct();
         }
-    
+
         // Xử lý sắp xếp
         switch ($sort) {
             case 'price_asc':
@@ -111,4 +114,6 @@ class ProductController extends Controller
 
         return $query->paginate(5);
     }
+   
+  
 }
