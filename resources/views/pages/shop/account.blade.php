@@ -91,7 +91,7 @@
                                     <span class="bg-hover bg-base-color"></span>
                                 </a>
                             </li>
-                            @if(Auth::user() && Auth::user()->hasRole('admin') || Auth::user()->hasRole('staff'))
+                            @if(Auth::user() && Auth::user()->hasRole('Quản trị viên') || Auth::user()->hasRole('Nhân viên'))
                                 <li class="nav-item">
                                     <a href="{{ route('dashboard.index') }}" class="nav-link text-danger">
                                         <span>

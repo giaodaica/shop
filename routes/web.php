@@ -126,92 +126,99 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
 
 
 Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
-    Route::get('/voucher/{id}', [VouchersController::class, 'show'])->name('dashboard.voucher');
-    Route::post('voucher/add_voucher', [VouchersController::class, 'store']);
-    Route::get('voucher/{action}/{id}', [VouchersController::class, 'detail']);
-    Route::get('voucher/{action}/{id}/edit', [VouchersController::class, 'edit']);
-    Route::post('voucher/{id}/update', [VouchersController::class, 'update']);
-    Route::post('voucher/ads', [VouchersController::class, 'ads'])->middleware('throttle:5,1');
-    Route::post('voucher/disable/{id}', [VouchersController::class, 'disable']);
-    Route::post('voucher/active/{id}', [VouchersController::class, 'active']);
-    Route::resource('products', ProductsController::class);
+    // Voucher Management
+    Route::get('/voucher/{id}', [VouchersController::class, 'show'])->name('dashboard.voucher')->middleware('permission:Xem trang voucher');
+    Route::post('voucher/add_voucher', [VouchersController::class, 'store'])->middleware('permission:Tạo voucher');
+    Route::get('voucher/{action}/{id}', [VouchersController::class, 'detail'])->middleware('permission:Xem trang voucher');
+    Route::get('voucher/{action}/{id}/edit', [VouchersController::class, 'edit'])->middleware('permission:Sửa voucher');
+    Route::post('voucher/{id}/update', [VouchersController::class, 'update'])->middleware('permission:Sửa voucher');
+    Route::post('voucher/ads', [VouchersController::class, 'ads'])->middleware(['throttle:5,1', 'permission:Quản lý quảng cáo voucher']);
+    Route::post('voucher/disable/{id}', [VouchersController::class, 'disable'])->middleware('permission:Vô hiệu hóa voucher');
+    Route::post('voucher/active/{id}', [VouchersController::class, 'active'])->middleware('permission:Kích hoạt voucher');
+    
+    // Product Management
+    Route::resource('products', ProductsController::class)->middleware('permission:Quản lý Sản phẩm');
     Route::get('/products/variant-partial', [ProductsController::class, 'renderVariantPartial'])
-        ->name('products.variant-partial');
+        ->name('products.variant-partial')->middleware('permission:Xem trang sản phẩm');
+    Route::post('/products/{id}/restore', [ProductsController::class, 'restore'])->name('products.restore')->middleware('permission:Khôi phục sản phẩm');
+    Route::post('/products/upload-temp-image', [ProductsController::class, 'uploadTempImage'])->name('products.uploadTempImage')->middleware('permission:Tải ảnh sản phẩm');
+    Route::post('/products/upload-temp-variant-image', [ProductsController::class, 'uploadTempVariantImage'])->name('products.uploadTempVariantImage')->middleware('permission:Tải ảnh biến thể');
+    Route::post('add-flash-sale/{id}', [ProductsController::class, 'add_flash_sale'])->name('addflashsale')->middleware('permission:Thêm sản phẩm vào flash sale');
+    Route::get('remove-flash-sale/{id}', [ProductsController::class, 'remove_flashsale'])->middleware('permission:Xóa sản phẩm khỏi flash sale');
 
+    // Category Management
+    Route::resource('categories', CategoriesController::class)->middleware('permission:Quản lý Danh mục');
+    Route::post('/categories/{id}/restore', [CategoriesController::class, 'restore'])->name('categories.restore')->middleware('permission:Khôi phục danh mục');
 
-    Route::post('/products/{id}/restore', [ProductsController::class, 'restore'])->name('products.restore');
-    Route::resource('categories', CategoriesController::class);
-    Route::post('/categories/{id}/restore', [CategoriesController::class, 'restore'])->name('categories.restore');
+    // Order Management
+    Route::get('order', [OrderController::class, 'db_order'])->name('dashboard.order')->middleware('permission:Xem trang đơn hàng');
+    Route::post('order/change/{id}', [OrderController::class, 'db_order_change'])->name('dashboard.order.change')->middleware('permission:Thay đổi trạng thái đơn hàng');
+    Route::get('order/{id}', [OrderController::class, 'db_order_show'])->middleware('permission:Xem trang đơn hàng');
+    Route::post('order/change-address/{id}', [OrderController::class, 'change_address'])->middleware('permission:Thay đổi địa chỉ đơn hàng');
 
-    // phần order
-    Route::get('order', [OrderController::class, 'db_order'])->name('dashboard.order');
-    Route::post('order/change/{id}', [OrderController::class, 'db_order_change'])->name('dashboard.order.change');
-    Route::get('order/{id}', [OrderController::class, 'db_order_show']);
-    Route::get('refund', [RefundMoneyController::class, 'index'])->name('dashboard.order.refund');
-    Route::get('refund/{id}', [RefundMoneyController::class, 'show'])->name('dashboard.order.refund.show');
-    Route::post('change/refund/{id}', [RefundMoneyController::class, 'change'])->name('dashboard.change.refund');
-    Route::post('order/change-address/{id}', [OrderController::class, 'change_address']);
-    // route flashsale
-    route::get('flash-sale',[FlashSaleController::class,'index'])->name('flash-sale');
-    route::post('flash-sale/tao-moi',[FlashSaleController::class,'create'])->name('flash-sales.create');
-    route::get('flash-sale/show/{id}',[FlashSaleController::class,'show'])->name('flash-sales.show');
-    route::get('flash-sale/edit/{id}',[FlashSaleController::class,'edit'])->name('flash-sales.edit');
-    route::post('flash-sale/update/{id}',[FlashSaleController::class,'update'])->name('flash-sales.update');
-    route::post('flash-sale/delete/{id}',[FlashSaleController::class,'destroy'])->name('flash-sales.destroy');
-    route::get('flash-sale/tao-moi-items/{id}',[FlashSaleItemsController::class,'create'])->name('flash-sales-items.create');
-    route::post('add-flash-sale/{id}',[ProductsController::class,'add_flash_sale'])->name('addflashsale');
-    route::get('remove-flash-sale/{id}',[ProductsController::class,'remove_flashsale']);
-    route::post('create-items-flashsale/{id}',[FlashSaleItemsController::class,'add_flash_sale_items'])->name('create-items-flashsale');
-    route::get('remove-items-flashsale/{id}',[FlashSaleItemsController::class,'remove_flash_sale_items'])->name('remove-items-flashsale');
-    route::post('active-flash-sale/{id}',[FlashSaleController::class,'change_active'])->name('active-flash-sale');
-    // route thống kê
-    Route::get('thong-ke', [RevenueController::class, 'index'])->name('dashboard.revenue');
-    Route::post('fillter-revenue', [RevenueController::class, 'index'])->name('dashboard.order.fillter');
-    // Route resource cho color và size
-    Route::resource('colors', ColorController::class);
-    Route::resource('sizes', SizeController::class);
+    // Refund Management
+    Route::get('refund', [RefundMoneyController::class, 'index'])->name('dashboard.order.refund')->middleware('permission:Xem trang hoàn tiền');
+    Route::get('refund/{id}', [RefundMoneyController::class, 'show'])->name('dashboard.order.refund.show')->middleware('permission:Xem trang hoàn tiền');
+    Route::post('change/refund/{id}', [RefundMoneyController::class, 'change'])->name('dashboard.change.refund')->middleware('permission:Phê duyệt hoàn tiền');
 
+    // Flash Sale Management
+    Route::get('flash-sale', [FlashSaleController::class, 'index'])->name('flash-sale')->middleware('permission:Xem trang flash sale');
+    Route::post('flash-sale/tao-moi', [FlashSaleController::class, 'create'])->name('flash-sales.create')->middleware('permission:Tạo flash sale');
+    Route::get('flash-sale/show/{id}', [FlashSaleController::class, 'show'])->name('flash-sales.show')->middleware('permission:Xem trang flash sale');
+    Route::get('flash-sale/edit/{id}', [FlashSaleController::class, 'edit'])->name('flash-sales.edit')->middleware('permission:Sửa flash sale');
+    Route::post('flash-sale/update/{id}', [FlashSaleController::class, 'update'])->name('flash-sales.update')->middleware('permission:Sửa flash sale');
+    Route::post('flash-sale/delete/{id}', [FlashSaleController::class, 'destroy'])->name('flash-sales.destroy')->middleware('permission:Xóa flash sale');
+    Route::get('flash-sale/tao-moi-items/{id}', [FlashSaleItemsController::class, 'create'])->name('flash-sales-items.create')->middleware('permission:Quản lý sản phẩm flash sale');
+    Route::post('create-items-flashsale/{id}', [FlashSaleItemsController::class, 'add_flash_sale_items'])->name('create-items-flashsale')->middleware('permission:Quản lý sản phẩm flash sale');
+    Route::get('remove-items-flashsale/{id}', [FlashSaleItemsController::class, 'remove_flash_sale_items'])->name('remove-items-flashsale')->middleware('permission:Quản lý sản phẩm flash sale');
+    Route::post('active-flash-sale/{id}', [FlashSaleController::class, 'change_active'])->name('active-flash-sale')->middleware('permission:Kích hoạt flash sale');
 
-    Route::get('variants', [ProductVariantsController::class, 'index'])->name('variants.index');
-    Route::get('variants/create', [ProductVariantsController::class, 'create'])->name('variants.create');
-    Route::post('variants/store', [ProductVariantsController::class, 'store'])->name('variants.store');
-    Route::get('variants/{id}', [ProductVariantsController::class, 'show'])->name('variants.show');
-    Route::get('variants/{id}/edit', [ProductVariantsController::class, 'edit'])->name('variants.edit');
-    Route::put('variants/{id}/update', [ProductVariantsController::class, 'update'])->name('variants.update');
-    Route::delete('variants/{id}', [ProductVariantsController::class, 'destroy'])->name('variants.destroy');
-    Route::get('products/{product}/variants', [ProductVariantsController::class, 'showVariants'])->name('products.variants');
-    Route::post('variants/{id}/restore', [ProductVariantsController::class, 'restore'])->name('variants.restore');
-    Route::post('/products/upload-temp-image', [ProductsController::class, 'uploadTempImage'])->name('products.uploadTempImage');
-    Route::post('/products/upload-temp-variant-image', [ProductsController::class, 'uploadTempVariantImage'])->name('products.uploadTempVariantImage');
-    Route::post('users/lock', [UserController::class, 'lock'])->name('users.lock');
-    Route::resource('users', UserController::class)->except(['show']);;
-    Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
-    Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
+    // Revenue Management
+    Route::get('thong-ke', [RevenueController::class, 'index'])->name('dashboard.revenue')->middleware('permission:Xem trang doanh thu');
+    Route::post('fillter-revenue', [RevenueController::class, 'index'])->name('dashboard.order.fillter')->middleware('permission:Lọc dữ liệu doanh thu');
 
-    Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock');
-    Route::get('order/{id}', [OrderController::class, 'db_order_show'])->name('orders.show');
+    // Color & Size Management
+    Route::resource('colors', ColorController::class)->middleware('permission:Quản lý Màu sắc');
+    Route::resource('sizes', SizeController::class)->middleware('permission:Quản lý Kích thước');
 
+    // Product Variant Management
+    Route::get('variants', [ProductVariantsController::class, 'index'])->name('variants.index')->middleware('permission:Xem trang biến thể');
+    Route::get('variants/create', [ProductVariantsController::class, 'create'])->name('variants.create')->middleware('permission:Tạo biến thể');
+    Route::post('variants/store', [ProductVariantsController::class, 'store'])->name('variants.store')->middleware('permission:Tạo biến thể');
+    Route::get('variants/{id}', [ProductVariantsController::class, 'show'])->name('variants.show')->middleware('permission:Xem trang biến thể');
+    Route::get('variants/{id}/edit', [ProductVariantsController::class, 'edit'])->name('variants.edit')->middleware('permission:Sửa biến thể');
+    Route::put('variants/{id}/update', [ProductVariantsController::class, 'update'])->name('variants.update')->middleware('permission:Sửa biến thể');
+    Route::delete('variants/{id}', [ProductVariantsController::class, 'destroy'])->name('variants.destroy')->middleware('permission:Xóa biến thể');
+    Route::get('products/{product}/variants', [ProductVariantsController::class, 'showVariants'])->name('products.variants')->middleware('permission:Xem trang biến thể');
+    Route::post('variants/{id}/restore', [ProductVariantsController::class, 'restore'])->name('variants.restore')->middleware('permission:Khôi phục biến thể');
+
+    // User Management
+    Route::post('users/lock', [UserController::class, 'lock'])->name('users.lock')->middleware('permission:Khóa tài khoản');
+    Route::resource('users', UserController::class)->except(['show'])->middleware('permission:Quản lý Tài khoản');
+    Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show')->middleware('permission:Xem trang tài khoản');
+    Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete')->middleware('permission:Xóa hàng loạt tài khoản');
+    Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock')->middleware('permission:Mở khóa tài khoản');
 });
 
 
 Route::prefix('dashboard')->name('dashboard.')->middleware('dashboard.auth')->group(function () {
-    // Phân quyền
-    Route::resource('roles', RoleController::class);
-    Route::resource('permissions', PermissionController::class);
-    Route::post('roles/order', [RoleController::class, 'order'])->name('roles.order');
-    Route::post('permissions/order', [PermissionController::class, 'order'])->name('permissions.order');
-    //  Route::post('permission/order', [RoleController::class, 'order'])->name('permission.order');
+    // Role Management
+    Route::resource('roles', RoleController::class)->middleware('permission:Quản lý Vai trò');
+    Route::post('roles/order', [RoleController::class, 'order'])->name('roles.order')->middleware('permission:Sắp xếp vai trò');
+    
+    // Permission Management
+    Route::resource('permissions', PermissionController::class)->middleware('permission:Quản lý Quyền hạn');
+    Route::post('permissions/order', [PermissionController::class, 'order'])->name('permissions.order')->middleware('permission:Sắp xếp quyền hạn');
 });
 
     // Quản lý bình luận
 
 Route::prefix('dashboard')->name('dashboard.')->middleware('dashboard.auth')->group(function () {
-    Route::get('comments', [CommentController::class, 'index'])->name('comments.index');
-    Route::put('comments/update/{id}', [CommentController::class, 'update'])->name('comments.update');
-
-    Route::post('comments/{review}/reply', [ReviewReplyController::class, 'store'])->name('comments.reply'); // nên đặt tên rõ ràng
-
-    Route::delete('comments/reply/{id}', [ReviewReplyController::class, 'destroy'])->name('comments.reply.destroy');
+    // Comment Management
+    Route::get('comments', [CommentController::class, 'index'])->name('comments.index')->middleware('permission:Xem trang bình luận');
+    Route::put('comments/update/{id}', [CommentController::class, 'update'])->name('comments.update')->middleware('permission:Sửa bình luận');
+    Route::post('comments/{review}/reply', [ReviewReplyController::class, 'store'])->name('comments.reply')->middleware('permission:Trả lời bình luận');
+    Route::delete('comments/reply/{id}', [ReviewReplyController::class, 'destroy'])->name('comments.reply.destroy')->middleware('permission:Xóa trả lời bình luận');
 });
 
 

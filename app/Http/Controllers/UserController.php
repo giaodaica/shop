@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\LockReason;
 use Illuminate\Support\Facades\Mail;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -25,6 +26,7 @@ class UserController extends Controller
     {
         $status = $request->get('status', 'active'); // active | trashed | all
         $lockReasons = LockReason::all();
+        $roles = Role::all();
         $query = User::query();
 
         if ($status === 'trashed') {
@@ -34,13 +36,14 @@ class UserController extends Controller
         }
 
         $users = $query->latest()->paginate(10);
-        return view('dashboard.pages.users.index', compact('users', 'status', 'lockReasons'));
+        return view('dashboard.pages.users.index', compact('users', 'status', 'lockReasons', 'roles'));
     }
 
     // Hiển thị form tạo mới
     public function create()
     {
-        return view('dashboard.pages.users.create');
+        $roles = Role::all();
+        return view('dashboard.pages.users.create', compact('roles'));
     }
 
     // Lưu người dùng mới
@@ -51,12 +54,14 @@ class UserController extends Controller
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
             'role'     => 'required|in:admin,guest',
+            'roles'    => 'nullable|array',
+            'roles.*'  => 'exists:roles,id',
             'rank'     => 'nullable|in:newbie,silver,gold,diamond',
             'point'    => 'nullable|integer|min:0',
             'total_spent' => 'nullable|numeric|min:0',
         ]);
 
-        User::create([
+        $user = User::create([
             'name'            => $request->name,
             'email'           => $request->email,
             'password'        => Hash::make($request->password),
@@ -68,6 +73,12 @@ class UserController extends Controller
             'rank'            => $request->rank ?? 'newbie',
         ]);
 
+        // Gán roles cho user
+        if ($request->has('roles') && is_array($request->roles)) {
+            $roles = Role::whereIn('id', $request->roles)->get();
+            $user->syncRoles($roles);
+        }
+
         return redirect()->route('users.index')->with('success', 'Tạo tài khoản thành công');
     }
 
@@ -75,12 +86,13 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
+        $roles = Role::all();
 
         if ($user->role !== 'admin') {
             return redirect()->route('users.index')->with('error', 'Tài khoản khách hàng không được chỉnh sửa.');
         }
 
-        return view('dashboard.pages.users.edit', compact('user'));
+        return view('dashboard.pages.users.edit', compact('user', 'roles'));
     }
 
     // Cập nhật người dùng
@@ -99,6 +111,8 @@ class UserController extends Controller
             'name'  => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'role'  => 'required|in:admin,guest',
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,id',
             'rank'  => 'nullable|in:newbie,silver,gold,diamond',
             'point' => 'nullable|integer|min:0',
             'total_spent' => 'nullable|numeric|min:0',
@@ -117,6 +131,15 @@ class UserController extends Controller
             'point' => $request->filled('point') ? $request->point : 0,
             'rank' => $request->filled('rank') ? $request->rank : 'newbie',
         ]);
+
+        // Cập nhật roles cho user
+        if ($request->has('roles') && is_array($request->roles)) {
+            $roles = Role::whereIn('id', $request->roles)->get();
+            $user->syncRoles($roles);
+        } else {
+            // Nếu không có roles được chọn, xóa tất cả roles
+            $user->syncRoles([]);
+        }
 
         return redirect()->route('users.index')->with('success', 'Cập nhật tài khoản thành công');
     }
