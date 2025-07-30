@@ -40,6 +40,8 @@ use App\Models\FlashSale;
 
 // Route::get('aonam/{flash_sale_id}/{variant_id}', [Flash_Sale::class, 'index'])->name('flashsale.show');
 
+
+// Route::get('/flash', [HomeController::class, 'getProducts']);
 Route::get('/wards', [OrderController::class, 'getWards']);
 
 Route::middleware(['cache'])->group(function () {

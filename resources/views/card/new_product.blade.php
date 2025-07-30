@@ -49,8 +49,11 @@
                 </div>
 
                 <!-- Products Container -->
-                @foreach ($flashSales as $sale)
-                    <div class="flash-sale-products mb-4" id="products-{{ $sale->id }}"></div>
+                @foreach ($flashSales as $sale1)
+                    <div class="flash-sale-products mb-4" id="products-{{ $sale1->id }}"></div>
+                    {{-- @php
+                    dd($sale1);
+                    @endphp --}}
                 @endforeach
             </div>
         </div>
