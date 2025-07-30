@@ -28,45 +28,52 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
-         if ($this->app->runningInConsole()) {
-        $this->app->booted(function () {
-            $schedule = app(Schedule::class);
+        if ($this->app->runningInConsole()) {
+            $this->app->booted(function () {
+                $schedule = app(Schedule::class);
 
-            // chạy command mỗi ngày lúc 00:00
-            $schedule->command('app:expire-vouchers')->dailyAt('00:00');
-        });
-    }
-        View::composer('dashboard.card.menu',function($view){
+                // chạy command mỗi ngày lúc 00:00
+                $schedule->command('app:expire-vouchers')->everyMinute();
+            });
+        }
+        if ($this->app->runningInConsole()) {
+            $this->app->booted(function () {
+                $schedule = app(Schedule::class);
+
+                // Chạy mỗi phút
+                $schedule->command('app:manage-flashsales'::class)->everyMinute();
+            });
+        }
+        View::composer('dashboard.card.menu', function ($view) {
             $menu_voucher = CategoriesVouchers::all();
-            $view->with('menu',$menu_voucher);
+            $view->with('menu', $menu_voucher);
         });
-        View::composer('card.nav',function($view){
-            $block = [1,2];
+        View::composer('card.nav', function ($view) {
+            $block = [1, 2];
             $vouchers = [];
-            foreach($block as $b){
-                $voucher = Vouchers::where('block',$b)->
-                where('status','active')->where('max_used','>=','1')->first();
+            foreach ($block as $b) {
+                $voucher = Vouchers::where('block', $b)->where('status', 'active')->where('max_used', '>=', '1')->first();
                 $vouchers[$b] = $voucher;
             }
-            $view->with('vouchers',$vouchers);
+            $view->with('vouchers', $vouchers);
         });
-         View::composer('card.nav', function ($view) {
-        if (Auth::check()) {
-            $cartItems = Cart::with('product','productVariant')->where('user_id', Auth::id())->get();
-            $cartCount = $cartItems->count();
-            $cartSubtotal = $cartItems->sum(fn ($item) => $item->quantity * $item->price_at_time);
-        } else {
-            $cartItems = collect();
-            $cartCount = 0;
-            $cartSubtotal = 0;
-        }
-// dd($cartItems);
-        $view->with([
-            'cartItems' => $cartItems,
-            'cartCount' => $cartCount,
-            'cartSubtotal' => $cartSubtotal,
-        ]);
-    });
+        View::composer('card.nav', function ($view) {
+            if (Auth::check()) {
+                $cartItems = Cart::with('product', 'productVariant')->where('user_id', Auth::id())->get();
+                $cartCount = $cartItems->count();
+                $cartSubtotal = $cartItems->sum(fn($item) => $item->quantity * $item->price_at_time);
+            } else {
+                $cartItems = collect();
+                $cartCount = 0;
+                $cartSubtotal = 0;
+            }
+            // dd($cartItems);
+            $view->with([
+                'cartItems' => $cartItems,
+                'cartCount' => $cartCount,
+                'cartSubtotal' => $cartSubtotal,
+            ]);
+        });
         Paginator::useBootstrapFive();
     }
 }
