@@ -90,15 +90,16 @@ class FlashSaleItemsController extends Controller
            return redirect()->back()->with('success', 'Thành công.');
     }
     public function remove_flash_sale_items($id){
-
+        // dd($id);
         $data_item = FlashSaleItems::where('product_variant_id',$id)->first();
-        $data_flash_sale = FlashSale::findOrFail($data_item->flash_sale_id);
+        $data_flash_sale = FlashSale::findOrFail($_POST['flash_sale']);
         if($data_flash_sale->status != 'upcoming' ){
             return redirect()->back()->with('error','Bạn chỉ được thay đổi khi chương trình này chưa khởi động');
         }
         if(!$data_item){
             return redirect()->back()->with('error','Không tìm thấy sản phẩm này');
         }
+
          $data_product_variant = Product_variants::findOrFail($data_item->product_variant_id);
         $data_product_variant->update([
             'stock' => $data_product_variant->stock+$data_item->max_quantity

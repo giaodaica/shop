@@ -105,11 +105,14 @@
                                     <p><strong>Số sản phẩm bán trong flash sale:</strong> {{ $variant->max_quantity }}</p>
                                     <p><strong>Số sản phẩm đã bán:</strong> {{ $variant->sold_quantity }}</p>
 
-                                    <div class="mt-2">
+                                    <div class="d-flex gap-2 justify-content">
                                         <a href="{{ route('variants.edit', $variant->product_variant_id) }}"
                                             class="btn btn-sm btn-primary me-1">Chỉnh sửa</a>
-                                        <a href="{{ route('remove-items-flashsale', $variant->product_variant_id) }}"
-                                            class="btn btn-sm btn-secondary">Xóa</a>
+                                       <form action="{{route('remove-items-flashsale',$variant->product_variant_id)}}" method="post">
+                                        @csrf
+                                        <input type="hidden" name="flash_sale" value="{{$flash_sale_id}}" id="">
+                                        <button class="btn btn-sm btn-secondary">Xóa</button>
+                                       </form>
                                     </div>
                                 </div>
                             </div>

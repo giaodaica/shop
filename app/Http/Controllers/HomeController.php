@@ -67,6 +67,7 @@ class HomeController extends Controller
         // Lấy các flash sale trong ngày có trạng thái là 'active' hoặc 'upcoming'
         $flashSales = FlashSale::whereIn('status', ['active', 'upcoming'])
             ->whereBetween('start_date', [$todayStart, $todayEnd])
+            ->whereHas('items') // chỉ lấy flash sale có ít nhất 1 sản phẩm
             ->get()
             ->map(function ($sale) use ($now) {
                 // Kiểm tra xem flash sale này đang diễn ra hay chưa
