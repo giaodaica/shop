@@ -60,7 +60,7 @@
                 <div class="col-lg-7 pe-50px md-pe-15px md-mb-40px">
                     <div class="row overflow-hidden position-relative">
                         <div class="col-12 col-lg-10 position-relative order-lg-2 product-image ps-30px md-ps-15px">
-                            
+
                             <div class="swiper product-image-slider"
                                 data-slider-options='{ "spaceBetween": 10, "loop": true, "autoplay": { "delay": 2000, "disableOnInteraction": false }, "watchOverflow": true, "navigation": { "nextEl": ".slider-product-next", "prevEl": ".slider-product-prev" }, "thumbs": { "swiper": { "el": ".product-image-thumb", "slidesPerView": "auto", "spaceBetween": 15, "direction": "vertical", "navigation": { "nextEl": ".swiper-thumb-next", "prevEl": ".swiper-thumb-prev" } } } }'
                                 data-thumb-slider-md-direction="horizontal">
@@ -90,19 +90,18 @@
                                 </div>
                             </div>
                         </div>
-                         @if ($flashSaleItem)
-
-                         @else
-                        <div class="col-12 col-lg-2 order-lg-1 position-relative single-product-thumb">
-                            <div class="swiper-container product-image-thumb slider-vertical">
-                                <div class="swiper-wrapper">
-                                    @foreach ($images as $item)
-                                        <div class="swiper-slide"><img class="w-100" src="{{ asset($item) }}"
-                                                alt=""></div>
-                                    @endforeach
+                        @if ($flashSaleItem)
+                        @else
+                            <div class="col-12 col-lg-2 order-lg-1 position-relative single-product-thumb">
+                                <div class="swiper-container product-image-thumb slider-vertical">
+                                    <div class="swiper-wrapper">
+                                        @foreach ($images as $item)
+                                            <div class="swiper-slide"><img class="w-100" src="{{ asset($item) }}"
+                                                    alt=""></div>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         @endif
                     </div>
                 </div>
@@ -245,14 +244,25 @@
                             </div>
 
                             @if (!empty($isFlashSale) && $isFlashSale)
-                                <button
-                                    class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-danger left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2">
-                                    <span>
-                                        <span><i class="feather icon-feather-zap"></i></span>
-                                        <span class="btn-double-text ls-0px" data-text="Mua ngay Flash Sale">Mua ngay
-                                            Flash Sale</span>
-                                    </span>
-                                </button>
+                                @if ($flashSaleItem->max_quantity - $flashSaleItem->sold_quantity > 0)
+                                    <button
+                                        class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-danger left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2">
+                                        <span>
+                                            <span><i class="feather icon-feather-zap"></i></span>
+                                            <span class="btn-double-text ls-0px" data-text="Mua ngay Flash Sale">Mua ngay
+                                                Flash Sale</span>
+                                        </span>
+                                    </button>
+                                @else
+                                    <button
+                                        class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-danger left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2"
+                                        disabled>
+                                        <span>
+                                            <span><i class="feather icon-feather-zap"></i></span>
+                                            <span class="btn-double-text ls-0px" data-text="Hết Hàng">Hết Hàng</span>
+                                        </span>
+                                    </button>
+                                @endif
                             @else
                                 <button
                                     class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-dark-gray left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2">

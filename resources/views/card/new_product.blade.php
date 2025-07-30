@@ -18,6 +18,7 @@
             <div class="container py-4">
                 <div class="flash-sale-wrapper">
                     <div class="d-flex flex-wrap gap-3 mb-3 justify-content-center">
+                        
                         @foreach ($flashSales as $index => $sale)
                             <button class="btn btn-show-products {{ $index === 0 ? 'default-tab' : '' }}"
                                 data-id="{{ $sale->id }}">
