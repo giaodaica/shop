@@ -91,7 +91,7 @@ class FlashSaleItemsController extends Controller
     }
     public function remove_flash_sale_items($id){
         // dd($id);
-        $data_item = FlashSaleItems::where('product_variant_id',$id)->first();
+        $data_item = FlashSaleItems::where('id',$id)->first();
         $data_flash_sale = FlashSale::findOrFail($_POST['flash_sale']);
         if($data_flash_sale->status != 'upcoming' ){
             return redirect()->back()->with('error','Bạn chỉ được thay đổi khi chương trình này chưa khởi động');

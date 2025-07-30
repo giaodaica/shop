@@ -108,7 +108,7 @@
                                     <div class="d-flex gap-2 justify-content">
                                         <a href="{{ route('variants.edit', $variant->product_variant_id) }}"
                                             class="btn btn-sm btn-primary me-1">Chỉnh sửa</a>
-                                       <form action="{{route('remove-items-flashsale',$variant->product_variant_id)}}" method="post">
+                                       <form action="{{route('remove-items-flashsale',$variant->id)}}" method="post">
                                         @csrf
                                         <input type="hidden" name="flash_sale" value="{{$flash_sale_id}}" id="">
                                         <button class="btn btn-sm btn-secondary">Xóa</button>
