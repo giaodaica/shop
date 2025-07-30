@@ -39,7 +39,7 @@ class ProductDetailController extends Controller
             $isFlashSale = $flashSaleItem !== null;
         }
 
-        //  dd($flashSaleItem->color->color_name);
+        //  dd($flashSaleItem);
 
 
         $product = Products::with(['category', 'variants.color', 'variants.size'])

@@ -60,25 +60,39 @@
                 <div class="col-lg-7 pe-50px md-pe-15px md-mb-40px">
                     <div class="row overflow-hidden position-relative">
                         <div class="col-12 col-lg-10 position-relative order-lg-2 product-image ps-30px md-ps-15px">
+                            
                             <div class="swiper product-image-slider"
                                 data-slider-options='{ "spaceBetween": 10, "loop": true, "autoplay": { "delay": 2000, "disableOnInteraction": false }, "watchOverflow": true, "navigation": { "nextEl": ".slider-product-next", "prevEl": ".slider-product-prev" }, "thumbs": { "swiper": { "el": ".product-image-thumb", "slidesPerView": "auto", "spaceBetween": 15, "direction": "vertical", "navigation": { "nextEl": ".swiper-thumb-next", "prevEl": ".swiper-thumb-prev" } } } }'
                                 data-thumb-slider-md-direction="horizontal">
                                 <div class="swiper-wrapper">
                                     <!-- start slider item -->
-                                    @foreach ($variants as $item)
+                                    @if ($flashSaleItem)
                                         <div class="swiper-slide gallery-box">
-                                            <a href="{{ asset($item->variant_image_url) }}" data-group="lightbox-gallery"
-                                                title="Relaxed corduroy shirt">
-                                                <img class="w-100" src="{{ asset($item->variant_image_url) }}"
+                                            <a href="{{ asset($flashSaleItem->variant_image_url) }}"
+                                                data-group="lightbox-gallery" title="Relaxed corduroy shirt">
+                                                <img class="w-100" src="{{ asset($flashSaleItem->variant_image_url) }}"
                                                     alt="">
                                             </a>
                                         </div>
-                                    @endforeach
+                                    @else
+                                        @foreach ($variants as $item)
+                                            <div class="swiper-slide gallery-box">
+                                                <a href="{{ asset($item->variant_image_url) }}"
+                                                    data-group="lightbox-gallery" title="Relaxed corduroy shirt">
+                                                    <img class="w-100" src="{{ asset($item->variant_image_url) }}"
+                                                        alt="">
+                                                </a>
+                                            </div>
+                                        @endforeach
+                                    @endif
                                     <!-- end slider item -->
 
                                 </div>
                             </div>
                         </div>
+                         @if ($flashSaleItem)
+
+                         @else
                         <div class="col-12 col-lg-2 order-lg-1 position-relative single-product-thumb">
                             <div class="swiper-container product-image-thumb slider-vertical">
                                 <div class="swiper-wrapper">
@@ -89,14 +103,16 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
                     </div>
                 </div>
 
                 <div class="col-12 col-lg-5 product-info">
-                     @if ($isFlashSale)
-                    <h5 class="alt-font text-dark-gray fw-500 mb-5px product-name-truncate">{{ $flashSaleItem->name }}</h5>
+                    @if ($isFlashSale)
+                        <h5 class="alt-font text-dark-gray fw-500 mb-5px product-name-truncate">{{ $flashSaleItem->name }}
+                        </h5>
                     @else
-                    <h5 class="alt-font text-dark-gray fw-500 mb-5px product-name-truncate">{{ $product->name }}</h5>
+                        <h5 class="alt-font text-dark-gray fw-500 mb-5px product-name-truncate">{{ $product->name }}</h5>
                     @endif
                     <div class="d-block d-sm-flex align-items-center mb-15px">
                         <div class="me-10px xs-me-0">
@@ -166,19 +182,20 @@
                             <div class="mb-35px">
                                 <div class="d-flex align-items-center">
                                     <label class="text-dark-gray fw-500">Kích cỡ :</label>
-                                    <span id="selected-size-name" class="fw-500 text-dark-gray ms-1">{{ $flashSaleItem->size->size_name }}</span>
+                                    <span id="selected-size-name"
+                                        class="fw-500 text-dark-gray ms-1">{{ $flashSaleItem->size->size_name }}</span>
                                 </div>
                                 <ul class="shop-size mb-0 mt-2">
-                                   
-                                        <li>
-                                            <input class="d-none" type="radio" id="size-{{ $flashSaleItem->size_id }}"
-                                                name="size" value="{{ $flashSaleItem->size_id }}"
-                                                data-size-name="{{ $flashSaleItem->size->size_name }}"
-                                                {{ old('size') == $flashSaleItem->size_id ? 'checked' : '' }}>
-                                            <label
-                                                for="size-{{ $flashSaleItem->size_id }}"><span>{{ $flashSaleItem->size->size_name }}</span></label>
-                                        </li>
-                                    
+
+                                    <li>
+                                        <input class="d-none" type="radio" id="size-{{ $flashSaleItem->size_id }}"
+                                            name="size" value="{{ $flashSaleItem->size_id }}"
+                                            data-size-name="{{ $flashSaleItem->size->size_name }}"
+                                            {{ old('size') == $flashSaleItem->size_id ? 'checked' : '' }}>
+                                        <label
+                                            for="size-{{ $flashSaleItem->size_id }}"><span>{{ $flashSaleItem->size->size_name }}</span></label>
+                                    </li>
+
                                 </ul>
                             </div>
                         @else
@@ -408,7 +425,7 @@
                                                         class="text-dark-gray fw-600 d-block">{{ $review->user->name }}</span>
                                                     <div class="fs-14 lh-18">{{ $review->created_at->format('d/m/Y') }}
                                                     </div>
-                                                   
+
                                                 </div>
                                                 <div
                                                     class="w-100 last-paragraph-no-margin sm-ps-0 position-relative text-center text-md-start">
@@ -614,10 +631,12 @@
             direction: rtl;
             justify-content: flex-end;
         }
-.btn-danger:hover {
-    background-color: #dc3545 !important; /* màu đỏ mặc định */
-    color: #fff !important;
-}
+
+        .btn-danger:hover {
+            background-color: #dc3545 !important;
+            /* màu đỏ mặc định */
+            color: #fff !important;
+        }
 
         .rating-stars label {
             cursor: pointer;
