@@ -39,10 +39,10 @@ class FlashSaleItemsController extends Controller
             return redirect()->back()->with('error','Bạn chỉ được thay đổi khi chương trình này chưa khởi động');
         }
         foreach ($flash_sale as $product_id => $data) {
-            if ($checkAll == 1 || isset($data['selected']) || !isset($checkAll)) {
+         if (($checkAll == 1 || isset($data['selected']) || !isset($checkAll)) && isset($data['quantity']) && $data['quantity'] > 0) {
                 $quantity = $data['quantity'];
                 $data_product_variant = Product_variants::findOrFail($product_id);
-                if($quantity <= 0){
+                if( $quantity <= 0){
                     $errors[] = "Số lượng cho sản phẩm {$data_product_variant->name} không hợp lệ";
                     continue;
                 }

@@ -17,7 +17,7 @@ class FlashSaleController extends Controller
             'flash_sales.*',
             'users.name as name',
             'users.id as user_id'
-        )->get();
+        )->orderBy('slot_time','asc')->get();
         // dd($flashSales);
         return view('dashboard.pages.flashsale.index', compact('flashSales'));
     }
