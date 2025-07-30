@@ -122,7 +122,7 @@
                     </div>
                 </div>
 
-                
+
             </div>
         </div>
     </div>
@@ -144,7 +144,7 @@
 
                     <div class="modal-header">
                         <h5 class="modal-title">{{ __('Xác nhận thao tác') }}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                             <i class="ki ki-close"></i>
                         </button>
                     </div>
@@ -153,7 +153,7 @@
 
                     <div class="modal-footer">
                         <input type="hidden" name="id" class="id" />
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Hủy') }}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Hủy') }}</button>
                         <button type="submit" class="btn btn-danger">{{ __('Xóa') }}</button>
                     </div>
                 </form>
@@ -162,7 +162,7 @@
     </div>
 
     {{-- Scripts --}}
-   
+
     <script>
         // Đảm bảo khởi tạo lại select2 mỗi lần modal được load qua AJAX
         $(document).on('shown.bs.modal', '#loadModal', function() {
@@ -171,7 +171,7 @@
             });
         });
     </script>
-    
+
 
     <script>
         $(document).ready(function() {
@@ -200,10 +200,8 @@
                 e.preventDefault();
                 const id = $(this).attr('rel');
                 $('#deleteModal .id').val(id);
-                $('#deleteModal').modal('toggle');
-            });
-            $('#loadModal').on('hidden.bs.modal', function() {
-                $(this).find('.modal-content').html('');
+                var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                modal.show();
             });
         });
     </script>
