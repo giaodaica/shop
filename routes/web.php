@@ -153,16 +153,17 @@ Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
     Route::post('order/change-address/{id}', [OrderController::class, 'change_address']);
     // route flashsale
     route::get('flash-sale',[FlashSaleController::class,'index'])->name('flash-sale');
-    route::get('flash-sale/tao-moi',[FlashSaleController::class,'create'])->name('flash-sales.create');
+    route::post('flash-sale/tao-moi',[FlashSaleController::class,'create'])->name('flash-sales.create');
     route::get('flash-sale/show/{id}',[FlashSaleController::class,'show'])->name('flash-sales.show');
-    route::get('flash-sale/edit',[FlashSaleController::class,'edit'])->name('flash-sales.edit');
-    route::get('flash-sale/delete',[FlashSaleController::class,'destroy'])->name('flash-sales.destroy');
+    route::get('flash-sale/edit/{id}',[FlashSaleController::class,'edit'])->name('flash-sales.edit');
+    route::post('flash-sale/update/{id}',[FlashSaleController::class,'update'])->name('flash-sales.update');
+    route::post('flash-sale/delete/{id}',[FlashSaleController::class,'destroy'])->name('flash-sales.destroy');
     route::get('flash-sale/tao-moi-items/{id}',[FlashSaleItemsController::class,'create'])->name('flash-sales-items.create');
     route::post('add-flash-sale/{id}',[ProductsController::class,'add_flash_sale'])->name('addflashsale');
     route::get('remove-flash-sale/{id}',[ProductsController::class,'remove_flashsale']);
     route::post('create-items-flashsale/{id}',[FlashSaleItemsController::class,'add_flash_sale_items'])->name('create-items-flashsale');
     route::get('remove-items-flashsale/{id}',[FlashSaleItemsController::class,'remove_flash_sale_items'])->name('remove-items-flashsale');
-
+    route::post('active-flash-sale/{id}',[FlashSaleController::class,'change_active'])->name('active-flash-sale');
     // route thống kê
     Route::get('thong-ke', [RevenueController::class, 'index'])->name('dashboard.revenue');
     Route::post('fillter-revenue', [RevenueController::class, 'index'])->name('dashboard.order.fillter');
