@@ -156,10 +156,12 @@ Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
     Route::get('order/{id}', [OrderController::class, 'db_order_show'])->middleware('permission:Xem trang đơn hàng');
     Route::post('order/change-address/{id}', [OrderController::class, 'change_address'])->middleware('permission:Thay đổi địa chỉ đơn hàng');
 
+
     // Refund Management
     Route::get('refund', [RefundMoneyController::class, 'index'])->name('dashboard.order.refund')->middleware('permission:Xem trang hoàn tiền');
     Route::get('refund/{id}', [RefundMoneyController::class, 'show'])->name('dashboard.order.refund.show')->middleware('permission:Xem trang hoàn tiền');
     Route::post('change/refund/{id}', [RefundMoneyController::class, 'change'])->name('dashboard.change.refund')->middleware('permission:Phê duyệt hoàn tiền');
+
 
     // Flash Sale Management
     Route::get('flash-sale', [FlashSaleController::class, 'index'])->name('flash-sale')->middleware('permission:Xem trang flash sale');
