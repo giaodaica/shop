@@ -135,7 +135,7 @@ Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
     Route::post('voucher/ads', [VouchersController::class, 'ads'])->middleware(['throttle:5,1', 'permission:Quản lý quảng cáo voucher']);
     Route::post('voucher/disable/{id}', [VouchersController::class, 'disable'])->middleware('permission:Vô hiệu hóa voucher');
     Route::post('voucher/active/{id}', [VouchersController::class, 'active'])->middleware('permission:Kích hoạt voucher');
-    
+
     // Product Management
     Route::resource('products', ProductsController::class)->middleware('permission:Quản lý Sản phẩm');
     Route::get('/products/variant-partial', [ProductsController::class, 'renderVariantPartial'])
@@ -172,7 +172,7 @@ Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
     Route::post('flash-sale/delete/{id}', [FlashSaleController::class, 'destroy'])->name('flash-sales.destroy')->middleware('permission:Xóa flash sale');
     Route::get('flash-sale/tao-moi-items/{id}', [FlashSaleItemsController::class, 'create'])->name('flash-sales-items.create')->middleware('permission:Quản lý sản phẩm flash sale');
     Route::post('create-items-flashsale/{id}', [FlashSaleItemsController::class, 'add_flash_sale_items'])->name('create-items-flashsale')->middleware('permission:Quản lý sản phẩm flash sale');
-    Route::get('remove-items-flashsale/{id}', [FlashSaleItemsController::class, 'remove_flash_sale_items'])->name('remove-items-flashsale')->middleware('permission:Quản lý sản phẩm flash sale');
+    Route::post('remove-items-flashsale/{id}', [FlashSaleItemsController::class, 'remove_flash_sale_items'])->name('remove-items-flashsale')->middleware('permission:Quản lý sản phẩm flash sale');
     Route::post('active-flash-sale/{id}', [FlashSaleController::class, 'change_active'])->name('active-flash-sale')->middleware('permission:Kích hoạt flash sale');
 
     // Revenue Management
@@ -201,7 +201,7 @@ Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
     Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete')->middleware('permission:Xóa hàng loạt tài khoản');
     Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock')->middleware('permission:Mở khóa tài khoản');
 
-   
+
 });
 
 
@@ -209,7 +209,7 @@ Route::prefix('dashboard')->name('dashboard.')->middleware('dashboard.auth')->gr
     // Role Management
     Route::resource('roles', RoleController::class)->middleware('permission:Quản lý Vai trò');
     Route::post('roles/order', [RoleController::class, 'order'])->name('roles.order')->middleware('permission:Sắp xếp vai trò');
-    
+
     // Permission Management
     Route::resource('permissions', PermissionController::class)->middleware('permission:Quản lý Quyền hạn');
     Route::post('permissions/order', [PermissionController::class, 'order'])->name('permissions.order')->middleware('permission:Sắp xếp quyền hạn');

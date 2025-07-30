@@ -124,11 +124,11 @@
                 <a href="{{ route('flash-sale') }}" class="btn btn-success">Quay Lại</a>
                 @switch($data_flash_sale->status)
                     @case('upcoming')
-                        <form action="{{ route('active-flash-sale', $flash_sale_id) }}" method="POST">
+                        {{-- <form action="{{ route('active-flash-sale', $flash_sale_id) }}" method="POST">
                             @csrf
                             <input type="hidden" name="key" value="upcoming">
                             <button class="btn btn-success">Khởi động</button>
-                        </form>
+                        </form> --}}
                     @break
 
                     @case('active')
