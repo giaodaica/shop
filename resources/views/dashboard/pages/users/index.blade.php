@@ -103,9 +103,18 @@
 
                                                 <td class="role">
                                                     @if ($user->role === 'admin')
-                                                        Quản trị
+                                                        <span class="badge bg-primary">Quản trị</span>
                                                     @else
-                                                        Khách hàng
+                                                        <span class="badge bg-secondary">Khách hàng</span>
+                                                    @endif
+                                                    
+                                                    {{-- Hiển thị roles từ Spatie Permission --}}
+                                                    @if($user->roles->count() > 0)
+                                                        <div class="mt-1">
+                                                            @foreach($user->roles as $role)
+                                                                <span class="badge bg-info me-1">{{ $role->name }}</span>
+                                                            @endforeach
+                                                        </div>
                                                     @endif
                                                 </td>
                                                 <td>

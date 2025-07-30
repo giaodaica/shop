@@ -7,24 +7,24 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class DashboardAuth
+class CheckPermission
 {
     /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string $permission): Response
     {
-        // Kiểm tra user đã đăng nhập chưa
         if (!Auth::check()) {
-            return abort(403, 'Bạn không có quyền truy cập trang này.');
+            return redirect()->route('login');
         }
 
-        // Kiểm tra user có role admin không
         $user = Auth::user();
-        if (!$user->hasRole('Quản trị viên') && !$user->hasRole('Nhân viên')) {
-            return abort(403, 'Bạn không có quyền truy cập trang này.');
+        
+        // Kiểm tra xem user có permission không
+        if (!$user->hasPermissionTo($permission)) {
+            abort(403, 'Bạn không có quyền truy cập trang này.');
         }
 
         return $next($request);
