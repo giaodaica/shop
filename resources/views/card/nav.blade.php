@@ -179,45 +179,51 @@
                                 class="d-none d-xxl-inline-block">Đăng nhập</span></a>
                     @endif
                 </div>
-<div class="header-cart-icon icon">
-    <div class="header-cart dropdown">
-        <a href="javascript:void(0);">
-            <i class="feather icon-feather-shopping-bag"></i>
-            <span class="cart-count alt-font text-white bg-dark-gray">{{ $cartCount }}</span>
-        </a>
-
-        <ul class="cart-item-list">
-            @forelse($cartItems as $item)
-                <li class="cart-item align-items-center">
-                    <a href="#" class="alt-font close">×</a>
-                    <div class="product-image">
-                        <a href="{{ route('home.show', $item->product->slug) }}">
-                            <img src="{{ asset( $item->productVariant->variant_image_url) }}" class="cart-thumb" alt="">
+                <div class="header-cart-icon icon">
+                    <div class="header-cart dropdown">
+                        <a href="javascript:void(0);">
+                            <i class="feather icon-feather-shopping-bag"></i>
+                            <span class="cart-count alt-font text-white bg-dark-gray">{{ $cartCount }}</span>
                         </a>
-                    </div>
-                    
-                    <div class="product-detail fw-600">
-                        <a href="{{ route('home.show', $item->product->slug) }}">{{ Str::limit($item->product->name, 30) }}</a>
-                        <span class="item-ammount fw-400">{{ $item->quantity }} x {{ number_format($item->price_at_time, 0, ',', '.') }}đ</span>
-                    </div>
-                </li>
-            @empty
-                <li class="cart-item">Chưa có sản phẩm nào trong giỏ.</li>
-            @endforelse
 
-            @if($cartItems->isNotEmpty())
-                <li class="cart-total">
-                    <div class="fs-18 alt-font mb-15px">
-                        <span class="w-50 fw-500 text-start">Tạm tính:</span>
-                        <span class="w-50 text-end fw-700">{{ number_format($cartSubtotal, 0, ',', '.') }}đ</span>
+                        <ul class="cart-item-list">
+                            @forelse($cartItems as $item)
+                                <li class="cart-item align-items-center">
+                                    {{-- <a href="#" class="alt-font close">×</a> --}}
+                                    <div class="product-image">
+                                        <a href="{{ route('home.show', $item->product->slug) }}">
+                                            <img src="{{ asset($item->productVariant->variant_image_url) }}"
+                                                class="cart-thumb" alt="">
+                                        </a>
+                                    </div>
+
+                                    <div class="product-detail fw-600">
+                                        <a
+                                            href="{{ route('home.show', $item->product->slug) }}">{{ Str::limit($item->product->name, 20) }}</a>
+                                        <span class="item-ammount fw-400">{{ $item->quantity }} x
+                                            {{ number_format($item->price_at_time, 0, ',', '.') }}đ</span>
+                                    </div>
+                                </li>
+                            @empty
+                                <li class="cart-item1">Chưa có sản phẩm nào trong giỏ.</li>
+                            @endforelse
+
+                            @if ($cartItems->isNotEmpty())
+                                <li class="cart-total">
+                                    <div class="fs-18 alt-font mb-15px">
+                                        <span class="w-50 fw-500 text-start">Tạm tính:</span>
+                                        <span
+                                            class="w-50 text-end fw-700">{{ number_format($cartSubtotal, 0, ',', '.') }}đ</span>
+                                    </div>
+                                    <a href="{{ url('cart') }}"
+                                        class="btn btn-large btn-transparent-light-gray border-color-extra-medium-gray">Xem
+                                        giỏ hàng</a>
+                                  
+                                </li>
+                            @endif
+                        </ul>
                     </div>
-                    <a href="{{ url('cart') }}" class="btn btn-large btn-transparent-light-gray border-color-extra-medium-gray">Xem giỏ hàng</a>
-                    <a href="{{ url('checkout') }}" class="btn btn-large btn-dark-gray btn-box-shadow">Thanh toán</a>
-                </li>
-            @endif
-        </ul>
-    </div>
-</div>
+                </div>
             </div>
             <div class="col-auto col-xxl-3 col-lg-2 d-flex align-items-center">
 
@@ -226,3 +232,13 @@
 
     </div>
 </nav>
+<style>
+    .cart-item1 {
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        letter-spacing: 0.5px;
+        width: 100%;
+        white-space: nowrap;
+    }
+</style>

@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const loadingOverlay = (() => {
         const overlay = document.createElement('div');
         overlay.className = 'loading-overlay';
-        overlay.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+        // overlay.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
         document.body.appendChild(overlay);
         return overlay;
     })();

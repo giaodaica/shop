@@ -152,7 +152,7 @@
                                         @forelse ($histoty_order as $key => $history)
                                             <tr>
                                                 <td>{{ count($histoty_order) - $key }}</td>
-                                                <td>{{ $history->user_name }}</td>
+                                                <td><a href="{{route('users.show',$history->user_id)}}">{{ $history->user_name }}</a></td>
                                                 <td>{{ formatDate($history->created_at) }}</td>
                                                 @php
                                                     $statusMap = [

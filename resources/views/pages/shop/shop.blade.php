@@ -27,33 +27,7 @@
                             <div id="search-summary" class="text-muted fs-15 mb-0"></div>
                         </div>
 
-                        <div class="col-md-6 text-md-end">
-                            <form action="{{ route('home.shop') }}" method="GET"
-                                class="d-flex justify-content-md-end align-items-center gap-2">
-                                {{-- Preserve all existing filters --}}
-                                @foreach (request()->except('sort') as $key => $value)
-                                    @if (is_array($value))
-                                        @foreach ($value as $v)
-                                            <input type="hidden" name="{{ $key }}[]" value="{{ $v }}">
-                                        @endforeach
-                                    @else
-                                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                    @endif
-                                @endforeach
-
-
-                                <select name="sort" id="sort"
-                                    class="form-select form-select-sm w-auto border-0 bg-light">
-                                    <option value="">Sắp xếp</option>
-                                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Mới nhất
-                                    </option>
-                                    <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Giá
-                                        tăng dần</option>
-                                    <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Giá
-                                        giảm dần</option>
-                                </select>
-                            </form>
-                        </div>
+                      
                     </div>
 
                     @if ($products->isEmpty())
@@ -281,5 +255,5 @@
 
 @push('scripts')
     <script src="{{ asset('assets/js/shop/shop.js') }}"></script>
-    <script src="{{ asset('assets/js/shop/sort.js') }}"></script>
+   
 @endpush

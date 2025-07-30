@@ -6,6 +6,7 @@ use App\Models\Size;
 use Illuminate\Validation\ValidationException;
 use App\Models\Categories;
 use App\Models\Color;
+use App\Models\Product_variants;
 use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -444,5 +445,30 @@ class ProductsController extends Controller
     {
         $product = Products::with(['category', 'variants.color', 'variants.size'])->findOrFail($id);
         return view('dashboard.pages.product.show', compact('product'));
+    }
+    public function add_flash_sale($id)
+    {
+        $variant = Product_variants::findOrFail($id);
+        if ($variant->stock <= 0) {
+            return redirect()->back()->with('error', 'Số lượng tồn kho không đủ');
+        }
+        if ($variant->is_show == 0) {
+            return redirect()->back()->with('error', 'Sản phẩm này không còn kinh doanh');
+        }
+        if ($variant->use_flash_sale == 1) {
+            return redirect()->back()->with('error', 'Sản phẩm này đã ở trong flash sale');
+        }
+        $variant->use_flash_sale = 1;
+        $variant->save();
+        return redirect()->back()->with('success', 'Thành công');
+    }
+    public function remove_flashsale($id){
+        $variant = Product_variants::findOrFail($id);
+        if($variant->use_flash_sale == 0){
+            return redirect()->back()->with('error', 'Sản phẩm này không còn ở trong flash sale');
+        }
+        $variant->use_flash_sale = 0;
+        $variant->save();
+        return redirect()->back()->with('success', 'Thành công');
     }
 }

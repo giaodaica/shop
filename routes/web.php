@@ -28,23 +28,36 @@ use App\Http\Controllers\web\ReviewController;
 use App\Http\Controllers\AddressBookController;
 use App\Http\Controllers\RefundMoneyController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Middleware\CheckUserStatus;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Contracts\Role;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\FlashSaleController;
+use App\Http\Controllers\FlashSaleItemsController;
+use App\Http\Controllers\web\Flash_Sale;
+use App\Models\FlashSale;
 
+// Route::get('aonam/{flash_sale_id}/{variant_id}', [Flash_Sale::class, 'index'])->name('flashsale.show');
+
+
+// Route::get('/flash', [HomeController::class, 'getProducts']);
 Route::get('/wards', [OrderController::class, 'getWards']);
 
 Route::middleware(['cache'])->group(function () {
     Auth::routes();
 });
+Route::middleware([CheckUserStatus::class])->group(function () {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('shop', [ProductController::class, 'index'])->name('home.shop');
+Route::get('/flash', [ProductController::class, 'flash']);
+// Flash Sale Routes
+
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/search/suggestions', [SearchController::class, 'suggestions']);
 Route::get('/search/filter', [SearchController::class, 'search'])->name('search.filter');
 Route::get('/search/trending-categories', [SearchController::class, 'trendingCategories']);
-Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware('auth');
+Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware(['auth', 'throttle:5,1']);
 Route::get('/reviews/list/{product_id}', [ReviewController::class, 'list'])->name('reviews.list');
 
 
@@ -55,14 +68,14 @@ Route::post('/order/{id}/cancel', [InfoController::class, 'cancel'])->name('orde
 Route::get('info', [InfoController::class, 'account'])->name('home.info')->middleware('auth', 'cache');
 Route::get('show/{id}', [InfoController::class, 'orderDetail'])->name('home.orderDetail')->middleware('auth', 'cache');
 Route::get('aonam/{slug}', [ProductDetailController::class, 'index'])->name('home.show');
-Route::get('cart', [CartController::class, 'index'])->name('home.cart');
+Route::get('cart', action: [CartController::class, 'index'])->name('home.cart');
 Route::delete('/cart/delete-selected', [CartController::class, 'deleteSelected'])->name('cart.deleteSelected');
 Route::post('/cart/update-quantity', [CartController::class, 'updateQuantity'])->name('cart.updateQuantity');
 Route::post('/cart/calculate-total', [CartController::class, 'calculateTotal'])->name('cart.calculateTotal');
 Route::post('/cart/apply-voucher', [CartController::class, 'applyVoucher'])->name('cart.applyVoucher');
 Route::get('/cart/remove-voucher', [CartController::class, 'removeVoucher'])->name('cart.removeVoucher');
 Route::post('/cart/update-selected-ajax', [CartController::class, 'ajaxUpdateSelected'])->name('cart.ajaxUpdateSelected');
-Route::get('/aonam/{slug}', [ProductDetailController::class, 'index'])->name('home.show');
+
 Route::get('/account/orders', [InfoController::class, 'filterOrders'])->name('account.orders');
 Route::middleware(['auth'])->group(function () {
     Route::get('checkout', [OrderController::class, 'index'])->name('home.checkout');
@@ -138,6 +151,19 @@ Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
     Route::get('refund/{id}', [RefundMoneyController::class, 'show'])->name('dashboard.order.refund.show');
     Route::post('change/refund/{id}', [RefundMoneyController::class, 'change'])->name('dashboard.change.refund');
     Route::post('order/change-address/{id}', [OrderController::class, 'change_address']);
+    // route flashsale
+    route::get('flash-sale',[FlashSaleController::class,'index'])->name('flash-sale');
+    route::post('flash-sale/tao-moi',[FlashSaleController::class,'create'])->name('flash-sales.create');
+    route::get('flash-sale/show/{id}',[FlashSaleController::class,'show'])->name('flash-sales.show');
+    route::get('flash-sale/edit/{id}',[FlashSaleController::class,'edit'])->name('flash-sales.edit');
+    route::post('flash-sale/update/{id}',[FlashSaleController::class,'update'])->name('flash-sales.update');
+    route::post('flash-sale/delete/{id}',[FlashSaleController::class,'destroy'])->name('flash-sales.destroy');
+    route::get('flash-sale/tao-moi-items/{id}',[FlashSaleItemsController::class,'create'])->name('flash-sales-items.create');
+    route::post('add-flash-sale/{id}',[ProductsController::class,'add_flash_sale'])->name('addflashsale');
+    route::get('remove-flash-sale/{id}',[ProductsController::class,'remove_flashsale']);
+    route::post('create-items-flashsale/{id}',[FlashSaleItemsController::class,'add_flash_sale_items'])->name('create-items-flashsale');
+    route::get('remove-items-flashsale/{id}',[FlashSaleItemsController::class,'remove_flash_sale_items'])->name('remove-items-flashsale');
+    route::post('active-flash-sale/{id}',[FlashSaleController::class,'change_active'])->name('active-flash-sale');
     // route thống kê
     Route::get('thong-ke', [RevenueController::class, 'index'])->name('dashboard.revenue');
     Route::post('fillter-revenue', [RevenueController::class, 'index'])->name('dashboard.order.fillter');
@@ -201,4 +227,9 @@ Route::post('/order/{id}/submit-confirmation', [InfoController::class, 'submitUs
 Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verifyWithoutAuth'])
     ->middleware(['signed', 'throttle:6,1'])
     ->name('verification.verify');
+});
 
+
+
+// web.php
+Route::get('/flash-sales/{id}/products', [HomeController::class, 'getProducts'])->name('flash-sales.products');

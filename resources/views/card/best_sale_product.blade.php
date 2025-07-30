@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row mb-5 xs-mb-8">
             <div class="col-12 text-center">
-                <h2 class="alt-font text-dark-gray mb-0 ls-minus-2px">Sản phẩm bán <span class="text-highlight fw-600">chạy nhất<span class="bg-base-color h-5px bottom-2px"></span></span></h2>
+                <h2 class="alt-font text-dark-gray mb-0 ls-minus-2px">Sản phẩm đang <span class="text-highlight fw-600">hot nhất<span class="bg-base-color h-5px bottom-2px"></span></span></h2>
             </div>
         </div>
     </div>

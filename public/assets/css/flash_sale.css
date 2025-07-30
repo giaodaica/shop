@@ -1,0 +1,341 @@
+    :root {
+        --primary-color: #ff4444;
+        --primary-light: #ff6666;
+        --primary-bg: #fff5f5;
+        --warning-color: #ffc107;
+        --success-color: #155724;
+        --success-bg: #d4edda;
+        --warning-bg: #fff3cd;
+        --warning-text: #856404;
+        --gray-light: #f8f9fa;
+        --gray-border: #e9ecef;
+        --gray-text: #666;
+        --border-radius: 8px;
+        --border-radius-lg: 12px;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+        --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Flash Sale Container */
+    .flash-sale-container {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+    }
+
+    /* Flash Sale Header */
+    .flash-sale-header {
+        background: linear-gradient(135deg, var(--primary-color), #cc0000);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .sale-badges {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .flash-badge {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 12px;
+        text-transform: uppercase;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Flash Sale Cards */
+    .flash-sale-wrapper {
+        background: var(--gray-light);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .flash-sale-card {
+        background: white;
+        border: 2px solid var(--gray-border) !important;
+        border-radius: var(--border-radius-lg) !important;
+        padding: 15px; /* Giảm padding */
+        min-width: 150px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .flash-sale-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-color) !important;
+    }
+
+    .flash-sale-card.active {
+        border-color: var(--primary-color) !important;
+        background: linear-gradient(135deg, var(--primary-bg), #ffffff);
+        box-shadow: 0 5px 20px rgba(255, 68, 68, 0.2);
+    }
+
+    .flash-sale-card.active::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    }
+
+    /* Button Styles */
+    .btn-show-products {
+        border: none !important;
+        background: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-show-products:focus {
+        box-shadow: none !important;
+    }
+
+    /* Sale Header & Labels */
+    .sale-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px; /* Giảm margin */
+    }
+
+    .sale-label {
+        font-size: 14px; /* Giảm font size */
+        font-weight: 700;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .sale-label.active-label {
+        color: var(--primary-color);
+    }
+
+    /* Icons */
+    .sale-icon {
+        width: 20px; /* Giảm kích thước */
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px; /* Giảm font size */
+        font-weight: bold;
+        background: #6c757d;
+        color: white;
+    }
+
+    .sale-icon.active-icon {
+        background: var(--primary-color);
+    }
+
+    .sale-icon.upcoming-icon {
+        background: var(--warning-color);
+    }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 3px 8px; /* Giảm padding */
+        border-radius: var(--border-radius-lg);
+        font-size: 10px; /* Giảm font size */
+        font-weight: bold;
+        text-transform: uppercase;
+        background: var(--gray-border);
+        color: #6c757d;
+    }
+
+    .status-badge.active {
+        background: var(--success-bg);
+        color: var(--success-color);
+    }
+
+    .status-badge.upcoming {
+        background: var(--warning-bg);
+        color: var(--warning-text);
+    }
+
+    /* Countdown & Time Display */
+    .flash-countdown,
+    .upcoming-time {
+        background: var(--gray-light);
+        padding: 10px; /* Giảm padding */
+        border-radius: var(--border-radius);
+        text-align: center;
+        border: 2px dashed #dee2e6;
+        margin-top: 8px; /* Giảm margin */
+        min-height: 40px; /* Giảm chiều cao */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .time-display {
+        font-size: 16px; /* Giảm font size */
+        font-weight: bold;
+        color: var(--warning-color);
+        margin: 0;
+    }
+
+    .time-label {
+        font-size: 11px;
+        color: var(--gray-text);
+        margin: 0;
+    }
+
+    /* Hover Effects */
+    .btn-show-products:hover .flash-sale-card {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .btn-show-products:active .flash-sale-card {
+        transform: translateY(0px);
+        transition: transform 0.1s ease;
+    }
+
+    .flash-sale-card.active:hover {
+        box-shadow: 0 10px 30px rgba(255, 68, 68, 0.25);
+    }
+
+    /* Ripple Effect */
+    .btn-show-products::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 68, 68, 0.1);
+        transform: translate(-50%, -50%);
+        transition: width 0.3s, height 0.3s;
+    }
+
+    .btn-show-products:active::after {
+        width: 300px;
+        height: 300px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .flash-sale-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .flash-sale-card {
+            min-width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .sale-label {
+            font-size: 12px;
+        }
+    }
+     .product-card {
+         background: white;
+         border: 1px solid #eee;
+         border-radius: 8px;
+         padding: 20px;
+         text-align: center;
+         transition: all 0.3s ease;
+     }
+
+     .product-card:hover {
+         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+         transform: translateY(-2px);
+     }
+
+     .product-image {
+         width: 150px;
+         height: 150px;
+         background: #f8f9fa;
+         border-radius: 8px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         margin: 0 auto 15px;
+         font-size: 12px;
+         color: #999;
+     }
+
+     .product-name {
+         font-size: 14px;
+         font-weight: 600;
+         color: #333;
+         margin-bottom: 10px;
+     }
+
+     .product-price {
+         margin-bottom: 10px;
+     }
+
+     .current-price {
+         color: #ff0000;
+         font-size: 18px;
+         font-weight: bold;
+         margin-right: 10px;
+     }
+
+     .original-price {
+         color: #999;
+         text-decoration: line-through;
+         font-size: 14px;
+         margin-right: 5px;
+     }
+
+     .discount-badge {
+         background: #ff0000;
+         color: white;
+         padding: 2px 6px;
+         border-radius: 4px;
+         font-size: 11px;
+         font-weight: bold;
+     }
+
+     .stock-info {
+         background: #fff3cd;
+         color: #856404;
+         padding: 5px 10px;
+         border-radius: 15px;
+         font-size: 12px;
+         margin-bottom: 15px;
+         display: inline-block;
+     }
+
+     .buy-btn {
+         background: linear-gradient(135deg, #007bff, #0056b3);
+         border: none;
+         color: white;
+         padding: 8px 20px;
+         border-radius: 6px;
+         font-weight: 500;
+         transition: all 0.3s ease;
+     }
+
+     .buy-btn:hover {
+         background: linear-gradient(135deg, #0056b3, #004085);
+         color: white;
+     }

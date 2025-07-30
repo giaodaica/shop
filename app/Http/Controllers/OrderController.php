@@ -527,7 +527,8 @@ class OrderController extends Controller
         )->get();
         $histoty_order = OrderHistories::join('users', 'users.id', 'order_histories.users')->where('order_id', $id)->select(
             'order_histories.*',
-            'users.name as user_name'
+            'users.name as user_name',
+            'users.id as user_id'
         )->orderBy('created_at', 'desc')->get();
         // dd($data_order);
         // dd($histoty_order);

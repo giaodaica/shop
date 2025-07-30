@@ -88,6 +88,19 @@
                         </li>
                     </ul>
                 </div>
+                <a class="nav-link menu-link" href="#sidebarDashboards2" data-bs-toggle="collapse" role="button"
+                    aria-expanded="false" aria-controls="sidebarDashboards">
+                    <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards">Flash Sale</span>
+                </a>
+                <div class="collapse menu-dropdown" id="sidebarDashboards2">
+                    <ul class="nav nav-sm flex-column">
+                        <li class="nav-item">
+                            <a href="{{route('flash-sale')}}" class="nav-link"
+                                data-key="t-analytics">Xem
+                            </a>
+                        </li>
+                    </ul>
+                </div>
                 <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Sản phẩm</span></li>
 
                 <a class="nav-link menu-link" href="#sidebarProducts" data-bs-toggle="collapse" role="button"
@@ -107,9 +120,9 @@
                         </li>
 
 
-                         <li class="nav-item">
-                            <a href="{{ url('dashboard/comments') }}" class="nav-link"
-                                data-key="t-horizontal">Quản lý bình luận</a>
+                        <li class="nav-item">
+                            <a href="{{ url('dashboard/comments') }}" class="nav-link" data-key="t-horizontal">Quản
+                                lý bình luận</a>
                         </li>
 
                     </ul>
