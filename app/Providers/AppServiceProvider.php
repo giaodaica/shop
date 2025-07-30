@@ -34,16 +34,10 @@ class AppServiceProvider extends ServiceProvider
 
                 // chạy command mỗi ngày lúc 00:00
                 $schedule->command('app:expire-vouchers')->everyMinute();
-            });
-        }
-        if ($this->app->runningInConsole()) {
-            $this->app->booted(function () {
-                $schedule = app(Schedule::class);
-
-                // Chạy mỗi phút
                 $schedule->command('app:manage-flashsales'::class)->everyMinute();
             });
         }
+
         View::composer('dashboard.card.menu', function ($view) {
             $menu_voucher = CategoriesVouchers::all();
             $view->with('menu', $menu_voucher);
