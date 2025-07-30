@@ -22,7 +22,7 @@ class ExpireVouchers extends Command
         // 1. Kích hoạt voucher khi đến hạn
         $activated = DB::table('vouchers')
             ->where('start_date', '<=', $now)
-            ->where('status', 'draf')
+            ->where('status', 'draft')
             ->update(['status' => 'active']);
 
         // 2. Tự kết thúc nếu số lượng đã hết
