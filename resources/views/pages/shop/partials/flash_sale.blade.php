@@ -1,4 +1,4 @@
-<li class="grid-sizer"></li>
+{{-- <li class="grid-sizer"></li>
 @foreach ($flashSales as $flashSale)
     @foreach ($flashSale->itemsWithProduct as $item)
         <!-- start shop item -->
@@ -52,4 +52,4 @@
         </li>
         <!-- end shop item -->
     @endforeach
-@endforeach
+@endforeach --}}

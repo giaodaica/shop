@@ -114,6 +114,6 @@ class ProductController extends Controller
 
         return $query->paginate(5);
     }
-   
+
   
 }

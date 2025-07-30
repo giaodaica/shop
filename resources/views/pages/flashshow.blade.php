@@ -1,6 +1,9 @@
 <div class="tab-pane fade show active" id="current-sale" role="tabpanel">
     <div class="row">
         @forelse($sale as $item)
+        {{-- @php
+        dd($item);
+        @endphp --}}
     <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
         <a href="{{ route('home.show',  ['slug' => $item->product->slug, 'flash_item_id' => $item->id]) }}" class="text-decoration-none text-dark">
             <div class="product-card">
