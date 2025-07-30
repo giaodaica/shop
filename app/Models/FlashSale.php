@@ -10,7 +10,9 @@ class FlashSale extends Model
         'discount',
         'start_date',
         'end_date',
-        'status'
+        'status',
+        'slot_time',
+        'user_id'
     ];
 
     protected $casts = [
@@ -18,12 +20,12 @@ class FlashSale extends Model
         'end_date' => 'datetime',
     ];
 
-    
+
 
     public function items()
     {
         return $this->hasMany(FlashSaleItems::class, 'flash_sale_id');
     }
 
-    
+
 }

@@ -36,17 +36,17 @@ class FlashSaleItemsController extends Controller
         $flashsale = FlashSale::where('id',$id)->where('status','upcoming')->first();
 
         if(!$flashsale){
-            return abort(403,'Bạn chỉ được thao tác khi chương trình giảm giá này ở trạng thái đang chờ');
+            return redirect()->back()->with('error','Bạn chỉ được thay đổi khi chương trình này chưa khởi động');
         }
         foreach ($flash_sale as $product_id => $data) {
-            if ($checkAll == 1 || isset($data['selected']) || !isset($checkAll)) {
+         if (($checkAll == 1 || isset($data['selected']) || !isset($checkAll)) && isset($data['quantity']) && $data['quantity'] > 0) {
                 $quantity = $data['quantity'];
                 $data_product_variant = Product_variants::findOrFail($product_id);
-                if($quantity <= 0){
+                if( $quantity <= 0){
                     $errors[] = "Số lượng cho sản phẩm {$data_product_variant->name} không hợp lệ";
                     continue;
                 }
-                if ($data_product_variant->stock <= $quantity) {
+                if ($data_product_variant->stock < $quantity) {
                     $errors[] = "Sản phẩm {$data_product_variant->name} không đủ tồn kho";
                     continue;
                 }
@@ -88,5 +88,25 @@ class FlashSaleItemsController extends Controller
             return redirect()->back()->with('error', implode('<br>', $errors));
         }
            return redirect()->back()->with('success', 'Thành công.');
+    }
+    public function remove_flash_sale_items($id){
+        // dd($id);
+        $data_item = FlashSaleItems::where('id',$id)->first();
+        $data_flash_sale = FlashSale::findOrFail($_POST['flash_sale']);
+        if($data_flash_sale->status != 'upcoming' ){
+            return redirect()->back()->with('error','Bạn chỉ được thay đổi khi chương trình này chưa khởi động');
+        }
+        if(!$data_item){
+            return redirect()->back()->with('error','Không tìm thấy sản phẩm này');
+        }
+
+         $data_product_variant = Product_variants::findOrFail($data_item->product_variant_id);
+        $data_product_variant->update([
+            'stock' => $data_product_variant->stock+$data_item->max_quantity
+        ]);
+        $data_item->delete();
+
+            return redirect()->back()->with('success','Thành công');
+        // dd($data_item);
     }
 }

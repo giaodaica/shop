@@ -46,7 +46,8 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">Danh sách sản phẩm áp dụng Flash Sale</h5>
-                            <a href="{{ route('flash-sales-items.create',$flash_sale_id) }}" class="btn btn-primary">Thêm sản phẩm</a>
+                            <a href="{{ route('flash-sales-items.create', $flash_sale_id) }}" class="btn btn-primary">Thêm
+                                sản phẩm</a>
                         </div>
                         <hr class="my-4">
                         @foreach ($variants as $variant)
@@ -104,11 +105,14 @@
                                     <p><strong>Số sản phẩm bán trong flash sale:</strong> {{ $variant->max_quantity }}</p>
                                     <p><strong>Số sản phẩm đã bán:</strong> {{ $variant->sold_quantity }}</p>
 
-                                    <div class="mt-2">
-                                        <a href="{{ route('variants.edit', $variant->id) }}"
+                                    <div class="d-flex gap-2 justify-content">
+                                        <a href="{{ route('variants.edit', $variant->product_variant_id) }}"
                                             class="btn btn-sm btn-primary me-1">Chỉnh sửa</a>
-                                        <a href="{{ route('variants.show', $variant->id) }}"
-                                            class="btn btn-sm btn-secondary">Xem chi tiết</a>
+                                       <form action="{{route('remove-items-flashsale',$variant->id)}}" method="post">
+                                        @csrf
+                                        <input type="hidden" name="flash_sale" value="{{$flash_sale_id}}" id="">
+                                        <button class="btn btn-sm btn-secondary">Xóa</button>
+                                       </form>
                                     </div>
                                 </div>
                             </div>
@@ -116,10 +120,50 @@
                     </div>
                 </div>
             </div>
+            <div class="d-flex justify-content gap-2">
+                <a href="{{ route('flash-sale') }}" class="btn btn-success">Quay Lại</a>
+                @switch($data_flash_sale->status)
+                    @case('upcoming')
+                        {{-- <form action="{{ route('active-flash-sale', $flash_sale_id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="key" value="upcoming">
+                            <button class="btn btn-success">Khởi động</button>
+                        </form> --}}
+                    @break
 
+                    @case('active')
+                        <form action="{{ route('active-flash-sale', $flash_sale_id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="key" value="active">
+                            <button class="btn btn-danger">Kết Thúc</button>
+                        </form>
+                    @break
+
+                    @default
+                @endswitch
+            </div>
         </div>
     </div>
 @endsection
 
 @section('js-content')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: "{{ session('success') }}",
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                html: `{!! session('error') !!}`, // Dùng `html:` thay vì `text:`
+            });
+        @endif
+    </script>
 @endsection
