@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\UserUnLockedMail;
+
 use App\Models\User;
 use App\Models\UserLock;
 use Illuminate\Http\Request;
@@ -282,7 +282,7 @@ class UserController extends Controller
     public function unlock(User $user)
     {
         $user->update(['status' => 'active']);
-        Mail::to($user->email)->send(new UserUnLockedMail($user));
+        Mail::to($user->email)->send(new \App\Mail\UserUnLockedMail($user));
 
         return back()->with('success', 'Tài khoản đã được mở lại.');
     }
