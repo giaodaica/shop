@@ -286,4 +286,14 @@ class UserController extends Controller
 
         return back()->with('success', 'Tài khoản đã được mở lại.');
     }
+
+    public function lockHistory()
+    {
+      
+        $locks = UserLock::with(['user', 'lockedByUser', 'reason'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return view('dashboard.pages.users.lock_history', compact('locks'));
+    }
 }
