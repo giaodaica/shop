@@ -41,6 +41,9 @@ use App\Models\FlashSale;
 
 Route::get('/wards', [OrderController::class, 'getWards']);
 
+Route::post('/orders/{id}/update', [InfoController::class, 'update'])->name('order.update');
+
+
 Route::middleware(['cache'])->group(function () {
     Auth::routes();
 });
