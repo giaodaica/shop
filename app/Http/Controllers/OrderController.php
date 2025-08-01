@@ -359,6 +359,7 @@ class OrderController extends Controller
                 'content' => 'Voucher đã được đánh dấu là chưa sử dụng do đơn hàng bị hủy',
             ]);
         }
+        // dd($present);
         if ($present->status_pay == 'paid' && $present->pay_method == 'VNPAY' || $present->pay_method == 'QR') {
             RefundMoney::create([
                 'user_id' => $present->user_id,
@@ -366,7 +367,8 @@ class OrderController extends Controller
                 'amount' => $present->final_amount,
                 'status' => 'admin',
             ]);
-            $voucher = VouchersUsers::find($present->voucher_id);
+            $voucher = VouchersUsers::where('voucher_id',$present->voucher_id)->first();
+            // dd($voucher);
             if (!$voucher) {
                 $voucher = null;
             }

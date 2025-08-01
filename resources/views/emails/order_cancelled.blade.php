@@ -14,3 +14,4 @@
 <p>Bạn vui lòng cung cấp thông tin để chúng tôi hoàn tiền <a href="{{ Route('order.refund.request', $present->id) }}">tại đây</a>.</p>
 <p>Xin cảm ơn bạn đã đồng hành cùng chúng tôi.</p>
 <p>OUTFITLY</p>
+{{-- {{dd($voucher)}} --}}

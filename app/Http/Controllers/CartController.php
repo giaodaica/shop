@@ -276,11 +276,13 @@ public function applyVoucher(Request $request)
     $userId = Auth::id();
     $now = now();
 
-    $voucher = DB::table('vouchers')
-        ->where('code', $request->code)
-        ->where('status', 'active')
-        ->first();
-
+    // $voucher = DB::table('vouchers')
+    //     ->where('code', $request->code)
+    //     ->where('status', 'active')
+    //     ->first();
+    $voucher = VouchersUsers::join('vouchers','vouchers_users.voucher_id','vouchers.id')
+    ->where('code',$request->code)->where('is_used','unused')->first();
+    // dd($voucher1);
     if (!$voucher) {
         return redirect()->back()->with('error', 'Mã giảm giá không hợp lệ hoặc không hoạt động.');
     }
