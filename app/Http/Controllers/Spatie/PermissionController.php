@@ -23,33 +23,18 @@ class PermissionController extends Controller
 
 	public function __construct()
 	{
-
-		$this->middleware(function ($request, $next) {
-
-			//            if (strtolower(Auth::guard()->user()->username) != "admin") {
-			//                abort('403');
-			//            }
-
-			return $next($request);
-		});
-		//set permission to function
-		// $this->middleware('role:admin');
-		//		$this->middleware('permission:permission-list');
-		//		$this->middleware('permission:permission-create', ['only' => ['create','store']]);
-		//		$this->middleware('permission:permission-edit', ['only' => ['edit','update']]);
-		//		$this->middleware('permission:permission-delete', ['only' => ['destroy']]);
+		$this->middleware('permission.hierarchy:Quản lý Quyền hạn')->only(['index']);
+		$this->middleware('permission:Tạo quyền hạn')->only(['create', 'store']);
+		$this->middleware('permission:Sửa quyền hạn')->only(['edit', 'update']);
+		$this->middleware('permission:Xóa quyền hạn')->only(['destroy']);
+		$this->middleware('permission:Sắp xếp quyền hạn')->only(['order']);
 
 		$this->page_breadcrumbs = [
 			[
 				'page' => route('dashboard.permissions.index'),
 				'title' => "Phân quyền truy cập",
 			],
-
 		];
-		// $this->middleware('permission:view phanquyen')->only(['index', 'show']);
-		// $this->middleware('permission:create phanquyen')->only(['create', 'store']);
-		// $this->middleware('permission:edit phanquyen')->only(['edit', 'update']);
-		// $this->middleware('permission:delete phanquyen')->only(['destroy']);
 	}
 
 	public function index(Request $request)
@@ -89,18 +74,36 @@ class PermissionController extends Controller
 	 */
 	public function store(Request $request)
 	{
-
-		$this->validate($request, [
-			'title' => 'required',
-			'name' => 'required|unique:permissions'
-		], [
-			'title.required' => __('Vui lòng nhật tiêu đề'),
-			'name.required' => __('Vui lòng nhâp từ khóa name'),
-			'name.unique' => __('Keyword đã tồn tại')
-		]);
+		try {
+			$this->validate($request, [
+				'title' => 'required',
+				'name' => 'required|unique:permissions'
+			], [
+				'title.required' => __('Vui lòng nhật tiêu đề'),
+				'name.required' => __('Vui lòng nhâp từ khóa name'),
+				'name.unique' => __('Keyword đã tồn tại')
+			]);
+		} catch (\Illuminate\Validation\ValidationException $e) {
+			if ($request->ajax() || $request->wantsJson()) {
+				return response()->json([
+					'success' => false,
+					'errors' => $e->errors(),
+					'message' => 'Có lỗi validation xảy ra'
+				], 422);
+			}
+			throw $e;
+		}
 		$input = $request->all();
 		$data = Permission::create($input);
 
+		if ($request->ajax() || $request->wantsJson()) {
+			return response()->json([
+				'success' => true,
+				'message' => __('Thêm mới thành công !'),
+				'redirect' => route('dashboard.permissions.index')
+			]);
+		}
+		
 		return redirect()->route('dashboard.permissions.index')
 			->with('success', __('Thêm mới thành công !'));
 	}
@@ -141,17 +144,36 @@ class PermissionController extends Controller
 	{
 		$data = Permission::findOrFail($id);
 
-		$this->validate($request, [
-			'title' => 'required',
-			'name' => 'required|unique:permissions,name,' . $id
-		], [
-			'title.required' => __('Vui lòng nhật tiêu đề'),
-			'name.required' => __('Vui lòng nhâp từ khóa name'),
-			'name.unique' => __('Keyword đã tồn tại')
-		]);
+		try {
+			$this->validate($request, [
+				'title' => 'required',
+				'name' => 'required|unique:permissions,name,' . $id
+			], [
+				'title.required' => __('Vui lòng nhập tiêu đề'),
+				'name.required' => __('Vui lòng nhập từ khóa name'),
+				'name.unique' => __('Keyword đã tồn tại')
+			]);
+		} catch (\Illuminate\Validation\ValidationException $e) {
+			if ($request->ajax() || $request->wantsJson()) {
+				return response()->json([
+					'success' => false,
+					'errors' => $e->errors(),
+					'message' => 'Có lỗi validation xảy ra'
+				], 422);
+			}
+			throw $e;
+		}
 
 		$input = $request->all();
 		$data->update($input);
+		if ($request->ajax() || $request->wantsJson()) {
+			return response()->json([
+				'success' => true,
+				'message' => __('Cập nhật thành công !'),
+				'redirect' => route('dashboard.permissions.index')
+			]);
+		}
+		
 		return redirect()->route('dashboard.permissions.index')->with('success', __('Cập nhật thành công !'));
 	}
 

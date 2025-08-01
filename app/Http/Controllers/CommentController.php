@@ -8,6 +8,12 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Bình luận')->only(['index']);
+        $this->middleware('permission:Sửa bình luận')->only(['update']);
+    }
+
     public function index()
     {
         $comments = Review::with('user', 'product')->latest()->paginate(10);

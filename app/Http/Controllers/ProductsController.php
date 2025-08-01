@@ -14,13 +14,14 @@ use Illuminate\Support\Str;
 
 class ProductsController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:view product')->only(['index', 'show']);
-    //     $this->middleware('permission:create product')->only(['create', 'store']);
-    //     $this->middleware('permission:edit product')->only(['edit', 'update']);
-    //     $this->middleware('permission:delete product')->only(['destroy']);
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Sản phẩm')->only(['index']);
+        $this->middleware('permission:Tạo sản phẩm')->only(['create', 'store']);
+        $this->middleware('permission:Sửa sản phẩm')->only(['edit', 'update']);
+        $this->middleware('permission:Xóa sản phẩm')->only(['destroy']);
+        $this->middleware('permission:Khôi phục sản phẩm')->only(['restore']);
+    }
 
     public function index(Request $request)
     {
@@ -309,11 +310,18 @@ class ProductsController extends Controller
                 $firstId = $combinations[$key]['id'] ?? null;
                 $currentId = $variant['id'] ?? null;
 
-                // Nếu là biến thể mới hoặc khác ID cũ thì tính là trùng
                 if ($currentId !== $firstId) {
-                    // ⚠ Gán lỗi cho dòng đầu tiên xuất hiện
-                    $errors["variants.$firstIndex.size_id"] = ['Trùng với biến thể ở dòng ' . ($index + 1)];
-                    $errors["variants.$firstIndex.color_id"] = ['Trùng với biến thể ở dòng ' . ($index + 1)];
+                    // Gán lỗi cho dòng hiện tại
+                    $errors["variants.$index.color_id"] = ['Trùng biến thể với dòng ' . ($firstIndex + 1)];
+                    $errors["variants.$index.size_id"] = ['Trùng biến thể với dòng ' . ($firstIndex + 1)];
+
+                    // Gán lỗi ngược lại cho dòng trước đó (nếu chưa bị gán)
+                    if (!isset($errors["variants.$firstIndex.color_id"])) {
+                        $errors["variants.$firstIndex.color_id"] = ['Trùng biến thể với dòng ' . ($index + 1)];
+                    }
+                    if (!isset($errors["variants.$firstIndex.size_id"])) {
+                        $errors["variants.$firstIndex.size_id"] = ['Trùng biến thể với dòng ' . ($index + 1)];
+                    }
                 }
             } else {
                 $combinations[$key] = [
@@ -322,6 +330,9 @@ class ProductsController extends Controller
                 ];
             }
         }
+
+
+
 
         if (!empty($errors)) {
             throw \Illuminate\Validation\ValidationException::withMessages($errors);
@@ -462,9 +473,10 @@ class ProductsController extends Controller
         $variant->save();
         return redirect()->back()->with('success', 'Thành công');
     }
-    public function remove_flashsale($id){
+    public function remove_flashsale($id)
+    {
         $variant = Product_variants::findOrFail($id);
-        if($variant->use_flash_sale == 0){
+        if ($variant->use_flash_sale == 0) {
             return redirect()->back()->with('error', 'Sản phẩm này không còn ở trong flash sale');
         }
         $variant->use_flash_sale = 0;

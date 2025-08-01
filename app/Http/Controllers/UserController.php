@@ -13,13 +13,16 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:view taikhoan')->only(['index', 'show']);
-    //     $this->middleware('permission:create taikhoan')->only(['create', 'store']);
-    //     $this->middleware('permission:edit taikhoan')->only(['edit', 'update']);
-    //     $this->middleware('permission:delete taikhoan')->only(['destroy']);
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Tài khoản')->only(['index']);
+        $this->middleware('permission:Tạo tài khoản')->only(['create', 'store']);
+        $this->middleware('permission:Sửa tài khoản')->only(['edit', 'update']);
+        $this->middleware('permission:Xóa tài khoản')->only(['destroy']);
+        $this->middleware('permission:Khóa tài khoản')->only(['lock']);   
+        $this->middleware('permission:Mở khóa tài khoản')->only(['unlock']);
+        $this->middleware('permission:Xóa hàng loạt tài khoản')->only(['bulkDelete']);
+    }
 
     // Hiển thị danh sách người dùng (có thể lọc theo trạng thái)
     public function index(Request $request)
@@ -258,6 +261,7 @@ class UserController extends Controller
         // Ghi log vào bảng user_locks
         UserLock::create([
             'user_id'        => $user->id,
+            'locked_by'      => auth()->id(), 
             'lock_reason_id' => $request->lock_reason_id,
             'note'           => $request->note,
         ]);

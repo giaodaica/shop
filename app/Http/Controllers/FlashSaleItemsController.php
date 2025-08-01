@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class FlashSaleItemsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:Quản lý sản phẩm flash sale')->only(['create', 'add_flash_sale_items', 'remove_flash_sale_items']);
+    }
     public function create($flash_sale_id)
     {
         $products = Product_variants::where('is_show', 1)

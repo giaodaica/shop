@@ -7,6 +7,14 @@ use Illuminate\Http\Request;
 
 class ColorController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Màu sắc')->only(['index']);
+        $this->middleware('permission:Tạo màu sắc')->only(['create', 'store']);
+        $this->middleware('permission:Sửa màu sắc')->only(['edit', 'update']);
+        $this->middleware('permission:Xóa màu sắc')->only(['destroy']);
+    }
+
     // Hiển thị danh sách màu
     public function index()
     {

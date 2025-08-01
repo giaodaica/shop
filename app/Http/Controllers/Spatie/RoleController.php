@@ -13,13 +13,14 @@ class RoleController extends Controller
     protected $user;
     protected $page_breadcrumbs;
 
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:view phanquyen')->only(['index', 'show']);
-    //     $this->middleware('permission:create phanquyen')->only(['create', 'store']);
-    //     $this->middleware('permission:edit phanquyen')->only(['edit', 'update']);
-    //     $this->middleware('permission:delete phanquyen')->only(['destroy']);
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Vai trò')->only(['index']);
+        $this->middleware('permission:Tạo vai trò')->only(['create', 'store']);
+        $this->middleware('permission:Sửa vai trò')->only(['edit', 'update']);
+        $this->middleware('permission:Xóa vai trò')->only(['destroy']);
+        $this->middleware('permission:Sắp xếp vai trò')->only(['order']);
+    }
     public function index(Request $request)
     {
         $data = Role::orderBy('order', 'asc')->get();
@@ -71,15 +72,26 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'title' => 'required|unique:roles',
-            'name' => 'required|unique:roles',
-        ], [
-            'title.required' => __('Vui lòng nhật tiêu đề'),
-            'title.unique' => __('Vui lòng nhâp từ khóa name'),
-            'name.unique' => __('Keyword đã tồn tại'),
-            'name.required' => __('Vui lòng nhập keyword'),
-        ]);
+        try {
+            $this->validate($request, [
+                'title' => 'required|unique:roles',
+                'name' => 'required|unique:roles',
+            ], [
+                'title.required' => __('Vui lòng nhật tiêu đề'),
+                'title.unique' => __('Tiêu đề nhâp từ khóa name'),
+                'name.unique' => __('Name đã tồn tại'),
+                'name.required' => __('Vui lòng nhập name'),
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $e->errors(),
+                    'message' => 'Có lỗi validation xảy ra'
+                ], 422);
+            }
+            throw $e;
+        }
         $input = $request->all();
         $data = Role::create($input);
         // Nếu form gửi lên là permissions[] (theo chuẩn resource), cần sync lại
@@ -87,8 +99,26 @@ class RoleController extends Controller
             $permissionIds = Permission::whereIn('name', $request->permissions)->pluck('id')->toArray();
             $data->permissions()->sync($permissionIds);
         } else {
-            $data->permissions()->sync(isset($request->permission_ids) ? explode(",", $request->permission_ids) : []);
+            $permissionIds = isset($request->permission_ids) ? explode(",", $request->permission_ids) : [];
+            
+            // Tự động thêm permissions con khi có permission cha
+            $allPermissionIds = $permissionIds;
+            foreach ($permissionIds as $permissionId) {
+                $childPermissions = \App\Helpers\PermissionHelper::getAllChildPermissions($permissionId);
+                $childPermissionIds = $childPermissions->pluck('id')->toArray();
+                $allPermissionIds = array_merge($allPermissionIds, $childPermissionIds);
+            }
+            
+            $data->permissions()->sync(array_unique($allPermissionIds));
         }
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('Thêm mới thành công !'),
+                'redirect' => route('dashboard.roles.index')
+            ]);
+        }
+        
         return redirect()->route('dashboard.roles.index')
             ->with('success', __('Thêm mới thành công !'));
     }
@@ -146,23 +176,52 @@ class RoleController extends Controller
     public function update(Request $request, $id)
     {
         $data = Role::findOrFail($id);
-        $this->validate($request, [
-            'title' => 'required|unique:roles,title,' . $id,
-            'name' => 'required|unique:roles,name,' . $id,
-        ], [
-            'title.required' => __('Vui lòng nhật tiêu đề'),
-            'title.unique' => __('Vui lòng nhâp từ khóa name'),
-            'name.unique' => __('Keyword đã tồn tại'),
-            'name.required' => __('Vui lòng nhập keyword'),
-        ]);
+        try {
+            $this->validate($request, [
+                'title' => 'required|unique:roles,title,' . $id,
+                'name' => 'required|unique:roles,name,' . $id,
+            ], [
+                'title.required' => __('Vui lòng nhật tiêu đề'),
+                'title.unique' => __('Tiêu đề đã tồn tại'),
+                'name.unique' => __('Name đã tồn tại'),
+                'name.required' => __('Vui lòng nhập name'),
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $e->errors(),
+                    'message' => 'Có lỗi validation xảy ra'
+                ], 422);
+            }
+            throw $e;
+        }
         $input = $request->all();
         $data->update($input);
         if ($request->has('permissions')) {
             $permissionIds = Permission::whereIn('name', $request->permissions)->pluck('id')->toArray();
             $data->permissions()->sync($permissionIds);
         } else {
-            $data->permissions()->sync(isset($request->permission_ids) ? explode(",", $request->permission_ids) : []);
+            $permissionIds = isset($request->permission_ids) ? explode(",", $request->permission_ids) : [];
+            
+            // Tự động thêm permissions con khi có permission cha
+            $allPermissionIds = $permissionIds;
+            foreach ($permissionIds as $permissionId) {
+                $childPermissions = \App\Helpers\PermissionHelper::getAllChildPermissions($permissionId);
+                $childPermissionIds = $childPermissions->pluck('id')->toArray();
+                $allPermissionIds = array_merge($allPermissionIds, $childPermissionIds);
+            }
+            
+            $data->permissions()->sync(array_unique($allPermissionIds));
         }
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('Cập nhật vai trò thành công [' . $data->title . ']'),
+                'redirect' => route('dashboard.roles.index')
+            ]);
+        }
+        
         return redirect()->route('dashboard.roles.index')->with('success', __('Cập nhật vai trò thành công [' . $data->title . ']'));
     }
 

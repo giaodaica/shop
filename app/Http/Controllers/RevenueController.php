@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\DB;
 
 class RevenueController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Doanh thu')->only(['index']);
+        $this->middleware('permission:Lọc dữ liệu doanh thu')->only(['index']);
+    }
+
     /**
      * Display a listing of the resource.
      */
