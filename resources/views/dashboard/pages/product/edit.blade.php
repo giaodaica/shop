@@ -31,7 +31,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">Tên sản phẩm</label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                        id="product-name" name="name" value="{{ old('name', $product->name) }}" required
+                                        id="product-name" name="name" value="{{ old('name') !== null ? old('name') : $product->name }}" 
                                         maxlength="255">
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -42,8 +42,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Slug</label>
                                     <input type="text" class="form-control @error('slug') is-invalid @enderror"
-                                        id="product-slug" name="slug" value="{{ old('slug', $product->slug) }}" readonly
-                                        required>
+                                        id="product-slug" name="slug" value="{{ old('slug') !== null ? old('slug') : $product->slug }}" readonly
+                                        >
                                     @error('slug')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -63,7 +63,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">Danh mục</label>
                                     <select class="form-select @error('category_id') is-invalid @enderror"
-                                        name="category_id" required>
+                                        name="category_id" >
                                         <option value="">-- Chọn danh mục --</option>
                                         @foreach ($categories as $category)
                                             <option value="{{ $category->id }}"
@@ -94,7 +94,7 @@
                                         <label class="input-group-text" for="product-image">Thêm ảnh</label>
                                     </div>
                                     <input type="hidden" name="temp_image_url" id="temp_image_url"
-                                        value="{{ old('temp_image_url') }}" required>
+                                        value="{{ old('temp_image_url') }}" >
                                 </div>
 
                                 <!-- Biến thể -->
@@ -227,30 +227,6 @@
         });
 
         // Validate form before submit
-        $('form.needs-validation').on('submit', function(e) {
-            let isValid = true;
-            let variants = $('#variant-container .variant-item');
-
-            if (variants.length === 0) {
-                alert('Bạn cần thêm ít nhất một biến thể.');
-                isValid = false;
-            }
-
-            variants.each(function() {
-                const size = $(this).find('select[name*="[size_id]"]').val();
-                const color = $(this).find('select[name*="[color_id]"]').val();
-                const import_price = $(this).find('input[name*="[import_price]"]').val();
-                const listed_price = $(this).find('input[name*="[listed_price]"]').val();
-                const stock = $(this).find('input[name*="[stock]"]').val();
-
-                if (!size || !color || !import_price || !listed_price || !stock) {
-                    alert('Vui lòng nhập đầy đủ thông tin cho từng biến thể.');
-                    isValid = false;
-                    return false;
-                }
-            });
-
-            if (!isValid) e.preventDefault();
-        });
+       
     </script>
 @endsection

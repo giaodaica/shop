@@ -46,8 +46,7 @@
                                     <label for="choices-publish-status-input" class="form-label">Trạng thái</label>
 
                                     <select name="status" id="choices-publish-status-input"
-                                        class="form-select w-100 @error('status') is-invalid @enderror" data-choices
-                                        data-choices-search-false>
+                                        class="form-select w-100 @error('status') is-invalid @enderror">
                                         <option value="" disabled {{ old('status') === null ? 'selected' : '' }}>
                                             -- Chọn trạng thái --
                                         </option>

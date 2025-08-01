@@ -52,12 +52,12 @@ class CategoriesController extends Controller
     {
         $request->validate([
             'name' => 'required|unique:categories,name',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'status' => 'required|in:0,1',
         ], [
             'name.required' => 'Tên danh mục không được để trống.',
             'name.unique' => 'Tên danh mục đã tồn tại.',
-
+            'image.required' => 'Ảnh không được để trống.',
             'image.image' => 'Ảnh phải là file ảnh hợp lệ.',
             'image.mimes' => 'Ảnh chỉ được chấp nhận định dạng jpeg, png, jpg, gif, svg, webp.',
             'image.max' => 'Kích thước ảnh không được vượt quá 2MB.',
