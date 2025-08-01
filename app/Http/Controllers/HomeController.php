@@ -94,6 +94,8 @@ class HomeController extends Controller
 
         // dd($flashSales);
             $category_product = Categories::take(4)->get();
+
+           
         // Mặc định: trả về giao diện
         return view('pages.shop.index', compact(
             'voucher_block_3',

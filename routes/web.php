@@ -41,7 +41,6 @@ use App\Models\FlashSale;
 
 Route::get('/wards', [OrderController::class, 'getWards']);
 
-Route::post('/orders/{id}/update', [InfoController::class, 'update'])->name('order.update');
 
 
 Route::middleware(['cache'])->group(function () {
@@ -51,6 +50,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('shop', [ProductController::class, 'index'])->name('home.shop');
+Route::post('/orders/{id}/update', [InfoController::class, 'update'])->name('order.update');
 
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
