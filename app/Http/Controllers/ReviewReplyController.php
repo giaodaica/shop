@@ -8,6 +8,12 @@ use Illuminate\Http\Request;
 
 class ReviewReplyController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:Trả lời bình luận')->only(['store']);
+        $this->middleware('permission:Xóa trả lời bình luận')->only(['destroy']);
+    }
+
     /**
      * Lưu phản hồi mới cho một review
      */

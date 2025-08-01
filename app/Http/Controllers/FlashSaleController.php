@@ -11,6 +11,15 @@ use Illuminate\Http\Request;
 
 class FlashSaleController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Flash Sale')->only(['index']);
+        $this->middleware('permission:Tạo flash sale')->only(['create']);
+        $this->middleware('permission:Sửa flash sale')->only(['edit', 'update']);
+        $this->middleware('permission:Xóa flash sale')->only(['destroy']);
+        $this->middleware('permission:Kích hoạt flash sale')->only(['change_active']);
+    }
+
     public function index()
     {
         $flashSales  = FlashSale::join('users', 'flash_sales.user_id', 'users.id')->select(
