@@ -38,20 +38,88 @@ use App\Http\Controllers\FlashSaleItemsController;
 use App\Http\Controllers\web\Flash_Sale;
 use App\Models\FlashSale;
 
-// Route::get('aonam/{flash_sale_id}/{variant_id}', [Flash_Sale::class, 'index'])->name('flashsale.show');
 
-
-// Route::get('/flash', [HomeController::class, 'getProducts']);
 Route::get('/wards', [OrderController::class, 'getWards']);
 
 Route::middleware(['cache'])->group(function () {
     Auth::routes();
 });
 Route::middleware([CheckUserStatus::class])->group(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
-    Route::get('shop', [ProductController::class, 'index'])->name('home.shop');
-    Route::get('/flash', [ProductController::class, 'flash']);
-    // Flash Sale Routes
+
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('shop', [ProductController::class, 'index'])->name('home.shop');
+
+
+Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::get('/search/suggestions', [SearchController::class, 'suggestions']);
+Route::get('/search/filter', [SearchController::class, 'search'])->name('search.filter');
+Route::get('/search/trending-categories', [SearchController::class, 'trendingCategories']);
+Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware(['auth', 'throttle:5,1']);
+Route::get('/reviews/list/{product_id}', [ReviewController::class, 'list'])->name('reviews.list');
+
+
+Route::post('add-to-cart/{id}', [CartController::class, 'add_to_cart'])->middleware('auth');
+
+
+Route::post('/order/{id}/cancel', [InfoController::class, 'cancel'])->name('order.cancel');
+Route::get('info', [InfoController::class, 'account'])->name('home.info')->middleware('auth', 'cache');
+Route::get('show/{id}', [InfoController::class, 'orderDetail'])->name('home.orderDetail')->middleware('auth', 'cache');
+Route::get('aonam/{slug}', [ProductDetailController::class, 'index'])->name('home.show');
+Route::get('cart', action: [CartController::class, 'index'])->name('home.cart');
+Route::delete('/cart/delete-selected', [CartController::class, 'deleteSelected'])->name('cart.deleteSelected');
+Route::post('/cart/update-quantity', [CartController::class, 'updateQuantity'])->name('cart.updateQuantity');
+Route::post('/cart/calculate-total', [CartController::class, 'calculateTotal'])->name('cart.calculateTotal');
+Route::post('/cart/apply-voucher', [CartController::class, 'applyVoucher'])->name('cart.applyVoucher');
+Route::get('/cart/remove-voucher', [CartController::class, 'removeVoucher'])->name('cart.removeVoucher');
+Route::post('/cart/update-selected-ajax', [CartController::class, 'ajaxUpdateSelected'])->name('cart.ajaxUpdateSelected');
+
+Route::get('/account/orders', [InfoController::class, 'filterOrders'])->name('account.orders');
+Route::middleware(['auth'])->group(function () {
+    Route::get('checkout', [OrderController::class, 'index'])->name('home.checkout');
+    Route::post('checkout', [OrderController::class, 'processCheckout'])->name('home.processCheckout');
+    Route::post('checkout/update-shipping-type', [OrderController::class, 'updateShippingType'])->name('checkout.updateShippingType');
+    Route::get('done', [OrderController::class, 'done'])->name('home.done');
+
+    // Address management
+    Route::get('addresses', [AddressBookController::class, 'index'])->name('addresses.index');
+    Route::post('addresses', [AddressBookController::class, 'store'])->name('addresses.store');
+    Route::put('addresses/{id}', [AddressBookController::class, 'update'])->name('addresses.update');
+    Route::delete('addresses/{id}', [AddressBookController::class, 'destroy'])->name('addresses.destroy');
+    Route::get('addresses/wards', [AddressBookController::class, 'getWards'])->name('addresses.wards');
+});
+
+// Dashboard Authentication Routes
+//Route::get('dashboard/login', [DashboardController::class, 'login'])->name('dashboard.login')->middleware('dashboard.guest');
+//Route::post('dashboard/login', [DashboardController::class, 'authenticate'])->name('dashboard.authenticate')->middleware('dashboard.guest');
+//Route::post('dashboard/logout', [DashboardController::class, 'logout'])->name('dashboard.logout');
+
+// Dashboard Main Route (protected)
+Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.index')->middleware('dashboard.auth');
+
+
+
+// Xác thực tài khoản
+
+Auth::routes(['verify' => true]);
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])
+    ->name('home');
+
+
+// Chatbot
+
+Route::post('/chat', [ChatBotController::class, 'reply']);
+// Login google
+Route::get('/auth/redirect/google', [GoogleController::class, 'redirectToGoogle'])->name('google.redirect');
+Route::get('auth/callback/google', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+
+// client voucher
+Route::post('accept_voucher/{id}', [VouchersController::class, 'accept_voucher'])->middleware('auth');
+
+Route::post('change-password', [ChangepasswordController::class, 'changePassword'])->name('change-password');
+Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('update-profile');
+
+
 
     Route::get('/search', [SearchController::class, 'index'])->name('search');
     Route::get('/search/suggestions', [SearchController::class, 'suggestions']);
