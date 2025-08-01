@@ -432,6 +432,9 @@ class OrderController extends Controller
                 if ($present->status != 'shipping') {
                     return abort(403, 'Bạn không thể đổi sang trạng thái đã giao hàng khi đơn hàng không ở trạng thái đang giao hàng ');
                 } else {
+                    if($present->pay_method = 'COD'){
+                        $present->status_pay = 'paid';
+                    }
                     $present->status = 'success';
                     $note = $request->notes ?? 'Đơn hàng đã được giao thành công';
                     if ($request->hasFile('image_ship')) {
@@ -539,6 +542,7 @@ class OrderController extends Controller
             'users.name as user_name',
             'users.id as user_id'
         )->orderBy('created_at', 'desc')->get();
+        $data_refund = RefundMoney::where('order_id',$id)->where('status','approved')->first();
         // dd($data_order);
         // dd($histoty_order);
         // $historyItems = OrderHistories::where('order_id', $id)->get()->keyBy('from_status');
@@ -549,7 +553,7 @@ class OrderController extends Controller
         if (!$data_order) {
             return abort(403, "không có đơn này");
         }
-        return view('dashboard.pages.order.detail', compact('data_order', 'data_order_items', 'histoty_order', 'data_provinces'));
+        return view('dashboard.pages.order.detail', compact('data_order', 'data_order_items', 'histoty_order', 'data_provinces','data_refund'));
     }
     // Method để cập nhật loại vận chuyển trong checkout
     public function updateShippingType(Request $request)

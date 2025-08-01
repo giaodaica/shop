@@ -29,10 +29,17 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex align-items-center">
-                                <h5 class="card-title flex-grow-1 mb-0">Đơn hàng#{{ $data_order->code_order }}</h5>
+                                <h5 class="card-title flex-grow-1 mb-0">Đơn hàng#{{ $data_order->code_order }} @if (empty($data_refund))
+                                    @else
+                                        <span class="badge bg-danger">
+                                            <a href="{{route('dashboard.order.refund.show',$data_refund->id)}}"
+                                                class="text-white text-decoration-none">Đã hoàn tiền (xem)</a>
+                                        </span>
+                                    @endif
+                                </h5>
                                 <div class="flex-shrink-0">
-                                    <a href="apps-invoices-details.html" class="btn btn-success btn-sm"><i
-                                            class="ri-download-2-fill align-middle me-1"></i> Invoice</a>
+                                    {{-- <a href="apps-invoices-details.html" class="btn btn-success btn-sm"><i
+                                            class="ri-download-2-fill align-middle me-1"></i> Invoice</a> --}}
                                 </div>
                             </div>
                         </div>
@@ -152,7 +159,9 @@
                                         @forelse ($histoty_order as $key => $history)
                                             <tr>
                                                 <td>{{ count($histoty_order) - $key }}</td>
-                                                <td><a href="{{route('users.show',$history->user_id)}}">{{ $history->user_name }}</a></td>
+                                                <td><a
+                                                        href="{{ route('users.show', $history->user_id) }}">{{ $history->user_name }}</a>
+                                                </td>
                                                 <td>{{ formatDate($history->created_at) }}</td>
                                                 @php
                                                     $statusMap = [
@@ -239,6 +248,11 @@
 
                                             @default
                                         @endswitch
+
+                                        <div class="d-flex justify-content-end gap-2 pt-3 px-3">
+                                            <button type="button" class="btn btn-info " data-bs-toggle="modal"
+                                                data-bs-target=".bs-example-modal-xl">Phản hồi của khách hàng</button>
+                                        </div>
                                     </td>
                                 </div>
                             </div>
@@ -326,7 +340,9 @@
                             <ul class="list-unstyled vstack gap-2 fs-13 mb-0">
                                 <li class="fw-medium fs-14">Họ Tên : {{ $data_order->ad_name ?? $data_order->name }}</li>
                                 <li>Số điện thoại : {{ $data_order->ad_phone ?? $data_order->phone }}</li>
-                                <li>Địa chỉ : {{ $data_order->ad_address ?? $data_order->address }} - {{ $data_order->ward_b ?? $data_order->ward_o }} - {{ $data_order->province_b ?? $data_order->province_o }} </li>
+                                <li>Địa chỉ : {{ $data_order->ad_address ?? $data_order->address }} -
+                                    {{ $data_order->ward_b ?? $data_order->ward_o }} -
+                                    {{ $data_order->province_b ?? $data_order->province_o }} </li>
                                 {{-- <li>California - 24567</li> --}}
                                 {{-- <li>United States</li> --}}
                             </ul>
@@ -625,6 +641,42 @@
     </div>
 
     <!-- Modal -->
+    <!--  Extra Large modal example -->
+    <div class="modal fade bs-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="myExtraLargeModalLabel">Đánh giá từ khách hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body text-center">
+                    {{-- Ảnh người dùng upload nếu có --}}
+                    @if (!empty($data_order->image_user))
+                        <img src="{{ asset($data_order->image_user) }}" alt="Ảnh khách hàng"
+                            class="img-fluid rounded shadow mb-4" style="max-height: 400px;">
+                    @else
+                        <p class="text-muted">Chưa có ảnh.</p>
+                    @endif
+
+                    {{-- Đánh giá nếu có --}}
+                    @if (!empty($data_order->user_comment))
+                        <blockquote class="blockquote">
+                            <p class="mb-0">{{ $data_order->user_comment }}</p>
+                            <footer class="blockquote-footer mt-2">khách hàng:
+                                <cite title="Tên khách hàng">{{ $data_order->ad_name ?? $data_order->name }}</cite>
+                            </footer>
+                        </blockquote>
+                    @else
+                        <p class="text-muted">khách hàng chưa để lại đánh giá.</p>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('js-content')
     <script>
@@ -635,43 +687,46 @@
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-   $(document).ready(function () {
-    $('#province').on('change', function () {
-        let provinceId = $(this).val();
-        if (provinceId) {
-            $.get('/wards', { province_id: provinceId }, function (data) {
-                $('#ward').empty().append('<option value="">Chọn Xã Phường</option>');
-                if (data.length > 0) {
-                    data.forEach(function (ward) {
-                        $('#ward').append(`<option value="${ward.ward_code}">${ward.name}</option>`);
+        $(document).ready(function() {
+            $('#province').on('change', function() {
+                let provinceId = $(this).val();
+                if (provinceId) {
+                    $.get('/wards', {
+                        province_id: provinceId
+                    }, function(data) {
+                        $('#ward').empty().append('<option value="">Chọn Xã Phường</option>');
+                        if (data.length > 0) {
+                            data.forEach(function(ward) {
+                                $('#ward').append(
+                                    `<option value="${ward.ward_code}">${ward.name}</option>`
+                                );
+                            });
+                            $('#ward-container').slideDown();
+                        } else {
+                            $('#ward').append('<option>Không có xã/phường</option>');
+                            $('#ward-container').slideDown();
+                        }
+
+                        // Ẩn ô địa chỉ chi tiết nếu chưa chọn xã
+                        $('#address-detail-group').slideUp();
                     });
-                    $('#ward-container').slideDown();
                 } else {
-                    $('#ward').append('<option>Không có xã/phường</option>');
-                    $('#ward-container').slideDown();
+                    $('#ward-container').slideUp();
+                    $('#ward').empty().append('<option value="">Chọn Xã Phường</option>');
+                    $('#address-detail-group').slideUp();
                 }
-
-                // Ẩn ô địa chỉ chi tiết nếu chưa chọn xã
-                $('#address-detail-group').slideUp();
             });
-        } else {
-            $('#ward-container').slideUp();
-            $('#ward').empty().append('<option value="">Chọn Xã Phường</option>');
-            $('#address-detail-group').slideUp();
-        }
-    });
 
-    // Khi chọn xã/phường thì mới hiện ô địa chỉ chi tiết
-    $('#ward').on('change', function () {
-        let wardId = $(this).val();
-        if (wardId) {
-            $('#address-detail-group').slideDown();
-        } else {
-            $('#address-detail-group').slideUp();
-        }
-    });
-});
-
+            // Khi chọn xã/phường thì mới hiện ô địa chỉ chi tiết
+            $('#ward').on('change', function() {
+                let wardId = $(this).val();
+                if (wardId) {
+                    $('#address-detail-group').slideDown();
+                } else {
+                    $('#address-detail-group').slideUp();
+                }
+            });
+        });
     </script>
 
     <script src="{{ asset('admin/libs/glightbox/js/glightbox.min.js') }}"></script>
@@ -682,21 +737,21 @@
     <script src="{{ asset('admin/js/pages/gallery.init.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    @if (session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Thành công!',
-            text: "{{ session('success') }}",
-        });
-    @endif
+    <script>
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: "{{ session('success') }}",
+            });
+        @endif
 
-    @if (session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Lỗi!',
-            text: "{{ session('error') }}",
-        });
-    @endif
-</script>
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: "{{ session('error') }}",
+            });
+        @endif
+    </script>
 @endsection

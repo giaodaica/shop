@@ -126,6 +126,9 @@ class VouchersController extends Controller
                 return redirect()->back()->with('error', 'Bắt buộc phải có ảnh đại diện cho khu vực 1 và 2');
             }
         }
+        if ($data->start_date > now()) {
+            return redirect()->back()->with('error', 'Chưa tới thời gian có thể khởi động');
+        }
         $data->update(['status' => 'active']);
         return redirect()->back();
     }
@@ -175,6 +178,5 @@ class VouchersController extends Controller
 
         $data_voucher->forceDelete();
         return redirect(url("dashboard/voucher/$data->slug"))->with('success', 'Xóa thành công');
-
     }
 }

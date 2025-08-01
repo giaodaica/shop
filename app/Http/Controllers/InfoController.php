@@ -254,7 +254,7 @@ class InfoController extends Controller
                     'from_status' => $order->status,
                     'to_status' => $order->status,
                     'note' => 'Khách hàng đã xác nhận nhận hàng',
-                    'content' => $request->user_comment ?? '',
+                    'content' => '',
                 ]);
 
                 return redirect()->back()->with('success', 'Xác nhận nhận hàng thành công!');
@@ -273,7 +273,7 @@ class InfoController extends Controller
         //     $request->ward_code = $request->ward_code_hidden;
         // }
         // dd($request->ward_code_hidden);
-        
+
         $data_order = Order::find($id);
         if (!$data_order) {
             return abort(403, "Không tìm thấy đơn này");
