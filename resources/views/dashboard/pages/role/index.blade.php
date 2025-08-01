@@ -200,18 +200,155 @@
                 modal.show();
             });
             
-            // Function để khởi tạo các components trong modal
+                        // Function để khởi tạo các components trong modal
             function initializeModalComponents() {
                 // Khởi tạo select2
                 $('#loadModal .select2').select2({
                     dropdownParent: $('#loadModal')
                 });
                 
+                // Khởi tạo form submission handler
+                initializeFormSubmission();
+                
                 // Khởi tạo JSTree nếu có
                 if ($('#kt_tree_3').length > 0) {
                     initializeJSTree();
                 }
             }
+            
+            // Function để xử lý form submission
+            function initializeFormSubmission() {
+                $('#loadModal form').off('submit').on('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const form = $(this);
+                    const formData = new FormData(form[0]);
+                    const url = form.attr('action');
+                    const method = 'POST';
+                    if (!formData.has('_token')) {
+                        const csrfToken = $('meta[name="csrf-token"]').attr('content');
+                        if (csrfToken) {
+                            formData.append('_token', csrfToken);
+                        }
+                    }
+                    
+                    // Clear previous errors
+                    form.find('.is-invalid').removeClass('is-invalid');
+                    form.find('.invalid-feedback').remove();
+                    
+                    // Show loading
+                    const submitBtn = form.find('button[type="submit"]');
+                    const originalText = submitBtn.text();
+                    submitBtn.prop('disabled', true).text('Đang xử lý...');                 
+                    $.ajax({
+                        url: url,
+                        type: method,
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                                                 success: function(response) {
+                             if (typeof response === 'string') {
+                                 $('#loadModal').modal('hide');
+                                 showAlert('success', 'Thao tác thành công!');
+                                 // Cập nhật dữ liệu thay vì reload
+                                 updateTableData();
+                                 return;
+                             }
+                             
+                             if (response && response.success) {
+                                 // Show success message
+                                 $('#loadModal').modal('hide');
+                                 showAlert('success', response.message);
+                                 
+                                 // Cập nhật dữ liệu thay vì reload
+                                 updateTableData();
+                             } else {
+                                 showAlert('error', 'Response không thành công');
+                             }
+                         },
+                        error: function(xhr) {
+                            if (xhr.status === 422) {
+                                // Validation errors
+                                const errors = xhr.responseJSON.errors;
+                                displayValidationErrors(form, errors);
+                            } else {
+                                // Other errors
+                                console.error('Error details:', xhr.responseText);
+                                showAlert('error', 'Có lỗi xảy ra. Vui lòng thử lại. Status: ' + xhr.status);
+                            }
+                        },
+                        complete: function() {
+                            submitBtn.prop('disabled', false).text(originalText);
+                        }
+                    });
+                });
+            }
+            
+            // Function để hiển thị validation errors
+            function displayValidationErrors(form, errors) {
+                $.each(errors, function(field, messages) {
+                    const input = form.find(`[name="${field}"]`);
+                    if (input.length) {
+                        input.addClass('is-invalid');
+                        input.after(`<div class="invalid-feedback">${messages[0]}</div>`);
+                    }
+                });
+            }
+            
+                         // Function để hiển thị alert
+             function showAlert(type, message) {
+                 const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                 const alertHtml = `
+                     <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                         ${message}
+                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                     </div>
+                 `;
+                 
+                 // Insert alert at the top of the page
+                 $('.page-content .container-fluid').prepend(alertHtml);
+                 
+                 // Auto remove after 5 seconds
+                 setTimeout(function() {
+                     $('.alert').fadeOut();
+                 }, 5000);
+             }
+             
+             // Function để cập nhật dữ liệu bảng thay vì reload trang
+             function updateTableData() {
+                 // Hiển thị loading với animation
+                 $('#nestable').fadeOut(200, function() {
+                     $(this).html('<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Đang cập nhật...</div>').fadeIn(200);
+                 });
+                 
+                 // Load lại dữ liệu bảng
+                 $.get(window.location.href)
+                     .done(function(data) {
+                         // Tìm và cập nhật phần datatable
+                         const newData = $(data).find('#nestable').html();
+                         if (newData) {
+                             $('#nestable').fadeOut(200, function() {
+                                 $(this).html(newData).fadeIn(200);
+                                 // Re-initialize các components nếu cần
+                                 initializeTableComponents();
+                             });
+                         }
+                     })
+                     .fail(function() {
+                         $('#nestable').fadeOut(200, function() {
+                             $(this).html('<div class="alert alert-danger">Lỗi khi cập nhật dữ liệu</div>').fadeIn(200);
+                         });
+                     });
+             }
+             
+             // Function để khởi tạo lại các components của bảng
+             function initializeTableComponents() {
+                 // Re-bind các event handlers cho các nút edit/delete
+                 // Các components khác nếu cần
+             }
             
             // Event handler khi modal được hiển thị
             $(document).on('shown.bs.modal', '#loadModal', function() {
@@ -222,6 +359,8 @@
                     }, 200);
                 }
             });
+            
+
             
             // Function để khởi tạo JSTree
             function initializeJSTree() {

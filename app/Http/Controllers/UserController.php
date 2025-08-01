@@ -19,7 +19,7 @@ class UserController extends Controller
         $this->middleware('permission:Tạo tài khoản')->only(['create', 'store']);
         $this->middleware('permission:Sửa tài khoản')->only(['edit', 'update']);
         $this->middleware('permission:Xóa tài khoản')->only(['destroy']);
-        $this->middleware('permission:Khóa tài khoản')->only(['lock']);
+        $this->middleware('permission:Khóa tài khoản')->only(['lock']);   
         $this->middleware('permission:Mở khóa tài khoản')->only(['unlock']);
         $this->middleware('permission:Xóa hàng loạt tài khoản')->only(['bulkDelete']);
     }
