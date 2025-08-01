@@ -60,7 +60,7 @@
     @include('card.banner')
     <!-- end section -->
     <!-- start section -->
-    
+
     <!-- end section -->
     <!-- start section -->
     @include('card.new_product')
@@ -115,7 +115,7 @@
     <!-- end section -->
     <!-- start section -->
     @include('card.category_top')
-    
+
     <!-- end section -->
     <!-- start section -->
     <section class="half-section border-bottom border-color-extra-medium-gray">
@@ -170,56 +170,56 @@
                         <div class="swiper-slide">
                             <div
                                 class="alt-font fs-26 fw-500 text-dark-gray border-color-extra-medium-gray border-end pt-30px pb-30px ps-60px pe-60px sm-p-25px">
-                                Get 20% off for your first order</div>
+                                Nhiều ưu đãi giảm giá</div>
                         </div>
                         <!-- end client item -->
                         <!-- start client item -->
                         <div class="swiper-slide">
                             <div
                                 class="alt-font fs-26 fw-500 text-dark-gray border-color-extra-medium-gray border-end pt-30px pb-30px ps-60px pe-60px sm-p-25px">
-                                The fashion core collection</div>
+                                Thời trang đa dạng</div>
                         </div>
                         <!-- end client item -->
                         <!-- start client item -->
                         <div class="swiper-slide">
                             <div
                                 class="alt-font fs-26 fw-500 text-dark-gray border-color-extra-medium-gray border-end pt-30px pb-30px ps-60px pe-60px sm-p-25px">
-                                100% secure protected payment</div>
+                                Thanh toán dễ dàng</div>
                         </div>
                         <!-- end client item -->
                         <!-- start client item -->
                         <div class="swiper-slide">
                             <div
                                 class="alt-font fs-26 fw-500 text-dark-gray border-color-extra-medium-gray border-end pt-30px pb-30px ps-60px pe-60px sm-p-25px">
-                                Free shipping for orders over $130</div>
+                                Miễn phí vận chuyển cho đơn hàng từ 200k</div>
                         </div>
                         <!-- end client item -->
                         <!-- start client item -->
                         <div class="swiper-slide">
                             <div
                                 class="alt-font fs-26 fw-500 text-dark-gray border-color-extra-medium-gray border-end pt-30px pb-30px ps-60px pe-60px sm-p-25px">
-                                Pay with multiple credit cards</div>
+                                Nhiều phương thức thanh toán</div>
                         </div>
                         <!-- end client item -->
                         <!-- start client item -->
                         <div class="swiper-slide">
                             <div
                                 class="alt-font fs-26 fw-500 text-dark-gray border-color-extra-medium-gray border-end pt-30px pb-30px ps-60px pe-60px sm-p-25px">
-                                Get 20% off for your first order</div>
+                                Nhiều ưu đãi giảm giá</div>
                         </div>
                         <!-- end client item -->
                         <!-- start client item -->
                         <div class="swiper-slide">
                             <div
                                 class="alt-font fs-26 fw-500 text-dark-gray border-color-extra-medium-gray border-end pt-30px pb-30px ps-60px pe-60px sm-p-25px">
-                                The fashion core collection</div>
+                                Thời trang đa dạng</div>
                         </div>
                         <!-- end client item -->
                         <!-- start client item -->
                         <div class="swiper-slide">
                             <div
                                 class="alt-font fs-26 fw-500 text-dark-gray border-color-extra-medium-gray border-end pt-30px pb-30px ps-60px pe-60px sm-p-25px">
-                                100% secure protected payment</div>
+                                 Thanh toán dễ dàng</div>
                         </div>
                         <!-- end client item -->
                     </div>
