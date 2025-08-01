@@ -203,6 +203,7 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
         Route::post('voucher/ads', [VouchersController::class, 'ads'])->middleware(['throttle:5,1', 'permission:Quản lý quảng cáo voucher']);
         Route::post('voucher/disable/{id}', [VouchersController::class, 'disable'])->middleware('permission:Vô hiệu hóa voucher');
         Route::post('voucher/active/{id}', [VouchersController::class, 'active'])->middleware('permission:Kích hoạt voucher');
+        Route::post('voucher/delete{id}', [VouchersController::class, 'delete'])->name('delete')->middleware('permission:Xóa voucher');
 
         // Product Management
         Route::resource('products', ProductsController::class)->middleware('permission:Quản lý Sản phẩm');
