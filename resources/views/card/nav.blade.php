@@ -83,7 +83,7 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a href="{{route('contact')}}" class="nav-link">Liên Hệ</a>
+                        <a href="{{ route('contact') }}" class="nav-link">Liên Hệ</a>
                     </li>
                 </ul>
 
@@ -199,4 +199,6 @@
         width: 100%;
         white-space: nowrap;
     }
+
+    
 </style>
