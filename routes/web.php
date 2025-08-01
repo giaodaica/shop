@@ -38,10 +38,7 @@ use App\Http\Controllers\FlashSaleItemsController;
 use App\Http\Controllers\web\Flash_Sale;
 use App\Models\FlashSale;
 
-// Route::get('aonam/{flash_sale_id}/{variant_id}', [Flash_Sale::class, 'index'])->name('flashsale.show');
 
-
-// Route::get('/flash', [HomeController::class, 'getProducts']);
 Route::get('/wards', [OrderController::class, 'getWards']);
 
 Route::middleware(['cache'])->group(function () {
@@ -50,8 +47,7 @@ Route::middleware(['cache'])->group(function () {
 Route::middleware([CheckUserStatus::class])->group(function () {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('shop', [ProductController::class, 'index'])->name('home.shop');
-// Route::get('/flash', [ProductController::class, 'flash']);
-// Flash Sale Routes
+
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/search/suggestions', [SearchController::class, 'suggestions']);
