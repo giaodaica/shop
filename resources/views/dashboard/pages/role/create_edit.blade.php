@@ -78,69 +78,11 @@
     </div>
     <div id="kt_tree_3" class="tree-demo"></div>
     <input type="hidden" id="permission_ids" name="permission_ids"
-        value="{{ implode(',', old('permission_ids', isset($permissionsSelected) ? $permissionsSelected : [])) }}">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        value="{{ implode(',', old('permission_ids', isset($permissionsSelected) ? $permissionsSelected : [])) }}"
+        data-permissions-json='{!! $permissionsJson !!}'>
+    <!-- JSTree CSS và JS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            var jsondata = {!! $permissionsJson !!};
-            if (typeof jsondata === 'string') {
-                try {
-                    jsondata = JSON.parse(jsondata);
-                } catch (e) {
-                    jsondata = [];
-                }
-            }
-            $('#kt_tree_3').jstree('destroy');
-            $('#kt_tree_3').jstree({
-                    "plugins": ["wholerow", "checkbox", "types", "search"],
-                    "core": {
-                        "dblclick_toggle": false,
-                        "themes": {
-                            "responsive": false,
-                            "icons": false,
-                            "dots": true,
-                        },
-                        "data": jsondata
-                    },
-                    "checkbox": {
-                        "three_state": true,
-                        "cascade": "up+down"
-                    },
-                    "types": {
-                        "default": {
-                            "icon": "fa fa-folder text-warning"
-                        },
-                        "file": {
-                            "icon": "fa fa-file  text-warning"
-                        }
-                    },
-                }).bind("loaded.jstree", function(e, data) {
-                    var perSelected = $('#permission_ids').val();
-                    var arrPer = perSelected ? perSelected.split(",") : [];
-                    $.each(arrPer, function(index, value) {
-                        $('#kt_tree_3').jstree("select_node", value, true);
-                    });
-                })
-                .on('changed.jstree', function(e, data) {
-                    var i, j, r = [];
-                    for (i = 0, j = data.selected.length; i < j; i++) {
-                        r.push(data.instance.get_node(data.selected[i]).id);
-                    }
-                    $('#permission_ids').val(r.join(','));
-                })
-                .on('uncheck_node.jstree', function(e, data) {
-                    // Khi bỏ chọn node cha, tự động bỏ chọn tất cả node con
-                    var node = data.instance.get_node(data.node);
-                    var children = data.instance.get_children_dom(node);
-                    children.each(function() {
-                        data.instance.uncheck_node($(this));
-                    });
-                });
-        });
-    </script>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Hủy') }}</button>
