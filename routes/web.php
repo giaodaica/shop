@@ -33,12 +33,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Contracts\Role;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FlashSaleController;
 use App\Http\Controllers\FlashSaleItemsController;
 use App\Http\Controllers\web\Flash_Sale;
 use App\Models\FlashSale;
 
-
+Route::get('/contact',[ContactController::class,'hello'])->name('contact');
+Route::post('contact-send',[ContactController::class,'send'])->name('contact-send');
 Route::get('/wards', [OrderController::class, 'getWards']);
 
 Route::middleware(['cache'])->group(function () {

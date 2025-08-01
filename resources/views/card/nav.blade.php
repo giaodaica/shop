@@ -125,7 +125,7 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a href="demo-fashion-store-contact.html" class="nav-link">Liên Hệ</a>
+                        <a href="{{route('contact')}}" class="nav-link">Liên Hệ</a>
                     </li>
                 </ul>
 
@@ -218,7 +218,7 @@
                                     <a href="{{ url('cart') }}"
                                         class="btn btn-large btn-transparent-light-gray border-color-extra-medium-gray">Xem
                                         giỏ hàng</a>
-                                  
+
                                 </li>
                             @endif
                         </ul>
