@@ -289,7 +289,7 @@ class UserController extends Controller
 
     public function lockHistory()
     {
-      
+
         $locks = UserLock::with(['user', 'lockedByUser', 'reason'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);

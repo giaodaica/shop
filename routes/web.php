@@ -38,6 +38,8 @@ use App\Http\Controllers\FlashSaleController;
 use App\Http\Controllers\FlashSaleItemsController;
 use App\Http\Controllers\web\Flash_Sale;
 use App\Models\FlashSale;
+Route::get('dashboard/users/lock-history', [UserController::class, 'lockHistory'])
+->name('users.lock-history')->middleware('dashboard.auth','permission:Mở khóa tài khoản');
 
 Route::get('/contact',[ContactController::class,'hello'])->name('contact');
 Route::post('contact-send',[ContactController::class,'send'])->name('contact-send');
@@ -275,7 +277,6 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
         Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show')->middleware('permission:Xem trang tài khoản');
         Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete')->middleware('permission:Xóa hàng loạt tài khoản');
         Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock')->middleware('permission:Mở khóa tài khoản');
-        Route::get('users/lock-history', [UserController::class, 'lockHistory'])->name('users.lock-history')->middleware('permission:Mở khóa tài khoản');
     });
 
 
