@@ -6,9 +6,9 @@
 
         <!-- end header -->
         <!-- start section -->
-        <section class="cover-background full-screen ipad-top-space-margin md-h-550px" style="background-image: url({{asset('assets/images/404-bg.jpg')}});">
-            <div class="container h-100">
-                <div class="row align-items-center justify-content-center h-100">
+        <section class="cover-background min-vh-100 py-5" style="background-image: url({{asset('assets/images/404-bg.jpg')}});">
+            <div class="container">
+                <div class="row align-items-center justify-content-center min-vh-100">
                     <div class="col-12 col-xl-6 col-lg-7 col-md-9 text-center" data-anime='{ "el": "childs", "translateY": [50, 0], "opacity": [0,1], "duration": 600, "delay": 0, "staggervalue": 300, "easing": "easeOutQuad" }'>
                         <h1 class="fs-170 sm-fs-150 text-dark-gray fw-700 ls-minus-6px">🎉</h1>
                         <h4 class="text-dark-gray fw-600 sm-fs-22 mb-10px ls-minus-1px">Đặt hàng thành công!</h4>
