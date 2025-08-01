@@ -200,7 +200,7 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
 
 
 
-    
+     Route::get('users/lock-history', [UserController::class, 'lockHistory'])->name('users.lock-history');
 
     Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
         // Voucher Management
@@ -279,7 +279,7 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
         Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete')->middleware('permission:Xóa hàng loạt tài khoản');
         Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock')->middleware('permission:Mở khóa tài khoản');
 
-         Route::get('users/lock-history', [UserController::class, 'lockHistory'])->name('users.lock-history');
+        
        
     });
 
