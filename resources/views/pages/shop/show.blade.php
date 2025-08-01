@@ -243,20 +243,21 @@
                                 <button type="button" class="qty-plus">+</button>
                             </div>
 
-                            @if (!empty($isFlashSale) && $isFlashSale)
+                           @if (!empty($isFlashSale) && $isFlashSale)
                                 @if ($flashSaleItem->max_quantity - $flashSaleItem->sold_quantity > 0)
-                                    <button
+                                    <button type="submit" name="flash_sale" value="1"
                                         class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-danger left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2">
                                         <span>
                                             <span><i class="feather icon-feather-zap"></i></span>
-                                            <span class="btn-double-text ls-0px" data-text="Mua ngay Flash Sale">Mua ngay
-                                                Flash Sale</span>
+                                            <input type="hidden" name="flash_sale_item_id" value="{{ $flashSaleItem->id }}">
+                                            <span class="btn-double-text ls-0px"  data-text="Mua ngay Flash Sale">
+                                                Mua ngay Flash Sale
+                                            </span>
                                         </span>
                                     </button>
                                 @else
-                                    <button
-                                        class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-danger left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2"
-                                        disabled>
+                                    <button type="button" disabled
+                                        class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-danger left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2">
                                         <span>
                                             <span><i class="feather icon-feather-zap"></i></span>
                                             <span class="btn-double-text ls-0px" data-text="Hết Hàng">Hết Hàng</span>
@@ -264,7 +265,7 @@
                                     </button>
                                 @endif
                             @else
-                                <button
+                                <button type="submit"
                                     class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-dark-gray left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2">
                                     <span>
                                         <span><i class="feather icon-feather-shopping-bag"></i></span>
@@ -272,6 +273,7 @@
                                     </span>
                                 </button>
                             @endif
+
                         </div>
                         @error('quantity')
                             <div class="text-danger">{{ $message }}</div>
