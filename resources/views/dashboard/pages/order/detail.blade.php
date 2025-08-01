@@ -32,7 +32,7 @@
                                 <h5 class="card-title flex-grow-1 mb-0">Đơn hàng#{{ $data_order->code_order }} @if (empty($data_refund))
                                     @else
                                         <span class="badge bg-danger">
-                                            <a href="{{route('dashboard.order.refund.show',$data_refund->id)}}"
+                                            <a href="{{ route('dashboard.order.refund.show', $data_refund->id) }}"
                                                 class="text-white text-decoration-none">Đã hoàn tiền (xem)</a>
                                         </span>
                                     @endif
@@ -276,7 +276,13 @@
                                     colors="primary:#405189,secondary:#0ab39c" style="width:80px;height:80px"></lord-icon>
                                 <h5 class="fs-16 mt-2">OUTFITLY Logistics</h5>
                                 <p class="text-muted mb-0">ID: {{ $data_order->code_order }}</p>
-                                <p class="text-muted mb-0">Phương thức thanh toán : {{ $data_order->pay_method }}</p>
+                                <p class="text-muted mb-0">Phương thức thanh toán : {{ $data_order->pay_method }} </p>
+                                @if ($data_order->status_pay == 'unpaid')
+                                    <p class="text-danger fw-bold">Chưa thanh toán</p>
+                                @elseif ($data_order->status_pay == 'paid')
+                                    <p class="text-success fw-bold">Đã Thanh toán</p>
+                                @endif
+
                             </div>
                         </div>
                     </div>
