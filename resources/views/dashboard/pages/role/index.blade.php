@@ -162,40 +162,36 @@
     </div>
 
     {{-- Scripts --}}
-
-    <script>
-        // Đảm bảo khởi tạo lại select2 mỗi lần modal được load qua AJAX
-        $(document).on('shown.bs.modal', '#loadModal', function() {
-            $('#loadModal .select2').select2({
-                dropdownParent: $('#loadModal')
-            });
-        });
-    </script>
-
-
     <script>
         $(document).ready(function() {
             // Load modal edit/create
             $(document).on('click', '.loadModal_toggle, .edit_toggle', function(e) {
                 e.preventDefault();
                 const url = $(this).data("url");
-
-                $('#loadModal .modal-content').html(''); // clear trước khi load
-                $('#loadModal .modal-content').load(url, function() {
-                    // Chỉ khởi tạo modal ở đây (không gọi select2 ở đây!)
-                    const modalEl = document.getElementById('loadModal');
-                    const modal = new bootstrap.Modal(modalEl);
-                    modal.show();
+                
+                // Hiển thị loading
+                $('#loadModal .modal-content').html('<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>');
+                
+                // Hiển thị modal trước
+                const modalEl = document.getElementById('loadModal');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+                
+                // Load content với timeout
+                $('#loadModal .modal-content').load(url, function(response, status, xhr) {
+                    if (status === 'error') {
+                        $('#loadModal .modal-content').html('<div class="text-center p-4 text-danger">Lỗi tải dữ liệu</div>');
+                        return;
+                    }
+                    
+                    // Đợi một chút để đảm bảo DOM đã được render
+                    setTimeout(function() {
+                        initializeModalComponents();
+                    }, 100);
                 });
             });
 
-            $(document).on('shown.bs.modal', '#loadModal', function() {
-                // Khởi tạo lại select2 trong modal
-                $('#loadModal .select2').select2({
-                    dropdownParent: $('#loadModal')
-                });
-            });
-            // Xử lý nút xóa đơn
+            // Xử lý nút xóa
             $(document).on('click', '.delete_toggle', function(e) {
                 e.preventDefault();
                 const id = $(this).attr('rel');
@@ -203,6 +199,101 @@
                 var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
                 modal.show();
             });
+            
+            // Function để khởi tạo các components trong modal
+            function initializeModalComponents() {
+                // Khởi tạo select2
+                $('#loadModal .select2').select2({
+                    dropdownParent: $('#loadModal')
+                });
+                
+                // Khởi tạo JSTree nếu có
+                if ($('#kt_tree_3').length > 0) {
+                    initializeJSTree();
+                }
+            }
+            
+            // Event handler khi modal được hiển thị
+            $(document).on('shown.bs.modal', '#loadModal', function() {
+                // Đảm bảo JSTree được khởi tạo nếu chưa có
+                if ($('#kt_tree_3').length > 0 && !$('#kt_tree_3').data('jstree')) {
+                    setTimeout(function() {
+                        initializeJSTree();
+                    }, 200);
+                }
+            });
+            
+            // Function để khởi tạo JSTree
+            function initializeJSTree() {
+                // Destroy JSTree cũ nếu có
+                if ($('#kt_tree_3').data('jstree')) {
+                    $('#kt_tree_3').jstree('destroy');
+                }
+                
+                // Lấy data từ input hidden
+                var jsondata = [];
+                var permissionsJson = $('#permission_ids').data('permissions-json');
+                if (permissionsJson) {
+                    try {
+                        if (typeof permissionsJson === 'string') {
+                            jsondata = JSON.parse(permissionsJson);
+                        } else {
+                            jsondata = permissionsJson;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing permissions JSON:', e);
+                        jsondata = [];
+                    }
+                }
+                
+                // Khởi tạo JSTree
+                $('#kt_tree_3').jstree({
+                    "plugins": ["wholerow", "checkbox", "types", "search"],
+                    "core": {
+                        "dblclick_toggle": false,
+                        "themes": {
+                            "responsive": false,
+                            "icons": false,
+                            "dots": true,
+                        },
+                        "data": jsondata
+                    },
+                    "checkbox": {
+                        "three_state": true,
+                        "cascade": "up+down"
+                    },
+                    "types": {
+                        "default": {
+                            "icon": "fa fa-folder text-warning"
+                        },
+                        "file": {
+                            "icon": "fa fa-file text-warning"
+                        }
+                    },
+                }).bind("loaded.jstree", function(e, data) {
+                    // Set selected nodes sau khi load
+                    var perSelected = $('#permission_ids').val();
+                    var arrPer = perSelected ? perSelected.split(",") : [];
+                    $.each(arrPer, function(index, value) {
+                        $('#kt_tree_3').jstree("select_node", value, true);
+                    });
+                })
+                .on('changed.jstree', function(e, data) {
+                    var i, j, r = [];
+                    for (i = 0, j = data.selected.length; i < j; i++) {
+                        r.push(data.instance.get_node(data.selected[i]).id);
+                    }
+                    $('#permission_ids').val(r.join(','));
+                })
+                .on('uncheck_node.jstree', function(e, data) {
+                    // Khi bỏ chọn node cha, tự động bỏ chọn tất cả node con
+                    var node = data.instance.get_node(data.node);
+                    var children = data.instance.get_children_dom(node);
+                    children.each(function() {
+                        data.instance.uncheck_node($(this));
+                    });
+                });
+            }
         });
     </script>
 @endsection
