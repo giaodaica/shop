@@ -261,6 +261,7 @@ class UserController extends Controller
         // Ghi log vào bảng user_locks
         UserLock::create([
             'user_id'        => $user->id,
+            'locked_by'      => auth()->id(), 
             'lock_reason_id' => $request->lock_reason_id,
             'note'           => $request->note,
         ]);
@@ -292,7 +293,7 @@ class UserController extends Controller
 
     public function lockHistory()
     {
-      
+
         $locks = UserLock::with(['user', 'lockedByUser', 'reason'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
