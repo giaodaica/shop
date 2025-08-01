@@ -197,6 +197,7 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
     Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('update-profile');
 
 
+
     
 
     Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
