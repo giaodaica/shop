@@ -95,8 +95,7 @@
                 <div class="collapse menu-dropdown" id="sidebarDashboards2">
                     <ul class="nav nav-sm flex-column">
                         <li class="nav-item">
-                            <a href="{{route('flash-sale')}}" class="nav-link"
-                                data-key="t-analytics">Xem
+                            <a href="{{ route('flash-sale') }}" class="nav-link" data-key="t-analytics">Xem
                             </a>
                         </li>
                     </ul>
@@ -155,7 +154,9 @@
                 <a class="nav-link menu-link" href="{{ route('users.index') }}" role="button">
                     <i class="ri-user-settings-line"></i> <span>Quản lý tài khoản</span>
                 </a>
-
+                <a class="nav-link menu-link" href="{{ route('users.lock-history') }}" role="button">
+                    <i class="fas fa-history"></i> <span>Lịch sử khóa tài khoản</span>
+                </a>
                 {{-- Phân quyền --}}
                 <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Phân quyền</span></li>
                 <a class="nav-link menu-link" href="{{ route('dashboard.roles.index') }}" role="button">
