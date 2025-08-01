@@ -56,9 +56,7 @@
 
             <p>Tài khoản của bạn đã được <strong>mở khóa</strong> và có thể sử dụng lại bình thường.</p>
 
-            <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
-
-            <a href="{{ url('/') }}" class="btn">Truy cập Website</a>
+            <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>   
         </div>
         <div class="email-footer">
             Trân trọng,<br>
