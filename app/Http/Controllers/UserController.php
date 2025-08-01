@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\LockReason;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -53,15 +54,32 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
-            'role'     => 'required|in:admin,guest',
-            'roles'    => 'nullable|array',
-            'roles.*'  => 'exists:roles,id',
-            'rank'     => 'nullable|in:newbie,silver,gold,diamond',
-            'point'    => 'nullable|integer|min:0',
-            'total_spent' => 'nullable|numeric|min:0',
+            'name'            => 'required|string|max:255',
+            'email'           => 'required|email|unique:users,email',
+            'password'        => 'required|string|min:6|confirmed',
+            'role'            => 'required|in:admin,guest',
+            'default_address' => 'required|string|max:255',
+            'default_phone'   => ['required', 'regex:/^0\d{9}$/'],
+            'rank'            => 'nullable|in:newbie,silver,gold,diamond',
+            'point'           => 'nullable|integer|min:0',
+            'total_spent'     => 'nullable|numeric|min:0',
+            'roles'           => 'nullable|array',
+            'roles.*'         => 'exists:roles,id',
+        ], [
+            'name.required'           => 'Họ tên không được để trống.',
+            'name.max'                => 'Họ tên không được vượt quá 255 ký tự.',
+            'email.unique'        => 'Email đã tồn tại.',
+            'email.required'          => 'Email không được để trống.',
+            'email.email'             => 'Email không đúng định dạng.',
+            'password.required'       => 'Mật khẩu không được để trống.',
+            'password.min'            => 'Mật khẩu phải có ít nhất 8 ký tự.',
+            'password.confirmed'      => 'Xác nhận mật khẩu không khớp.',
+            'default_phone.required' => 'Vui lòng nhập số điện thoại.',
+            'default_phone.max'       => 'Số điện thoại không được vượt quá 20 ký tự.',
+            'default_phone.regex' => 'Số điện thoại không hợp lệ.',
+            'default_address.max'     => 'Địa chỉ không được vượt quá 255 ký tự.',
+            'default_address.required' => 'Vui lòng nhập địa chỉ.',
+            'roles.*.exists'          => 'Vai trò không hợp lệ.',
         ]);
 
         $user = User::create([
@@ -76,7 +94,7 @@ class UserController extends Controller
             'rank'            => $request->rank ?? 'newbie',
         ]);
 
-        // Gán roles cho user
+        // Gán roles cho user nếu có
         if ($request->has('roles') && is_array($request->roles)) {
             $roles = Role::whereIn('id', $request->roles)->get();
             $user->syncRoles($roles);
@@ -101,52 +119,72 @@ class UserController extends Controller
     // Cập nhật người dùng
     public function update(Request $request, $id)
     {
-        // dd($request);
         $user = User::withTrashed()->findOrFail($id);
 
-        // Nếu không phải admin thì không được cập nhật
         if ($user->role !== 'admin') {
             return redirect()->route('users.index')->with('error', 'Tài khoản khách hàng không được chỉnh sửa.');
         }
 
-        // Validation cơ bản
-        $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'role'  => 'required|in:admin,guest',
-            'roles' => 'nullable|array',
-            'roles.*' => 'exists:roles,id',
-            'rank'  => 'nullable|in:newbie,silver,gold,diamond',
-            'point' => 'nullable|integer|min:0',
-            'total_spent' => 'nullable|numeric|min:0',
-            'default_address' => 'nullable|string|max:255',
-            'default_phone'   => 'nullable|string|max:20',
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'password' => ['nullable', 'string', 'min:6'],
+            'password_confirmation' => ['same:password'],
+            'default_phone' => ['required', 'regex:/^0\d{9}$/'],
+            'default_address' => ['required', 'string', 'max:255'],
+            'role' => ['required', Rule::in(['admin', 'guest'])],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['exists:roles,id'],
+        ], [
+            'name.required' => 'Vui lòng nhập họ tên.',
+            'name.max' => 'Họ tên không được vượt quá 255 ký tự.',
+
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Email không hợp lệ.',
+            'email.unique' => 'Email đã tồn tại.',
+
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'password_confirmation.same' => 'Xác nhận mật khẩu không khớp.',
+
+            'default_phone.required' => 'Vui lòng nhập số điện thoại.',
+            'default_phone.regex' => 'Số điện thoại không hợp lệ.',
+
+            'default_address.required' => 'Vui lòng nhập địa chỉ.',
+
+            'role.required' => 'Vui lòng chọn phân quyền.',
+            'role.in' => 'Phân quyền không hợp lệ.',
+
+            'roles.array' => 'Vai trò không hợp lệ.',
+            'roles.*.exists' => 'Vai trò không tồn tại.',
         ]);
 
-        // Gán các giá trị có trong request, còn lại sẽ đặt thành null nếu không có
+        // Cập nhật thông tin user
         $user->update([
-            'name'            => $request->name,
-            'email'           => $request->email,
-            'role'            => $request->role,
-            'default_address' => $request->filled('default_address') ? $request->default_address : null,
-            'default_phone'   => $request->filled('default_phone') ? $request->default_phone : null,
-            'total_spent' => $request->filled('total_spent') ? $request->total_spent : 0,
-            'point' => $request->filled('point') ? $request->point : 0,
-            'rank' => $request->filled('rank') ? $request->rank : 'newbie',
+            'name' => $request->name,
+            'email' => $request->email,
+            'default_phone' => $request->default_phone,
+            'default_address' => $request->default_address,
+            'role' => $request->role,
+            'rank' => $request->rank ?? 'newbie',
+            'point' => $request->point ?? 0,
+            'total_spent' => $request->total_spent ?? 0,
+            'password' => $request->filled('password') ? bcrypt($request->password) : $user->password,
         ]);
 
-        // Cập nhật roles cho user
-        if ($request->has('roles') && is_array($request->roles)) {
+        // Cập nhật vai trò
+        if ($request->has('roles')) {
             $roles = Role::whereIn('id', $request->roles)->get();
             $user->syncRoles($roles);
         } else {
-            // Nếu không có roles được chọn, xóa tất cả roles
             $user->syncRoles([]);
         }
 
         return redirect()->route('users.index')->with('success', 'Cập nhật tài khoản thành công');
     }
-
 
     // Xoá mềm người dùng
     public function destroy($id)
@@ -261,7 +299,7 @@ class UserController extends Controller
         // Ghi log vào bảng user_locks
         UserLock::create([
             'user_id'        => $user->id,
-            'locked_by'      => auth()->id(), 
+            'locked_by'      => auth()->id(),
             'lock_reason_id' => $request->lock_reason_id,
             'note'           => $request->note,
         ]);

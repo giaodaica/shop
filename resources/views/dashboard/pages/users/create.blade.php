@@ -11,49 +11,78 @@
                     <div class="row g-3">
                         <div class="col-lg-12">
                             <label for="user-name" class="form-label">Họ tên</label>
-                            <input type="text" id="user-name" name="name" class="form-control" required>
-                        </div>
-                        <div class="col-lg-12">
-                            <label for="user-email" class="form-label">Email</label>
-                            <input type="email" id="user-email" name="email" class="form-control" required>
-                        </div>
-                        <div class="col-lg-6">
-                            <label for="user-password" class="form-label">Mật khẩu</label>
-                            <input type="password" id="user-password" name="password" class="form-control" required>
-                        </div>
-                        <div class="col-lg-6">
-                            <label for="user-password_confirmation" class="form-label">Xác nhận mật khẩu</label>
-                            <input type="password" id="user-password_confirmation" name="password_confirmation" class="form-control" required>
-                        </div>
-                        <div class="col-lg-6">
-                            <label for="user-phone" class="form-label">Số điện thoại</label>
-                            <input type="text" id="user-phone" name="default_phone" class="form-control">
-                        </div>
-                        <div class="col-lg-6">
-                            <label for="user-address" class="form-label">Địa chỉ</label>
-                            <input type="text" id="user-address" name="default_address" class="form-control">
+                            <input type="text" id="user-name" name="name"
+                                class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}"
+                                >
+                            @error('name')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
                         </div>
 
-                        {{-- Vai trò mặc định là admin (ẩn) --}}
+                        <div class="col-lg-12">
+                            <label for="user-email" class="form-label">Email</label>
+                            <input type="email" id="user-email" name="email"
+                                class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}"
+                                >
+                            @error('email')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label for="user-password" class="form-label">Mật khẩu</label>
+                            <input type="password" id="user-password" name="password"
+                                class="form-control @error('password') is-invalid @enderror" >
+                            @error('password')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label for="user-password_confirmation" class="form-label">Xác nhận mật khẩu</label>
+                            <input type="password" id="user-password_confirmation" name="password_confirmation"
+                                class="form-control" >
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label for="user-phone" class="form-label">Số điện thoại</label>
+                            <input type="text" id="user-phone" name="default_phone"
+                                class="form-control @error('default_phone') is-invalid @enderror"
+                                value="{{ old('default_phone') }}">
+                            @error('default_phone')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label for="user-address" class="form-label">Địa chỉ</label>
+                            <input type="text" id="user-address" name="default_address"
+                                class="form-control @error('default_address') is-invalid @enderror"
+                                value="{{ old('default_address') }}">
+                            @error('default_address')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Vai trò mặc định là admin --}}
                         <input type="hidden" name="role" value="admin">
 
                         {{-- Chọn Roles --}}
-                        @if(isset($roles) && $roles->count() > 0)
+                        @if (isset($roles) && $roles->count() > 0)
                             <div class="col-lg-12">
                                 <label class="form-label">Phân quyền</label>
                                 <div class="row">
-                                    @foreach($roles as $role)
+                                    @foreach ($roles as $role)
                                         <div class="col-lg-6">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" 
-                                                       name="roles[]" 
-                                                       value="{{ $role->id }}" 
-                                                       id="role_{{ $role->id }}"
-                                                       @if($role->name === 'Quản trị viên') checked @endif>
+                                                <input class="form-check-input" type="checkbox" name="roles[]"
+                                                    value="{{ $role->id }}" id="role_{{ $role->id }}"
+                                                    {{ in_array($role->id, old('roles', [])) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="role_{{ $role->id }}">
                                                     {{ $role->name }}
-                                                    @if($role->description)
-                                                        <small class="text-muted d-block">{{ $role->description }}</small>
+                                                    @if ($role->description)
+                                                        <small
+                                                            class="text-muted d-block">{{ $role->description }}</small>
                                                     @endif
                                                 </label>
                                             </div>
@@ -61,9 +90,11 @@
                                     @endforeach
                                 </div>
                                 <small class="text-muted">Chọn các vai trò cho người dùng này</small>
+                                @error('roles')
+                                    <div class="text-danger mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                         @else
-                            {{-- Fallback nếu không có roles --}}
                             <div class="col-lg-12">
                                 <div class="alert alert-info">
                                     <i class="ri-information-line me-2"></i>
@@ -78,6 +109,16 @@
                     <button type="submit" class="btn btn-success">Lưu</button>
                 </div>
             </form>
+          
         </div>
     </div>
 </div>
+
+@if ($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = new bootstrap.Modal(document.getElementById('showModal'));
+            modal.show();
+        });
+    </script>
+@endif

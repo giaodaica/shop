@@ -32,8 +32,8 @@
                                         <div class="mb-3">
                                             <label for="user-name" class="form-label">Họ tên</label>
                                             <input type="text" id="user-name" name="name"
-                                                   class="form-control @error('name') is-invalid @enderror"
-                                                   value="{{ old('name', $user->name) }}" required>
+                                                class="form-control @error('name') is-invalid @enderror"
+                                                value="{{ old('name', $user->name) }}">
                                             @error('name')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -41,12 +41,14 @@
 
                                         {{-- Email --}}
                                         <div class="mb-3">
-                                            <label for="user-email" class="form-label">Email</label>
-                                            <input type="email" id="user-email" name="email"
-                                                   class="form-control @error('email') is-invalid @enderror"
-                                                   value="{{ old('email', $user->email) }}" required>
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" name="email" value="{{ old('email', $user->email) }}"
+                                                class="form-control @error('email') is-invalid @enderror" id="email">
+
                                             @error('email')
-                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                <div class="invalid-feedback">
+                                                    {{ $message }}
+                                                </div>
                                             @enderror
                                         </div>
 
@@ -54,8 +56,8 @@
                                         <div class="mb-3">
                                             <label for="user-phone" class="form-label">Số điện thoại</label>
                                             <input type="text" id="user-phone" name="default_phone"
-                                                   class="form-control @error('default_phone') is-invalid @enderror"
-                                                   value="{{ old('default_phone', $user->default_phone) }}">
+                                                class="form-control @error('default_phone') is-invalid @enderror"
+                                                value="{{ old('default_phone', $user->default_phone) }}">
                                             @error('default_phone')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -65,8 +67,8 @@
                                         <div class="mb-3">
                                             <label for="user-address" class="form-label">Địa chỉ</label>
                                             <input type="text" id="user-address" name="default_address"
-                                                   class="form-control @error('default_address') is-invalid @enderror"
-                                                   value="{{ old('default_address', $user->default_address) }}">
+                                                class="form-control @error('default_address') is-invalid @enderror"
+                                                value="{{ old('default_address', $user->default_address) }}">
                                             @error('default_address')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -75,21 +77,20 @@
 
                                     <div class="col-lg-6">
                                         {{-- Chọn Roles --}}
-                                        @if(isset($roles) && $roles->count() > 0)
+                                        @if (isset($roles) && $roles->count() > 0)
                                             <div class="mb-3">
                                                 <label class="form-label">Phân quyền</label>
                                                 <div class="border rounded p-3">
-                                                    @foreach($roles as $role)
+                                                    @foreach ($roles as $role)
                                                         <div class="form-check mb-2">
-                                                            <input class="form-check-input" type="checkbox" 
-                                                                   name="roles[]" 
-                                                                   value="{{ $role->id }}" 
-                                                                   id="role_{{ $role->id }}"
-                                                                   @if($user->hasRole($role)) checked @endif>
+                                                            <input class="form-check-input" type="checkbox" name="roles[]"
+                                                                value="{{ $role->id }}" id="role_{{ $role->id }}"
+                                                                @if ($user->hasRole($role)) checked @endif>
                                                             <label class="form-check-label" for="role_{{ $role->id }}">
                                                                 <strong>{{ $role->name }}</strong>
-                                                                @if($role->description)
-                                                                    <small class="text-muted d-block">{{ $role->description }}</small>
+                                                                @if ($role->description)
+                                                                    <small
+                                                                        class="text-muted d-block">{{ $role->description }}</small>
                                                                 @endif
                                                             </label>
                                                         </div>
@@ -113,23 +114,27 @@
                                                 @php
                                                     $userPermissions = $user->getAllPermissions()->groupBy('parent_id');
                                                 @endphp
-                                                @if($userPermissions->count() > 0)
-                                                    @foreach($userPermissions as $parentId => $permissions)
-                                                        @if($parentId === null)
+                                                @if ($userPermissions->count() > 0)
+                                                    @foreach ($userPermissions as $parentId => $permissions)
+                                                        @if ($parentId === null)
                                                             <div class="mb-2">
                                                                 <strong class="text-primary">Permissions chính:</strong>
                                                             </div>
                                                         @else
                                                             @php
-                                                                $parentPermission = \Spatie\Permission\Models\Permission::find($parentId);
+                                                                $parentPermission = \Spatie\Permission\Models\Permission::find(
+                                                                    $parentId,
+                                                                );
                                                             @endphp
                                                             <div class="mb-2">
-                                                                <strong class="text-success">{{ $parentPermission ? $parentPermission->name : 'Unknown' }}:</strong>
+                                                                <strong
+                                                                    class="text-success">{{ $parentPermission ? $parentPermission->name : 'Unknown' }}:</strong>
                                                             </div>
                                                         @endif
                                                         <div class="ms-3 mb-2">
-                                                            @foreach($permissions as $permission)
-                                                                <span class="badge bg-light text-dark me-1 mb-1">{{ $permission->name }}</span>
+                                                            @foreach ($permissions as $permission)
+                                                                <span
+                                                                    class="badge bg-light text-dark me-1 mb-1">{{ $permission->name }}</span>
                                                             @endforeach
                                                         </div>
                                                     @endforeach

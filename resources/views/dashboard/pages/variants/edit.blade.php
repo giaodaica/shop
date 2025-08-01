@@ -141,15 +141,19 @@
 
                     <div class="col-lg-8">
                         <h6 class="fw-semibold">Ảnh biến thể (bạn có thể chọn ảnh mới để thay thế)</h6>
-                        <input type="file" name="variant_image_url" class="form-control" accept="image/*"
+                        <input type="file" id="variant-image-input" name="variant_image_url"
+                            class="form-control @error('variant_image_url') is-invalid @enderror" accept="image/*"
                             {{ $isProductDeleted ? 'disabled' : '' }}>
                         @error('variant_image_url')
                             <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror
 
                         @if ($variant->variant_image_url)
-                            <img src="{{ asset($variant->variant_image_url) }}" alt="Ảnh biến thể"
-                                style="max-width: 300px; margin-top: 10px;">
+                            <img id="variant-image-preview" src="{{ asset($variant->variant_image_url) }}"
+                                alt="Ảnh biến thể" style="max-width: 300px; margin-top: 10px; display: block;">
+                        @else
+                            <img id="variant-image-preview" src="" alt="Ảnh biến thể"
+                                style="max-width: 300px; margin-top: 10px; display: none;">
                         @endif
                     </div>
 
@@ -215,4 +219,19 @@
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
     <script src="{{ asset('admin/js/app.js') }}"></script>
+    <script>
+        document.getElementById('variant-image-input')
+            .addEventListener('change', function(event) {
+                const preview = document.getElementById('variant-image-preview');
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+    </script>
 @endsection
