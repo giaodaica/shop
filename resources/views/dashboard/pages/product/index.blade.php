@@ -206,14 +206,14 @@
                                                                         </button>
                                                                     </form>
                                                                 </li>
-                                                                <li>
+                                                                {{-- <li>
                                                                     <a class="dropdown-item"
                                                                         href="{{ route('variants.create', $product->id) }}">
                                                                         <i
                                                                             class="ri-add-fill align-bottom me-2 text-muted"></i>
                                                                         Thêm biến thể
                                                                     </a>
-                                                                </li>
+                                                                </li> --}}
                                                                 <li>
                                                                     <a class="dropdown-item"
                                                                         href="{{ route('variants.index', ['product_id' => $product->id]) }}">

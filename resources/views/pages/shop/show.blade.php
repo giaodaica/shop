@@ -732,6 +732,7 @@
 @endsection
 
 
+
 @push('scripts')
     <script src="{{ asset('assets/js/shop/show.js') }}"></script>
     <script>
@@ -740,3 +741,53 @@
         window.variantPriceMap = @json($priceMap);
     </script>
 @endpush
+<script>
+        // Khi click vào tab, cập nhật hash trên URL
+        document.querySelectorAll('.nav-tabs .nav-link').forEach(function(tabLink) {
+            tabLink.addEventListener('shown.bs.tab', function (e) {
+                history.replaceState(null, null, e.target.getAttribute('href'));
+            });
+        });
+
+        // Ẩn các review-item từ số 4 trở đi
+        let reviews = document.querySelectorAll('.review-item');
+        let showMoreBtn = document.querySelector('.btn-text');
+        let showMoreBtnA = showMoreBtn ? showMoreBtn.closest('a') : null;
+        let expanded = false;
+
+        function collapseReviews() {
+            reviews.forEach((item, idx) => {
+                item.style.display = (idx > 2) ? 'none' : '';
+            });
+            if(showMoreBtn) showMoreBtn.textContent = 'Hiển thị thêm đánh giá';
+            expanded = false;
+        }
+        function expandReviews() {
+            reviews.forEach(item => item.style.display = '');
+            if(showMoreBtn) showMoreBtn.textContent = 'Thu gọn đánh giá';
+            expanded = true;
+        }
+
+        if (reviews.length > 3) {
+            collapseReviews();
+            if(showMoreBtnA) showMoreBtnA.style.display = '';
+        } else if(showMoreBtnA) {
+            showMoreBtnA.style.display = 'none';
+        }
+
+        if (showMoreBtnA) {
+            showMoreBtnA.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (!expanded) {
+                    expandReviews();
+                } else {
+                    collapseReviews();
+                    // Scroll về vị trí review-list-container nếu cần
+                    document.getElementById('review-list-container').scrollIntoView({behavior: 'smooth'});
+                }
+            });
+        }
+  
+</script>
+
+

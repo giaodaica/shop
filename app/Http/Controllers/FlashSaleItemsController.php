@@ -75,7 +75,8 @@ class FlashSaleItemsController extends Controller
                         'size_id' => $data_product_variant->size_id,
                         'import_price' => $data_product_variant->import_price,
                         'listed_price' => $data_product_variant->listed_price,
-                        'sale_price' => $data_product_variant->sale_price
+                        'sale_price' => $data_product_variant->sale_price,
+                        'stock_quantity'=> $quantity
                     ]);
                      $data_product_variant->update([
                         'stock' => $data_product_variant->stock - $quantity

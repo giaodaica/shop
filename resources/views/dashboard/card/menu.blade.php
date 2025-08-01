@@ -154,9 +154,9 @@
                 <a class="nav-link menu-link" href="{{ route('users.index') }}" role="button">
                     <i class="ri-user-settings-line"></i> <span>Quản lý tài khoản</span>
                 </a>
-                <a class="nav-link menu-link" href="{{ route('users.lock-history') }}" role="button">
+                {{-- <a class="nav-link menu-link" href="{{ route('users.lock-history') }}" role="button">
                     <i class="fas fa-history"></i> <span>Lịch sử khóa tài khoản</span>
-                </a>
+                </a> --}}
                 {{-- Phân quyền --}}
                 <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Phân quyền</span></li>
                 <a class="nav-link menu-link" href="{{ route('dashboard.roles.index') }}" role="button">
