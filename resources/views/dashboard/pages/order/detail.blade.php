@@ -66,7 +66,12 @@
                                                         <div class="flex-grow-1 ms-3">
                                                             <h5 class="fs-15"><a rel="noopener noreferrer" target="_blank"
                                                                     href="{{ url('dashboard/variants/' . $rende_order_items->product_variant_id) }}"
-                                                                    class="link-primary">{{ $rende_order_items->product_name . ' ' . $rende_order_items->color_name }}</a>
+                                                                    class="link-primary">{{ $rende_order_items->product_name . ' ' . $rende_order_items->color_name }}
+                                                                    @if (!empty($rende_order_items->flash_sale_items_id))
+                                                                        (*)
+                                                                    @else
+                                                                    @endif
+                                                                </a>
                                                             </h5>
                                                             <p class="text-muted mb-0">Màu: <span
                                                                     class="fw-medium">{{ $rende_order_items->color_name }}</span>
@@ -129,6 +134,10 @@
                             </div>
                         </div>
                     </div>
+                    @if (!empty($rende_order_items->flash_sale_items_id))
+                   <p class="text-info">* sản phẩm này thuộc 1 chương trình flash sale</p>
+                    @else
+                    @endif
                     <!--end card-->
                     <div class="card">
                         <div class="card-header">
