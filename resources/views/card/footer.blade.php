@@ -9,7 +9,7 @@
             <!-- start footer column -->
             <div class="col">
                 <ul class="footer-navbar text-center text-md-end">
-                    <li class="nav-item"><a href="{{url('/')}}" class="nav-link">Trang trủ</a></li>
+                    <li class="nav-item"><a href="{{url('/')}}" class="nav-link">Trang chủ</a></li>
                     <li class="nav-item"><a href="{{url('shop')}}" class="nav-link">Cửa hàng</a></li>
                 </ul>
             </div>
@@ -21,7 +21,7 @@
             </div>
             <!-- start footer column -->
             <div class="col-6 col-lg-2 col-sm-4 xs-mb-30px order-sm-3 order-lg-2">
-                <span class="fw-500 d-block text-white mb-5px fs-17">Categories</span>
+                <span class="fw-500 d-block text-white mb-5px fs-17">Danh mục</span>
                 <ul>
                     <li><a href="demo-fashion-store-shop.html">Men</a></li>
                     <li><a href="demo-fashion-store-shop.html">Women</a></li>
@@ -33,13 +33,12 @@
             <!-- end footer column -->
             <!-- start footer column -->
             <div class="col-6 col-lg-2 col-sm-4 xs-mb-30px order-sm-3 order-lg-2">
-                <span class="fw-500 d-block text-white mb-5px fs-17">Information</span>
+                <span class="fw-500 d-block text-white mb-5px fs-17">Thông tin</span>
                 <ul>
-                    <li><a href="demo-fashion-store-about.html">About us</a></li>
-                    <li><a href="demo-fashion-store-contact.html">Contact us</a></li>
-                    <li><a href="#">Terms & conditions</a></li>
-                    <li><a href="#">Shipping & delivery</a></li>
-                    <li><a href="#">Privacy policy</a></li>
+                    <li><a href="demo-fashion-store-about.html">Về chúng tôi</a></li>
+                    <li><a href="demo-fashion-store-contact.html">Liên hệ</a></li>
+                    <li><a href="#">Điều khoản</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
                 </ul>
             </div>
             <!-- end footer column -->
