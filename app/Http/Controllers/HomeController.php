@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Categories;
 use App\Models\FlashSale;
 use App\Models\FlashSaleItems;
 use App\Models\Vouchers;
@@ -92,13 +93,13 @@ class HomeController extends Controller
 
 
         // dd($flashSales);
-
+            $category_product = Categories::take(4)->get();
         // Mặc định: trả về giao diện
         return view('pages.shop.index', compact(
             'voucher_block_3',
             'bestSellers',
             'featured',
-            'flashSales'
+            'flashSales','category_product'
         ));
     }
 
