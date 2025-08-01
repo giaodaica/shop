@@ -21,10 +21,11 @@ class DashboardAuth
             return abort(403, 'Bạn không có quyền truy cập trang này.');
         }
 
-        // Kiểm tra user có role admin không
         $user = Auth::user();
-        if (!$user->hasRole('Quản trị viên') && !$user->hasRole('Nhân viên')) {
-            return abort(403, 'Bạn không có quyền truy cập trang này.');
+
+        // Kiểm tra user có permission truy cập dashboard không
+        if (!$user->hasPermissionTo('Xem trang dashboard')) {
+            return abort(403, 'Bạn không có quyền truy cập dashboard.');
         }
 
         return $next($request);
