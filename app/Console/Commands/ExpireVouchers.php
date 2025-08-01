@@ -23,6 +23,7 @@ class ExpireVouchers extends Command
         $activated = DB::table('vouchers')
             ->where('start_date', '<=', $now)
             ->where('status', 'draft')
+            ->whereNotNull('block')
             ->update(['status' => 'active']);
 
         // 2. Tự kết thúc nếu số lượng đã hết
