@@ -255,7 +255,7 @@
                                                         @break
 
                                                         @case('draft')
-                                                            {{-- <td>
+                                                            <td>
                                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                                     <li class="list-inline-item" data-bs-toggle="tooltip"
                                                                         data-bs-trigger="hover" data-bs-placement="top"
@@ -268,7 +268,7 @@
                                                                         </form>
                                                                     </li>
                                                                 </ul>
-                                                            </td> --}}
+                                                            </td>
                                                         @break
 
                                                         @default
