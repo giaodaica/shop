@@ -133,7 +133,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div>
+                <div class="d-flex gap-2 justify-content">
                     @if($action != 's')
                     <a href="{{ url("dashboard/voucher/$action") }}" class="btn btn-secondary mt-3"> <i
                             class="ri-arrow-left-line me-1"></i> Quay lại danh sách</a>
@@ -144,6 +144,10 @@
                             {{ 'disabled' }}
                         } @endif><i
                             class="ri-edit-line align-bottom me-1"></i> Sửa</button>
+                        <form action="{{route('delete',$data_voucher->id)}}" method="post">
+                            @csrf
+                            <button class="btn btn-danger mt-3">Xóa</button>
+                        </form>
                 </div>
                 {{-- modal --}}
                 <div class="modal fade" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel"
@@ -337,6 +341,26 @@
     </div>
 @endsection
 @section('js-content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: "{{ session('success') }}",
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: "{{ session('error') }}",
+            });
+        @endif
+    </script>
     <script>
         const validation = new JustValidate('#myForm9');
 

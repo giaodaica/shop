@@ -155,4 +155,23 @@ class VouchersController extends Controller
         ]);
         return redirect()->back()->with('success', 'Nhận thành công');
     }
+    public function delete($id)
+    {
+        $data_voucher = Vouchers::find($id);
+        $data = Vouchers::join('categories_vouchers', 'vouchers.category_id', 'categories_vouchers.id')->where('vouchers.id', $id)->first();
+        // dd($data);
+        if (!$data_voucher) {
+            return redirect()->back()->with('error', 'Không tìm thấy voucher này');
+        }
+        if (!$data) {
+            return abort(403, 'Không hợp lệ');
+        }
+        if ($data_voucher->status != 'draft') {
+            return redirect()->back()->with('error', 'Bạn chỉ có thể xóa voucher này khi nó chưa phát hành');
+        }
+
+        $data_voucher->forceDelete();
+        return redirect(url("dashboard/voucher/$data->slug"))->with('success', 'Xóa thành công');
+
+    }
 }
