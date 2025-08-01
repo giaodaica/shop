@@ -58,9 +58,11 @@ class RegisterController extends Controller
             'name.required' => 'Vui lòng nhập tên của bạn.',
             'email.required' => 'Vui lòng nhập email.',
             'email.email' => 'Email không đúng định dạng.',
+            'email.unique'=> 'Email đã được sử dụng',
             'password.required' => 'Vui lòng nhập mật khẩu.',
             'password.min' => 'Mật khẩu ít nhất 6 ký tự.',
-            'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
+            'password.regex'=> 'Mật khẩu phải bao gồm 1 chữ cái in hoa, chữ cái in thường và số',
+            'password.confirmed' => 'Mật khẩu nhập lại không khớp.',
         ]
     );
 
