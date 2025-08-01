@@ -8,6 +8,7 @@ use App\Models\OrderHistories;
 use App\Models\OrderItem;
 use App\Models\Cart;
 use App\Models\AddressBook;
+use App\Models\FlashSaleItems;
 use App\Models\Provinces;
 use App\Models\RefundMoney;
 use App\Models\User;
@@ -309,10 +310,18 @@ class OrderController extends Controller
         // dd($data_order);
         return view('dashboard.pages.order.index', compact('data_order', 'count'));
     }
-     public function refund($present, $id)
+    public function refund($present, $id)
     {
-        OrderItem::where('order_id', $id)->get()->each(function ($item) {
+        $items = OrderItem::where('order_id', $id)->get();
+
+        $items->whereNull('flash_sale_items_id')->each(function ($item) {
             $item->productVariant->increment('stock', $item->quantity);
+        });
+
+        $items->whereNotNull('flash_sale_items_id')->each(function ($item) {
+            FlashSaleItems::where('product_variant_id', $item->product_variant_id)
+                ->where('id', $item->flash_sale_items_id)
+                ->increment('max_quantity', $item->quantity);
         });
         $voucher = Vouchers::find($present->voucher_id);
         if ($present->voucher_id && $voucher->end_date < now()) {
@@ -365,7 +374,7 @@ class OrderController extends Controller
             Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type));
         }
     }
-   public function db_order_change(Request $request, $id)
+    public function db_order_change(Request $request, $id)
     {
         $before = $request->change;
 
@@ -497,16 +506,16 @@ class OrderController extends Controller
         return redirect()->back()->with('success', 'Cập nhật trạng thái đơn hàng thành công!');
     }
 
-     public function db_order_show($id)
+    public function db_order_show($id)
     {
 
         $data_order = Order::leftJoin('vouchers', 'vouchers.id', 'orders.voucher_id')
-        ->leftJoin('address_books', 'address_books.id', 'orders.address_books_id')
-        ->leftJoin('users', 'users.id', 'orders.user_id')
-        ->leftJoin('provinces as province_order', 'orders.province_code', 'province_order.province_code')
-        ->leftJoin('wards as ward_order', 'orders.ward_code', 'ward_order.ward_code')
-        ->leftJoin('provinces as province_book', 'address_books.province_code', 'province_book.province_code')
-        ->leftJoin('wards as ward_book', 'address_books.ward_code', 'ward_book.ward_code')->select(
+            ->leftJoin('address_books', 'address_books.id', 'orders.address_books_id')
+            ->leftJoin('users', 'users.id', 'orders.user_id')
+            ->leftJoin('provinces as province_order', 'orders.province_code', 'province_order.province_code')
+            ->leftJoin('wards as ward_order', 'orders.ward_code', 'ward_order.ward_code')
+            ->leftJoin('provinces as province_book', 'address_books.province_code', 'province_book.province_code')
+            ->leftJoin('wards as ward_book', 'address_books.ward_code', 'ward_book.ward_code')->select(
                 'orders.*',
                 'vouchers.code',
                 'address_books.name as ad_name',
@@ -987,7 +996,7 @@ class OrderController extends Controller
             Wards::where('province_code', $request->province_id)->get(['ward_code', 'name'])
         );
     }
-        public function change_address(Request $request, $id)
+    public function change_address(Request $request, $id)
     {
         if ($request->_form != "change_address") {
             return abort(403, "Hành Động Không Hợp Lệ");
@@ -996,8 +1005,8 @@ class OrderController extends Controller
         if (!$data_order) {
             return abort(403, "Không tìm thấy đơn này");
         }
-        if($data_order->status == 'cancelled' || $data_order->status == 'success' || $data_order->status =='shipping'){
-                    return redirect()->back()->with('error', 'Bạn không thể sửa địa chỉ của đơn hàng');
+        if ($data_order->status == 'cancelled' || $data_order->status == 'success' || $data_order->status == 'shipping') {
+            return redirect()->back()->with('error', 'Bạn không thể sửa địa chỉ của đơn hàng');
         }
         $request->validate([
             'ad_name' => 'required|string',
