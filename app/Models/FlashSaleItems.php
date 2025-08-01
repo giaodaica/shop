@@ -32,6 +32,9 @@ class FlashSaleItems extends Model
     {
         return $this->belongsTo(Product_variants::class, 'product_variant_id');
     }
+
+
+
     public function product()
     {
         return $this->belongsTo(Products::class);
@@ -46,4 +49,5 @@ class FlashSaleItems extends Model
     {
         return $this->belongsTo(Size::class);
     }
+   
 }

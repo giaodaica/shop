@@ -58,9 +58,10 @@ Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store
 Route::get('/reviews/list/{product_id}', [ReviewController::class, 'list'])->name('reviews.list');
 
 
+Route::post('add-to-cart/{id}', [CartController::class, 'add_to_cart'])->middleware('auth')->name('cart.add');
+// Route::post('add-flash-sale-to-cart', [CartController::class, 'addFlashSaleToCart'])->middleware('auth')->name('cart.addFlashSale');
+
 Route::post('add-to-cart/{id}', [CartController::class, 'add_to_cart'])->middleware('auth');
-
-
 Route::post('/order/{id}/cancel', [InfoController::class, 'cancel'])->name('order.cancel');
 Route::get('info', [InfoController::class, 'account'])->name('home.info')->middleware('auth', 'cache');
 Route::get('show/{id}', [InfoController::class, 'orderDetail'])->name('home.orderDetail')->middleware('auth', 'cache');
