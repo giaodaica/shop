@@ -43,6 +43,8 @@ Route::get('/contact',[ContactController::class,'hello'])->name('contact');
 Route::post('contact-send',[ContactController::class,'send'])->name('contact-send');
 Route::get('/wards', [OrderController::class, 'getWards']);
 
+
+
 Route::middleware(['cache'])->group(function () {
     Auth::routes();
 });
@@ -50,6 +52,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('shop', [ProductController::class, 'index'])->name('home.shop');
+Route::post('/orders/{id}/update', [InfoController::class, 'update'])->name('order.update');
 
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');

@@ -67,12 +67,12 @@
             @foreach ($category_product as $render_category )
                 <div class="col categories-style-02 lg-mb-30px">
                 <div class="categories-box">
-                    <a href="demo-fashion-store-shop.html">
+                    <a href="{{ route('home.shop',  ['categories[]' => $render_category->id]) }}">
                         <img class="sm-w-100" src="{{asset($render_category->image)}}" alt=""/>
                     </a>
                     <div class="border-color-transparent-dark-very-light border alt-font fw-500 text-dark-gray text-uppercase ps-15px pe-15px fs-11 lh-26 border-radius-100px d-inline-block position-absolute right-20px top-20px">8 items</div>
                     <div class="absolute-bottom-center bottom-40px md-bottom-25px">
-                        <a href="demo-fashion-store-shop.html" class="btn btn-white btn-switch-text btn-round-edge btn-box-shadow fs-18 text-uppercase-inherit p-5 min-w-150px">
+                        <a href="" class="btn btn-white btn-switch-text btn-round-edge btn-box-shadow fs-18 text-uppercase-inherit p-5 min-w-150px">
                             <span>
                                 <span class="btn-double-text ls-0px" data-text="{{$render_category->name}}">{{$render_category->name}}</span>
                             </span>
