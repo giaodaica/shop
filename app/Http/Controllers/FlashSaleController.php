@@ -17,7 +17,7 @@ class FlashSaleController extends Controller
             'flash_sales.*',
             'users.name as name',
             'users.id as user_id'
-        )->get();
+        )->orderBy('slot_time','asc')->get();
         // dd($flashSales);
         return view('dashboard.pages.flashsale.index', compact('flashSales'));
     }
@@ -26,6 +26,7 @@ class FlashSaleController extends Controller
         $variants = FlashSaleItems::where('flash_sale_id', $id)
             ->join('colors', 'flash_sale_items.color_id', 'colors.id')
             ->join('sizes', 'flash_sale_items.size_id', 'sizes.id')
+            ->select('flash_sale_items.*','colors.color_name as color_name','sizes.size_name as size_name')
             ->get();
         // dd($variants);
         $flash_sale_id = $id;

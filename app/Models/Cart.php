@@ -16,7 +16,10 @@ class Cart extends Model
     {
         return $this->belongsTo(Product_variants::class, 'product_variants_id');
     }
-
+public function flashSaleItem()
+{
+    return $this->belongsTo(FlashSaleItems::class, 'flash_sale_items_id');
+}
     public function product()
     {
         return $this->hasOneThrough(

@@ -41,9 +41,9 @@
                                 <div class="col-lg-3 col-6">
                                     <p class="text-muted mb-2 text-uppercase fw-semibold fs-14">Ngày đặt</p>
                                     <h5 class="fs-15 mb-0">
-                                        <strong>{{ $order->created_at->format('d/m/Y') }}</strong>
-                                        <small class="text-muted"
-                                            id="invoice-time">{{ $order->created_at->format('H:i:s') }}</small>
+                                        <strong>{{ formatDate($order->created_at) }}</strong>
+                                        {{-- <small class="text-muted"
+                                            id="invoice-time">{{ formatDate($order->created_at, 'H:i:s') }}</small> --}}
                                     </h5>
                                 </div>
                                 <div class="col-lg-3 col-6">
@@ -73,15 +73,79 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        @if (isset($shippingAddress))
-                            <div>
-                                <strong>{{ $shippingAddress->is_default ? 'Địa chỉ mặc định' : 'Địa chỉ giao hàng' }}</strong><br>
-                                {{ $shippingAddress->name }}<br>
-                                {{ $shippingAddress->address }}<br>
-                                Điện thoại: {{ $shippingAddress->phone }}
+                        @if (isset($order))
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1 pe-3">
+                                    <h6 class="mb-2 text-primary fw-bold">
+
+                                        {{ $order->is_default ? 'Địa chỉ mặc định' : 'Địa chỉ giao hàng' }}
+                                    </h6>
+                                    <p class="mb-1"><strong>Người nhận:</strong> {{ $order->name }}</p>
+                                    <p class="mb-1"><strong>Địa chỉ:</strong> {{ $order->address }}</p>
+                                    <p class="mb-1">{{ $order->ward_name }}, {{ $order->district_name }},
+                                        {{ $order->province_name }}</p>
+                                    <p class="mb-0"><strong>Điện thoại:</strong> {{ $order->phone }}</p>
+                                </div>
+
+                                {{-- Nút chỉnh sửa --}}
+                                <div>
+                                    <a href="javascript:void(0);" onclick="showEditForm()" class="btn btn-sm no-hover">
+                                        <i class="fas fa-edit me-1"></i> Sửa
+                                    </a>
+                                </div>
                             </div>
                         @endif
                     </div>
+
+                    <!-- Form chỉnh sửa địa chỉ (ẩn mặc định) -->
+                    <form id="addressForm" action="{{ route('order.update', $order->id) }}" method="POST"
+                        style="display: none;">
+                        @csrf
+                        @method('POST')
+                        <input type="hidden" name="ward_code_hidden" id="ward_code_hidden"
+                            value="{{ $order->ward_code }}">
+
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label">Họ và tên</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        value="{{ $order->name }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">Số điện thoại</label>
+                                    <input type="text" class="form-control" id="phone" name="phone"
+                                        value="{{ $order->phone }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="province_code" class="form-label">Tỉnh/Thành phố</label>
+                                    <select class="form-select" id="province_code" name="province_code">
+                                        <option value="{{ $order->province_code }}">{{ $order->province_name }}</option>
+                                        @foreach ($provinces as $province)
+                                            <option value="{{ $province->province_code }}">{{ $province->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="ward_code" class="form-label">Xã/Phường</label>
+                                    <select class="form-select" id="ward_code" name="ward_code" disabled>
+                                        <option value="{{ $order->ward_code }}">{{ $order->ward_name }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="address" class="form-label">Địa chỉ cụ thể</label>
+                                    <textarea class="form-control" id="address" name="address" rows="2">{{ $order->address }}</textarea>
+                                </div>
+                                <div class="col-12 d-flex justify-content-between">
+                                    <button type="submit" class="btn btn-primary no-hover">Cập nhật</button>
+                                    <button type="button" class="btn btn-secondary no-hover"
+                                        onclick="hideEditForm()">Hủy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+
                     <!-- Bảng cho màn hình lớn -->
                     <div class="table-responsive mb-3 d-none d-md-block">
                         <table class="table table-bordered text-center">
@@ -180,7 +244,7 @@
                                     </h6>
                                 </div>
                                 <div class="card-body">
-                                                                        <div class="row">
+                                    <div class="row">
                                         <div class="col-md-6">
                                             @if ($order->user_comment)
                                                 <div class="mb-3">
@@ -192,16 +256,15 @@
                                         <div class="col-md-6">
                                             @if ($order->image_user)
                                                 <div class="mb-3">
-                                                  
+
                                                     <div class="text-center">
                                                         <div>
                                                             <strong class="me-2">Ảnh xác nhận:</strong>
                                                         </div>
-                                                        <img src="{{ asset($order->image_user) }}" 
-                                                             alt="Ảnh xác nhận nhận hàng" 
-                                                             class="img-fluid rounded" 
-                                                             style="max-width: 200px; max-height: 200px; cursor: pointer;"
-                                                             onclick="openImageModal('{{ asset($order->image_user) }}', 'Ảnh xác nhận nhận hàng')">
+                                                        <img src="{{ asset($order->image_user) }}"
+                                                            alt="Ảnh xác nhận nhận hàng" class="img-fluid rounded"
+                                                            style="max-width: 200px; max-height: 200px; cursor: pointer;"
+                                                            onclick="openImageModal('{{ asset($order->image_user) }}', 'Ảnh xác nhận nhận hàng')">
                                                         <br>
                                                         <small class="text-muted">Click để xem ảnh lớn</small>
                                                     </div>
@@ -376,7 +439,8 @@
                                     @endif
                                     @if (!empty($refund->stk))
                                         <div class="mb-2"><span class="fw-semibold text-muted">Số tài khoản:</span>
-                                            <span class="fw-bold">{{ $refund->stk }}</span></div>
+                                            <span class="fw-bold">{{ $refund->stk }}</span>
+                                        </div>
                                     @endif
                                     @if (!empty($refund->bank_account_name))
                                         <div class="mb-2"><span class="fw-semibold text-muted">Tên chủ thẻ:</span> <span
@@ -773,14 +837,14 @@
         var modal = document.getElementById('userConfirmationImageModal');
         var image = document.getElementById('userConfirmationImage');
         var modalTitle = document.getElementById('userConfirmationImageModalLabel');
-        
+
         if (modal && image && modalTitle) {
             image.src = imageSrc;
             modalTitle.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + title;
-            
+
             // Hiển thị loading
             document.getElementById('userConfirmationImageLoading').style.display = 'block';
-            
+
             // Mở modal
             var bootstrapModal = new bootstrap.Modal(modal);
             bootstrapModal.show();
@@ -878,4 +942,74 @@
             initUserImagePreview();
         }, 500);
     });
+
+    function showEditForm() {
+        document.getElementById('addressForm').style.display = 'block';
+    }
+
+    function hideEditForm() {
+        document.getElementById('addressForm').style.display = 'none';
+    }
+    // Lấy phường theo tỉnh
+    document.getElementById('province_code').addEventListener('change', function() {
+        const provinceCode = this.value;
+        const wardSelect = document.getElementById('ward_code');
+
+        if (provinceCode) {
+            fetch(`/addresses/wards?province_code=${provinceCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
+                    data.forEach(ward => {
+                        wardSelect.innerHTML +=
+                            `<option value="${ward.ward_code}">${ward.name}</option>`;
+                    });
+                    wardSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    wardSelect.innerHTML = '<option value="">Có lỗi xảy ra</option>';
+                });
+        } else {
+            wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
+            wardSelect.disabled = false;
+        }
+    });
+
+    function editAddress(id, name, phone, provinceCode, wardCode, address) {
+        document.getElementById('formTitle').textContent = 'Sửa địa chỉ';
+        document.getElementById('addressId').value = id;
+        document.getElementById('name').value = name;
+        document.getElementById('phone').value = phone;
+        document.getElementById('address').value = address;
+        document.getElementById('isEdit').value = 'PUT';
+        document.getElementById('addressForm').action = `/addresses/${id}`;
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save me-1"></i>Cập nhật';
+        document.getElementById('cancelBtn').style.display = 'inline-block';
+
+        // Set province
+        const provinceSelect = document.getElementById('province_code');
+        provinceSelect.value = provinceCode;
+
+        const wardSelect = document.getElementById('ward_code');
+        wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
+        wardSelect.disabled = true;
+
+        if (provinceCode) {
+            fetch(`/addresses/wards?province_code=${provinceCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(ward => {
+                        const selected = ward.ward_code === wardCode ? 'selected' : '';
+                        wardSelect.innerHTML +=
+                            `<option value="${ward.ward_code}" ${selected}>${ward.name}</option>`;
+                    });
+                    wardSelect.disabled = false;
+                });
+        }
+
+        // // Luôn luôn hiển thị modal
+        // var modal = new bootstrap.Modal(document.getElementById('addressModal'));
+        // modal.show();
+    }
 </script>

@@ -997,6 +997,9 @@ class OrderController extends Controller
         if (!$data_order) {
             return abort(403, "Không tìm thấy đơn này");
         }
+        if($data_order->status == 'cancelled' || $data_order->status == 'success' || $data_order->status =='shipping'){
+                    return redirect()->back()->with('error', 'Bạn không thể sửa địa chỉ của đơn hàng');
+        }
         $request->validate([
             'ad_name' => 'required|string',
             'ad_phone' => 'required|string',

@@ -33,61 +33,19 @@
                             <div class="d-lg-flex mega-menu m-auto flex-column">
                                 <div
                                     class="row row-cols-1 row-cols-lg-5 row-cols-md-3 row-cols-sm-3 mb-50px md-mb-25px xs-mb-15px">
-                                    <div class="col">
-                                        <ul>
-                                            <li class="sub-title">Đàn ông</li>
-                                            <li><a href="#">Quần jeans</a></li>
-                                            <li><a href="#">Quần dài</a></li>
-                                            <li><a href="#">Đồ bơi</a></li>
-                                            <li><a href="#">Áo sơ mi thường ngày</a></li>
-                                            <li><a href="#">Áo khoác chống mưa</a></li>
-                                            <li><a href="#">Đồ mặc nhà</a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="col">
-                                        <ul>
-                                            <li class="sub-title">Phụ nữ</li>
-                                            <li><a href="#">Khăn dupatta</a></li>
-                                            <li><a href="#">Quần legging</a></li>
-                                            <li><a href="#">Trang phục truyền thống</a></li>
-                                            <li><a href="#">Áo kurta & bộ đồ</a></li>
-                                            <li><a href="#">Trang phục phương Tây</a></li>
-                                            <li><a href="#">Vải may váy</a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="col">
-                                        <ul>
-                                            <li class="sub-title">Trẻ em</li>
-                                            <li><a href="#">Váy</a></li>
-                                            <li><a href="#">Bộ jumpsuit</a></li>
-                                            <li><a href="#">Quần thể thao</a></li>
-                                            <li><a href="#">Trang phục truyền thống</a></li>
-                                            <li><a href="#">Gói giá trị</a></li>
-                                            <li><a href="#">Đồ mặc nhà</a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="col">
-                                        <ul>
-                                            <li class="sub-title">Phân loại</li>
-                                            <li><a href="#">Áo</a></li>
-                                            <li><a href="#">Váy</a></li>
-                                            <li><a href="#">Quần short</a></li>
-                                            <li><a href="#">Đồ bơi</a></li>
-                                            <li><a href="#">Quần jeans</a></li>
-                                            <li><a href="#">Áo khoác</a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="col">
-                                        <ul>
-                                            <li class="sub-title">Phụ kiện</li>
-                                            <li><a href="#">Giày</a></li>
-                                            <li><a href="#">Khăn quàng</a></li>
-                                            <li><a href="#">Đồng hồ</a></li>
-                                            <li><a href="#">Vòng tay</a></li>
-                                            <li><a href="#">Ba lô</a></li>
-                                            <li><a href="#">Kính râm</a></li>
-                                        </ul>
-                                    </div>
+                                    @foreach ($banner as $bn)
+                                        <div class="col">
+                                            <ul>
+                                                {{-- <li class="sub-title"></li> --}}
+                                                <li>
+                                                    <a href="{{ route('home.shop', ['categories[]' => $bn->id]) }}">
+                                                        <strong>{{ $bn->name }}</strong>
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+                                        </div>
+                                    @endforeach
                                 </div>
                                 <div class="row row-cols-1 row-cols-sm-2">
                                     @if (!empty($vouchers[1]))
@@ -125,7 +83,7 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a href="demo-fashion-store-contact.html" class="nav-link">Liên Hệ</a>
+                        <a href="{{route('contact')}}" class="nav-link">Liên Hệ</a>
                     </li>
                 </ul>
 
@@ -218,7 +176,7 @@
                                     <a href="{{ url('cart') }}"
                                         class="btn btn-large btn-transparent-light-gray border-color-extra-medium-gray">Xem
                                         giỏ hàng</a>
-                                  
+
                                 </li>
                             @endif
                         </ul>

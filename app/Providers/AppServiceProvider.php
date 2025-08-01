@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Helpers\ViewHelper;
 use App\Models\Cart;
+use App\Models\Categories;
 use App\Models\CategoriesVouchers;
 use App\Models\Vouchers;
 use Auth;
@@ -65,11 +66,13 @@ class AppServiceProvider extends ServiceProvider
                 $cartCount = 0;
                 $cartSubtotal = 0;
             }
+             $banner = Categories::all();
             // dd($cartItems);
             $view->with([
                 'cartItems' => $cartItems,
                 'cartCount' => $cartCount,
                 'cartSubtotal' => $cartSubtotal,
+                'banner' => $banner,
             ]);
         });
         Paginator::useBootstrapFive();
