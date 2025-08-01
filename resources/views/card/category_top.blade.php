@@ -74,7 +74,7 @@
                     <div class="absolute-bottom-center bottom-40px md-bottom-25px">
                         <a href="demo-fashion-store-shop.html" class="btn btn-white btn-switch-text btn-round-edge btn-box-shadow fs-18 text-uppercase-inherit p-5 min-w-150px">
                             <span>
-                                <span class="btn-double-text ls-0px" data-text="Đồ nữ">{{$render_category->name}}</span>
+                                <span class="btn-double-text ls-0px" data-text="{{$render_category->name}}">{{$render_category->name}}</span>
                             </span>
                         </a>
                     </div>
