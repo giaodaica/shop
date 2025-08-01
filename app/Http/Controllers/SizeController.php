@@ -7,6 +7,14 @@ use Illuminate\Http\Request;
 
 class SizeController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Kích thước')->only(['index']);
+        $this->middleware('permission:Tạo kích thước')->only(['create', 'store']);
+        $this->middleware('permission:Sửa kích thước')->only(['edit', 'update']);
+        $this->middleware('permission:Xóa kích thước')->only(['destroy']);
+    }
+
     // Hiển thị danh sách size
     public function index()
     {

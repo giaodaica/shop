@@ -7,6 +7,15 @@ use Illuminate\Http\Request;
 
 class CategoriesController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Danh mục')->only(['index']);
+        $this->middleware('permission:Tạo danh mục')->only(['create', 'store']);
+        $this->middleware('permission:Sửa danh mục')->only(['edit', 'update']);
+        $this->middleware('permission:Xóa danh mục')->only(['destroy']);
+        $this->middleware('permission:Khôi phục danh mục')->only(['restore']);
+    }
+
     public function index(Request $request)
     {
         $status = $request->get('status', 'active'); // mặc định là active

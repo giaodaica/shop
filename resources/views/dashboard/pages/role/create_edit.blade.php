@@ -106,8 +106,8 @@
                         "data": jsondata
                     },
                     "checkbox": {
-                        "three_state": false,
-                        "cascade": "down"
+                        "three_state": true,
+                        "cascade": "up+down"
                     },
                     "types": {
                         "default": {
@@ -130,6 +130,14 @@
                         r.push(data.instance.get_node(data.selected[i]).id);
                     }
                     $('#permission_ids').val(r.join(','));
+                })
+                .on('uncheck_node.jstree', function(e, data) {
+                    // Khi bỏ chọn node cha, tự động bỏ chọn tất cả node con
+                    var node = data.instance.get_node(data.node);
+                    var children = data.instance.get_children_dom(node);
+                    children.each(function() {
+                        data.instance.uncheck_node($(this));
+                    });
                 });
         });
     </script>

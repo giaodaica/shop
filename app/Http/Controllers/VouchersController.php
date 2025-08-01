@@ -13,13 +13,16 @@ use Illuminate\Support\Facades\Route;
 
 class VouchersController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:view khuyenmai')->only(['index', 'show']);
-    //     $this->middleware('permission:create khuyenmai')->only(['create', 'store']);
-    //     $this->middleware('permission:edit khuyenmai')->only(['edit', 'update']);
-    //     $this->middleware('permission:delete khuyenmai')->only(['destroy']);
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Voucher')->only(['show']);
+        $this->middleware('permission:Tạo voucher')->only(['store']);
+        $this->middleware('permission:Sửa voucher')->only(['edit', 'update']);
+        $this->middleware('permission:Xóa voucher')->only(['delete']);
+        $this->middleware('permission:Vô hiệu hóa voucher')->only(['disable']);
+        $this->middleware('permission:Kích hoạt voucher')->only(['active']);
+        $this->middleware('permission:Quản lý quảng cáo voucher')->only(['ads']);
+    }
     public function show($id, Request $request)
     {
         $action = $request->query('type');

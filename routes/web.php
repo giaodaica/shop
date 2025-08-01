@@ -212,7 +212,7 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
         Route::post('voucher/delete{id}', [VouchersController::class, 'delete'])->name('delete')->middleware('permission:Xóa voucher');
 
         // Product Management
-        Route::resource('products', ProductsController::class)->middleware('permission:Quản lý Sản phẩm');
+        Route::resource('products', ProductsController::class)->middleware('permission.hierarchy:Quản lý Sản phẩm');
         Route::get('/products/variant-partial', [ProductsController::class, 'renderVariantPartial'])
             ->name('products.variant-partial')->middleware('permission:Xem trang sản phẩm');
         Route::post('/products/{id}/restore', [ProductsController::class, 'restore'])->name('products.restore')->middleware('permission:Khôi phục sản phẩm');
@@ -222,7 +222,7 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
         Route::get('remove-flash-sale/{id}', [ProductsController::class, 'remove_flashsale'])->middleware('permission:Xóa sản phẩm khỏi flash sale');
 
         // Category Management
-        Route::resource('categories', CategoriesController::class)->middleware('permission:Quản lý Danh mục');
+        Route::resource('categories', CategoriesController::class)->middleware('permission.hierarchy:Quản lý Danh mục');
         Route::post('/categories/{id}/restore', [CategoriesController::class, 'restore'])->name('categories.restore')->middleware('permission:Khôi phục danh mục');
 
         // Order Management
@@ -239,9 +239,9 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
 
 
         // Flash Sale Management
-        Route::get('flash-sale', [FlashSaleController::class, 'index'])->name('flash-sale')->middleware('permission:Xem trang flash sale');
+        Route::get('flash-sale', [FlashSaleController::class, 'index'])->name('flash-sale')->middleware('permission.hierarchy:Quản lý Flash Sale');
         Route::post('flash-sale/tao-moi', [FlashSaleController::class, 'create'])->name('flash-sales.create')->middleware('permission:Tạo flash sale');
-        Route::get('flash-sale/show/{id}', [FlashSaleController::class, 'show'])->name('flash-sales.show')->middleware('permission:Xem trang flash sale');
+        Route::get('flash-sale/show/{id}', [FlashSaleController::class, 'show'])->name('flash-sales.show')->middleware('permission.hierarchy:Quản lý Flash Sale');
         Route::get('flash-sale/edit/{id}', [FlashSaleController::class, 'edit'])->name('flash-sales.edit')->middleware('permission:Sửa flash sale');
         Route::post('flash-sale/update/{id}', [FlashSaleController::class, 'update'])->name('flash-sales.update')->middleware('permission:Sửa flash sale');
         Route::post('flash-sale/delete/{id}', [FlashSaleController::class, 'destroy'])->name('flash-sales.destroy')->middleware('permission:Xóa flash sale');
@@ -251,27 +251,27 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
         Route::post('active-flash-sale/{id}', [FlashSaleController::class, 'change_active'])->name('active-flash-sale')->middleware('permission:Kích hoạt flash sale');
 
         // Revenue Management
-        Route::get('thong-ke', [RevenueController::class, 'index'])->name('dashboard.revenue')->middleware('permission:Xem trang doanh thu');
+        Route::get('thong-ke', [RevenueController::class, 'index'])->name('dashboard.revenue')->middleware('permission.hierarchy:Quản lý Doanh thu');
         Route::post('fillter-revenue', [RevenueController::class, 'index'])->name('dashboard.order.fillter')->middleware('permission:Lọc dữ liệu doanh thu');
 
         // Color & Size Management
-        Route::resource('colors', ColorController::class)->middleware('permission:Quản lý Màu sắc');
-        Route::resource('sizes', SizeController::class)->middleware('permission:Quản lý Kích thước');
+        Route::resource('colors', ColorController::class)->middleware('permission.hierarchy:Quản lý Màu sắc');
+        Route::resource('sizes', SizeController::class)->middleware('permission.hierarchy:Quản lý Kích thước');
 
         // Product Variant Management
-        Route::get('variants', [ProductVariantsController::class, 'index'])->name('variants.index')->middleware('permission:Xem trang biến thể');
+        Route::get('variants', [ProductVariantsController::class, 'index'])->name('variants.index')->middleware('permission.hierarchy:Quản lý Biến thể sản phẩm');
         Route::get('variants/create', [ProductVariantsController::class, 'create'])->name('variants.create')->middleware('permission:Tạo biến thể');
         Route::post('variants/store', [ProductVariantsController::class, 'store'])->name('variants.store')->middleware('permission:Tạo biến thể');
-        Route::get('variants/{id}', [ProductVariantsController::class, 'show'])->name('variants.show')->middleware('permission:Xem trang biến thể');
+        Route::get('variants/{id}', [ProductVariantsController::class, 'show'])->name('variants.show')->middleware('permission.hierarchy:Quản lý Biến thể sản phẩm');
         Route::get('variants/{id}/edit', [ProductVariantsController::class, 'edit'])->name('variants.edit')->middleware('permission:Sửa biến thể');
         Route::put('variants/{id}/update', [ProductVariantsController::class, 'update'])->name('variants.update')->middleware('permission:Sửa biến thể');
         Route::delete('variants/{id}', [ProductVariantsController::class, 'destroy'])->name('variants.destroy')->middleware('permission:Xóa biến thể');
-        Route::get('products/{product}/variants', [ProductVariantsController::class, 'showVariants'])->name('products.variants')->middleware('permission:Xem trang biến thể');
+        Route::get('products/{product}/variants', [ProductVariantsController::class, 'showVariants'])->name('products.variants')->middleware('permission.hierarchy:Quản lý Biến thể sản phẩm');
         Route::post('variants/{id}/restore', [ProductVariantsController::class, 'restore'])->name('variants.restore')->middleware('permission:Khôi phục biến thể');
 
         // User Management
         Route::post('users/lock', [UserController::class, 'lock'])->name('users.lock')->middleware('permission:Khóa tài khoản');
-        Route::resource('users', UserController::class)->except(['show'])->middleware('permission:Quản lý Tài khoản');
+        Route::resource('users', UserController::class)->except(['show'])->middleware('permission.hierarchy:Quản lý Tài khoản');
         Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show')->middleware('permission:Xem trang tài khoản');
         Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete')->middleware('permission:Xóa hàng loạt tài khoản');
         Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock')->middleware('permission:Mở khóa tài khoản');
@@ -281,11 +281,11 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
 
     Route::prefix('dashboard')->name('dashboard.')->middleware('dashboard.auth')->group(function () {
         // Role Management
-        Route::resource('roles', RoleController::class)->middleware('permission:Quản lý Vai trò');
+        Route::resource('roles', RoleController::class)->middleware('permission.hierarchy:Quản lý Vai trò');
         Route::post('roles/order', [RoleController::class, 'order'])->name('roles.order')->middleware('permission:Sắp xếp vai trò');
 
         // Permission Management
-        Route::resource('permissions', PermissionController::class)->middleware('permission:Quản lý Quyền hạn');
+        Route::resource('permissions', PermissionController::class)->middleware('permission.hierarchy:Quản lý Quyền hạn');
         Route::post('permissions/order', [PermissionController::class, 'order'])->name('permissions.order')->middleware('permission:Sắp xếp quyền hạn');
     });
 
@@ -293,7 +293,7 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
 
     Route::prefix('dashboard')->name('dashboard.')->middleware('dashboard.auth')->group(function () {
         // Comment Management
-        Route::get('comments', [CommentController::class, 'index'])->name('comments.index')->middleware('permission:Xem trang bình luận');
+        Route::get('comments', [CommentController::class, 'index'])->name('comments.index')->middleware('permission.hierarchy:Quản lý Bình luận');
         Route::put('comments/update/{id}', [CommentController::class, 'update'])->name('comments.update')->middleware('permission:Sửa bình luận');
         Route::post('comments/{review}/reply', [ReviewReplyController::class, 'store'])->name('comments.reply')->middleware('permission:Trả lời bình luận');
         Route::delete('comments/reply/{id}', [ReviewReplyController::class, 'destroy'])->name('comments.reply.destroy')->middleware('permission:Xóa trả lời bình luận');

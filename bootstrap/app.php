@@ -3,6 +3,7 @@
 use App\Http\Middleware\NoCacheMiddleware;
 use App\Http\Middleware\DashboardAuth;
 use App\Http\Middleware\DashboardGuest;
+use App\Http\Middleware\CheckPermissionHierarchy;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'permission.hierarchy' => CheckPermissionHierarchy::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

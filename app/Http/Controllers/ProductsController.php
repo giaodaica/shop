@@ -14,13 +14,14 @@ use Illuminate\Support\Str;
 
 class ProductsController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:view product')->only(['index', 'show']);
-    //     $this->middleware('permission:create product')->only(['create', 'store']);
-    //     $this->middleware('permission:edit product')->only(['edit', 'update']);
-    //     $this->middleware('permission:delete product')->only(['destroy']);
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Sản phẩm')->only(['index']);
+        $this->middleware('permission:Tạo sản phẩm')->only(['create', 'store']);
+        $this->middleware('permission:Sửa sản phẩm')->only(['edit', 'update']);
+        $this->middleware('permission:Xóa sản phẩm')->only(['destroy']);
+        $this->middleware('permission:Khôi phục sản phẩm')->only(['restore']);
+    }
 
     public function index(Request $request)
     {

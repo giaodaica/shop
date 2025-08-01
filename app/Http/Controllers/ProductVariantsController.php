@@ -14,6 +14,15 @@ use App\Models\Size;
 
 class ProductVariantsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission.hierarchy:Quản lý Biến thể sản phẩm')->only(['index']);
+        $this->middleware('permission:Tạo biến thể')->only(['create', 'store']);
+        $this->middleware('permission:Sửa biến thể')->only(['edit', 'update']);
+        $this->middleware('permission:Xóa biến thể')->only(['destroy']);
+        $this->middleware('permission:Khôi phục biến thể')->only(['restore']);
+    }
+
     // Hiển thị danh sách biến thể
     public function index(Request $request)
     {
