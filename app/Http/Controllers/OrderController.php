@@ -309,7 +309,7 @@ class OrderController extends Controller
         // dd($data_order);
         return view('dashboard.pages.order.index', compact('data_order', 'count'));
     }
-    public function refund($present, $id)
+     public function refund($present, $id)
     {
         OrderItem::where('order_id', $id)->get()->each(function ($item) {
             $item->productVariant->increment('stock', $item->quantity);
@@ -365,7 +365,7 @@ class OrderController extends Controller
             Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type));
         }
     }
-    public function db_order_change(Request $request, $id)
+   public function db_order_change(Request $request, $id)
     {
         $before = $request->change;
 
@@ -497,7 +497,7 @@ class OrderController extends Controller
         return redirect()->back()->with('success', 'Cập nhật trạng thái đơn hàng thành công!');
     }
 
-    public function db_order_show($id)
+     public function db_order_show($id)
     {
 
         $data_order = Order::leftJoin('vouchers', 'vouchers.id', 'orders.voucher_id')
@@ -542,7 +542,6 @@ class OrderController extends Controller
         }
         return view('dashboard.pages.order.detail', compact('data_order', 'data_order_items', 'histoty_order', 'data_provinces'));
     }
-
     // Method để cập nhật loại vận chuyển trong checkout
     public function updateShippingType(Request $request)
     {
@@ -988,7 +987,7 @@ class OrderController extends Controller
             Wards::where('province_code', $request->province_id)->get(['ward_code', 'name'])
         );
     }
-    public function change_address(Request $request, $id)
+        public function change_address(Request $request, $id)
     {
         if ($request->_form != "change_address") {
             return abort(403, "Hành Động Không Hợp Lệ");

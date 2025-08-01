@@ -103,6 +103,7 @@
                                     </div>
 
                                     <p><strong>Số sản phẩm bán trong flash sale:</strong> {{ $variant->max_quantity }}</p>
+                                    <p><strong>Số sản phẩm :</strong> {{ $variant->stock_quantity }}</p>
                                     <p><strong>Số sản phẩm đã bán:</strong> {{ $variant->sold_quantity }}</p>
 
                                     <div class="d-flex gap-2 justify-content">
