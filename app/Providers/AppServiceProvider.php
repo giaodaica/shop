@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Helpers\ViewHelper;
 use App\Models\Cart;
 use App\Models\CategoriesVouchers;
 use App\Models\Vouchers;
@@ -37,6 +38,9 @@ class AppServiceProvider extends ServiceProvider
                 $schedule->command('app:manage-flashsales'::class)->everyMinute();
             });
         }
+
+        // Share ViewHelper với tất cả views
+        View::share('ViewHelper', ViewHelper::class);
 
         View::composer('dashboard.card.menu', function ($view) {
             $menu_voucher = CategoriesVouchers::all();

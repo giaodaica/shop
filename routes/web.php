@@ -125,7 +125,7 @@ Route::put('update-profile', [InfoController::class, 'updateProfile'])->name('up
 
 
 
-Route::prefix('dashboard')->middleware('dashboard.auth')->group(function () {
+Route::prefix('dashboard')->middleware(['dashboard.auth'])->group(function () {
     // Voucher Management
     Route::get('/voucher/{id}', [VouchersController::class, 'show'])->name('dashboard.voucher')->middleware('permission:Xem trang voucher');
     Route::post('voucher/add_voucher', [VouchersController::class, 'store'])->middleware('permission:Tạo voucher');
