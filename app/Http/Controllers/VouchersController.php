@@ -142,6 +142,9 @@ class VouchersController extends Controller
         if (!$voucher) {
             return redirect()->back()->with('error', 'Voucher này không tồn tại vui lòng thử lại sau');
         }
+        if($voucher->status != 'active'){
+            return redirect()->back()->with('error', 'Voucher này chưa phát hành');
+        }
         $voucher_user = VouchersUsers::where('voucher_id', $id)->where('user_id', $user_id)->exists();
         if ($voucher_user) {
             return redirect()->back()->with('error', 'Bạn đã có voucher này');
