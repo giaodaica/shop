@@ -457,6 +457,13 @@ class ProductsController extends Controller
         $product = Products::with(['category', 'variants.color', 'variants.size'])->findOrFail($id);
         return view('dashboard.pages.product.show', compact('product'));
     }
+    public function forceDelete($id)
+    {
+        $product = Products::withTrashed()->findOrFail($id);
+        $product->forceDelete();
+
+        return redirect()->route('products.index', ['status' => 'trashed'])->with('success', 'Đã xóa vĩnh viễn sản phẩm.');
+    }
     public function add_flash_sale($id)
     {
         $variant = Product_variants::findOrFail($id);
