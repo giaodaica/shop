@@ -30,6 +30,7 @@
 
                             @if ($item->max_quantity - $item->sold_quantity > 0)
                                 <button class="btn buy-btn">Mua ngay</button>
+                                {{-- <a  class="btn buy-btn" name="flash_sale" value="1" href="{{url('add-to-cart', $product->id)}}"></a> --}}
                             @else
                                 <button class="btn buy-btn disabled" disabled>Hết hàng</button>
                             @endif

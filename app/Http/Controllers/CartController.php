@@ -453,6 +453,8 @@ public function add_to_cart($id, Request $request)
     $product = Products::find($id);
     if (!$product) {
         return redirect()->back()->with('error', 'Sản phẩm không tồn tại');
+        // dd($flashSale);
+
     }
 
     // Kiểm tra biến thể

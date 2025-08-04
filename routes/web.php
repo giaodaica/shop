@@ -67,7 +67,6 @@ Route::middleware([CheckUserStatus::class])->group(function () {
 
 
     Route::post('add-to-cart/{id}', [CartController::class, 'add_to_cart'])->middleware('auth')->name('cart.add');
-    // Route::post('add-flash-sale-to-cart', [CartController::class, 'addFlashSaleToCart'])->middleware('auth')->name('cart.addFlashSale');
 
     Route::post('add-to-cart/{id}', [CartController::class, 'add_to_cart'])->middleware('auth');
     Route::post('/order/{id}/cancel', [InfoController::class, 'cancel'])->name('order.cancel');

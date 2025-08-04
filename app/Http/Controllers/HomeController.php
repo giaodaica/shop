@@ -105,27 +105,23 @@ class HomeController extends Controller
         ));
     }
 
-    public function getProducts($id)
-    {
-        // Lấy flash sale theo ID để kiểm tra trạng thái (active hoặc upcoming)
-        $flashSale = FlashSale::findOrFail($id);
-        $now = Carbon::now('Asia/Ho_Chi_Minh');
-        $isActive = $flashSale->start_date <= $now && $flashSale->end_date > $now;
-        // Lấy các sản phẩm trong flash sale
-        $sale = FlashSaleItems::where('flash_sale_id', $id)
-            ->join('colors', 'flash_sale_items.color_id', 'colors.id')
-            ->join('sizes', 'flash_sale_items.size_id', 'sizes.id')
-            ->select('flash_sale_items.*', 'colors.color_name as color_name', 'sizes.size_name as size_name')
-            ->get()
-            // Sử dụng map() để thêm thông tin trạng thái đang diễn ra hay chưa
-            ->map(function ($item) use ($isActive) {
-                $item->is_active = $isActive;
-                return $item;
-            });
-        // $sale = FlashSaleItems::where('flash_sale_id', $id)->get();
+  public function getProducts($id)
+{
+    $flashSale = FlashSale::findOrFail($id);
+    $now = Carbon::now('Asia/Ho_Chi_Minh');
+    $isActive = $flashSale->start_date <= $now && $flashSale->end_date > $now;
 
-        return view('pages.flashshow', compact('sale'));
-    }
+    // Sửa: dùng with() để load quan hệ product, color, size
+    $sale = FlashSaleItems::with(['product', 'color', 'size'])
+        ->where('flash_sale_id', $id)
+        ->get()
+        ->map(function ($item) use ($isActive) {
+            $item->is_active = $isActive;
+            return $item;
+        });
+
+    return view('pages.flashshow', compact('sale'));
+}
     public function show($id)
     {
         return view('pages.shop.show');
