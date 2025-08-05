@@ -298,21 +298,20 @@ public function getUserVouchers()
         ->join('vouchers', 'vouchers_users.voucher_id', '=', 'vouchers.id')
         ->where('vouchers_users.user_id', $userId)
         ->where('vouchers_users.status', 'available')
-        ->where('vouchers_users.is_used', 'unused')
+        ->where('vouchers_users.is_used', 'used') 
         ->where(function ($query) use ($now) {
-            $query->whereNull('vouchers.start_date')->orWhere('vouchers.start_date', '<=', $now);
+            $query->whereNull('vouchers_users.start_date')->orWhere('vouchers_users.start_date', '<=', $now);
         })
         ->where(function ($query) use ($now) {
-            $query->whereNull('vouchers.end_date')->orWhere('vouchers.end_date', '>=', $now);
+            $query->whereNull('vouchers_users.end_date')->orWhere('vouchers_users.end_date', '>=', $now);
         })
         ->where(function ($query) {
             $query->whereNull('vouchers.max_used')
-                  ->orWhereColumn('vouchers.used', '<', 'vouchers.max_used');
+                ->orWhereColumn('vouchers.used', '<', 'vouchers.max_used');
         })
-        ->where('vouchers.status', 'active')
-        ->select('vouchers.*')
+        ->where('vouchers.status', 'used')
+        ->select('vouchers.*') // nếu cần thêm status thì thêm các field từ vouchers_users
         ->get();
-
     return response()->json($vouchers);
 }
 
@@ -326,10 +325,7 @@ public function applyVoucher(Request $request)
     $userId = Auth::id();
     $now = now();
 
-    // $voucher = DB::table('vouchers')
-    //     ->where('code', $request->code)
-    //     ->where('status', 'active')
-    //     ->first();
+
     $voucher = VouchersUsers::join('vouchers','vouchers_users.voucher_id','vouchers.id')
     ->where('code',$request->code)->where('is_used','unused')->first();
     // dd($voucher1);
@@ -397,6 +393,20 @@ public function applyVoucher(Request $request)
         'voucher_code' => $voucher->code,
         'voucher_discount' => $discount
     ]);
+    DB::table('vouchers_users')
+    ->where('user_id', $userId)
+    ->where('voucher_id', $voucher->id)
+    ->update([
+        'is_used' => 'used',
+        'status' => 'used',
+        'updated_at' => now()
+    ]);
+
+DB::table('vouchers')
+    ->where('id', $voucher->id)
+    ->increment('used');
+// dd($voucher);
+
 
     return redirect()->back()->with('success', 'Áp dụng mã giảm giá thành công!');
 }
