@@ -135,7 +135,33 @@ class OrderController extends Controller
             ]);
 
             $userId = Auth::id();
+$voucherCode = session('voucher_code');
 
+if ($voucherCode) {
+    $voucher = DB::table('vouchers')
+        ->where('code', $voucherCode)
+        ->first();
+
+    if ($voucher) {
+        // Cập nhật trạng thái đã dùng cho người dùng hiện tại
+        DB::table('vouchers_users')
+            ->where('user_id', auth()->id())
+            ->where('voucher_id', $voucher->id)
+            ->update([
+                'is_used' => 'used',
+                'status' => 'used',
+                'updated_at' => now()
+            ]);
+
+        // Tăng lượt đã dùng
+        DB::table('vouchers')
+            ->where('id', $voucher->id)
+            ->increment('used');
+
+        // Xoá session để không bị dùng lại
+        session()->forget(['voucher_code', 'voucher_discount']);
+    }
+}
             // Lấy các sản phẩm được chọn từ giỏ hàng
             $selectedIds = session('cart_selected_ids', []);
 
@@ -249,6 +275,7 @@ class OrderController extends Controller
 
                 // Cập nhật tồn kho
                 $item->productVariant->decrement('stock', $item->quantity);
+                
             }
 
             // Xóa các sản phẩm đã được chọn khỏi giỏ hàng

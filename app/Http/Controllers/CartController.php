@@ -393,18 +393,7 @@ public function applyVoucher(Request $request)
         'voucher_code' => $voucher->code,
         'voucher_discount' => $discount
     ]);
-    DB::table('vouchers_users')
-    ->where('user_id', $userId)
-    ->where('voucher_id', $voucher->id)
-    ->update([
-        'is_used' => 'used',
-        'status' => 'used',
-        'updated_at' => now()
-    ]);
-
-DB::table('vouchers')
-    ->where('id', $voucher->id)
-    ->increment('used');
+   
 // dd($voucher);
 
 
