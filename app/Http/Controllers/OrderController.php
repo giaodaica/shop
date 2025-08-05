@@ -241,6 +241,11 @@ class OrderController extends Controller
                 ];
 
                 OrderItem::create($orderItemData);
+                // Nếu là sản phẩm flash sale thì cập nhật sold_quantity
+                    if ($item->flash_sale_items_id) {
+                        FlashSaleItems::where('id', $item->flash_sale_items_id)
+                            ->increment('sold_quantity', $item->quantity);
+                    }
 
                 // Cập nhật tồn kho
                 $item->productVariant->decrement('stock', $item->quantity);

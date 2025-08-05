@@ -150,7 +150,7 @@
                                             <a href="{{ route('cart.removeVoucher') }}" class="text-danger ms-3">✕</a>
                                         </div>
                                     @else
-                                        <span id="voucher-discount" class="text-muted">-0 đ</span>
+                                        <span  id="voucher-discount" class="text-muted">-0 đ</span>
                                     @endif
                                 </td>
                             </tr>
@@ -179,6 +179,13 @@
     <!-- end section -->
 @endsection
 @section('js-page-custom')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Toastr CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -209,16 +216,23 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('voucher-discount').innerText = '-' + res.voucher_discount + ' đ';
             document.getElementById('total').innerText = res.total + ' đ';
 
-            if (res.voucher_removed) {
-                toastr.warning("Voucher bị xóa do không đủ điều kiện.");
-            }
+           if (res.voucher_removed) {
+    console.log("⚠️ Voucher bị xóa - chạy vào đây");
+    toastr.warning("Voucher bị xóa do không đủ điều kiện.");
+
+    const voucherRow = document.getElementById('voucher-row');
+    if (voucherRow) {
+        voucherRow.innerHTML = `<span id="voucher-discount" class="text-muted">-0 đ</span>`;
+    }
+}
+
         })
         .catch(() => {
             toastr.error("Cập nhật giỏ hàng thất bại!");
         });
     }
 
-    // Xử lý tăng/giảm số lượng
+    //  tăng/giảm số lượng
     document.querySelectorAll('.qty-plus, .qty-minus').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const parent = btn.closest('.quantity');
@@ -373,11 +387,10 @@ document.getElementById('delete-selected-btn').addEventListener('click', functio
 });
 
 </script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 
 <script>
-// const csrfToken = "{{ csrf_token() }}";
+const csrfToken = "{{ csrf_token() }}";
 
 function updateCartSelectedSession() {
     let selectedIds = Array.from(document.querySelectorAll('.cart-item-checkbox:checked')).map(cb => cb.value);

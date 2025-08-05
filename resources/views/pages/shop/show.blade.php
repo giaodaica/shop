@@ -157,7 +157,7 @@
 
                     <form action="{{ url('add-to-cart', $product->id) }}" method="post">
                         @csrf
-                        @if ($isFlashSale)
+                        @if ($isFlashSale)`
                             <div class="alert alert-danger">🔥 Sản phẩm đang trong Flash Sale!</div>
                             <div class="mb-20px">
                                 <div class="d-flex align-items-center">
