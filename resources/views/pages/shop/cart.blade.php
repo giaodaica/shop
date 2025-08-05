@@ -390,7 +390,7 @@ document.getElementById('delete-selected-btn').addEventListener('click', functio
 
 
 <script>
-const csrfToken = "{{ csrf_token() }}";
+// const csrfToken = "{{ csrf_token() }}";
 
 function updateCartSelectedSession() {
     let selectedIds = Array.from(document.querySelectorAll('.cart-item-checkbox:checked')).map(cb => cb.value);
