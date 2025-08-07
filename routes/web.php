@@ -220,6 +220,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
         Route::post('/products/{id}/restore', [ProductsController::class, 'restore'])->name('products.restore')->middleware('permission:Khôi phục sản phẩm');
         Route::post('/products/upload-temp-image', [ProductsController::class, 'uploadTempImage'])->name('products.uploadTempImage')->middleware('permission:Tải ảnh sản phẩm');
         Route::post('/products/upload-temp-variant-image', [ProductsController::class, 'uploadTempVariantImage'])->name('products.uploadTempVariantImage')->middleware('permission:Tải ảnh biến thể');
+        Route::delete('/products/{id}/force-delete', [ProductsController::class, 'forceDelete'])->name('products.forceDelete');
         Route::post('add-flash-sale/{id}', [ProductsController::class, 'add_flash_sale'])->name('addflashsale')->middleware('permission:Thêm sản phẩm vào flash sale');
         Route::get('remove-flash-sale/{id}', [ProductsController::class, 'remove_flashsale'])->middleware('permission:Xóa sản phẩm khỏi flash sale');
 

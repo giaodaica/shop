@@ -34,7 +34,8 @@
                                 <div class="row g-4">
                                     <div class="col-sm-auto">
                                         <div>
-                                            <a href="{{ route('products.create') }}" class="btn btn-success" id="addproduct-btn">
+                                            <a href="{{ route('products.create') }}" class="btn btn-success"
+                                                id="addproduct-btn">
                                                 <i class="ri-add-line align-bottom me-1"></i> Thêm sản phẩm
                                             </a>
                                         </div>
@@ -43,13 +44,16 @@
                                         <form method="GET" action="{{ route('products.index') }}" class="row g-2">
                                             <input type="hidden" name="status" value="{{ $status }}">
                                             <div class="col">
-                                                <input type="text" name="keyword" class="form-control" placeholder="Tìm tên hoặc slug..." value="{{ request('keyword') }}">
+                                                <input type="text" name="keyword" class="form-control"
+                                                    placeholder="Tìm tên hoặc slug..." value="{{ request('keyword') }}">
                                             </div>
                                             <div class="col">
                                                 <select name="category_id" class="form-select">
                                                     <option value="">-- Tất cả danh mục --</option>
                                                     @foreach ($categories as $cat)
-                                                        <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                                                        <option value="{{ $cat->id }}"
+                                                            {{ request('category_id') == $cat->id ? 'selected' : '' }}>
+                                                            {{ $cat->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -97,7 +101,7 @@
                                     </div>
                                 </div>
                             </div>
-                             @if ($products->isEmpty())
+                            @if ($products->isEmpty())
                                 <div class="card-body">
                                     <div class="noresult text-center">
                                         <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="loop"
@@ -108,105 +112,117 @@
                                     </div>
                                 </div>
                             @else
-                            <!-- end card header -->
-                            <div class="card-body">
-                                <table class="table align-middle table-nowrap mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th scope="col">#</th>
-
-                                            <th scope="col">Tên sản phẩm</th>
-
-                                            <th scope="col">Slug</th>
-                                            <th scope="col">Danh mục</th>
-                                            <th scope="col">Hành động</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($products as $index => $product)
+                                <!-- end card header -->
+                                <div class="card-body">
+                                    <table class="table align-middle table-nowrap mb-0">
+                                        <thead class="table-light">
                                             <tr>
-                                                <td>{{ $products->firstItem() + $index }}</td>
+                                                <th scope="col">#</th>
 
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="flex-shrink-0 me-3">
-                                                            <div class="avatar-sm bg-light rounded p-1"
-                                                                style="width: 100px; height: 100px; overflow: hidden;">
-                                                                <img src="{{ asset($product->image_url) }}"
-                                                                    alt="{{ $product->name }}" class="img-fluid d-block">
+                                                <th scope="col">Tên sản phẩm</th>
+
+                                                <th scope="col">Slug</th>
+                                                <th scope="col">Danh mục</th>
+                                                <th scope="col">Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($products as $index => $product)
+                                                <tr>
+                                                    <td>{{ $products->firstItem() + $index }}</td>
+
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="flex-shrink-0 me-3">
+                                                                <div class="avatar-sm bg-light rounded p-1"
+                                                                    style="width: 100px; height: 100px; overflow: hidden;">
+                                                                    <img src="{{ asset($product->image_url) }}"
+                                                                        alt="{{ $product->name }}"
+                                                                        class="img-fluid d-block">
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex-grow-1">
+                                                                <h5 class="fs-14 mb-1">
+                                                                    <a href="{{ route('products.show', $product->id) }}"
+                                                                        class="text-body text-truncate d-inline-block"
+                                                                        style="max-width: 200px;"
+                                                                        title="{{ $product->name }}">
+                                                                        {{ $product->name }}
+                                                                    </a>
+                                                                </h5>
+                                                                <p class="text-muted mb-0">Danh mục: <span
+                                                                        class="fw-medium">{{ $product->category->name ?? 'Chưa có' }}</span>
+                                                                </p>
                                                             </div>
                                                         </div>
-                                                        <div class="flex-grow-1">
-                                                            <h5 class="fs-14 mb-1">
-                                                                <a href="{{ route('products.show', $product->id) }}"
-                                                                    class="text-body text-truncate d-inline-block"
-                                                                    style="max-width: 200px;" title="{{ $product->name }}">
-                                                                    {{ $product->name }}
-                                                                </a>
-                                                            </h5>
-                                                            <p class="text-muted mb-0">Danh mục: <span
-                                                                    class="fw-medium">{{ $product->category->name ?? 'Chưa có' }}</span>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </td>
+                                                    </td>
 
-                                                <td class="text-truncate" style="max-width: 150px;"
-                                                    title="{{ $product->slug }}">
-                                                    {{ $product->slug }}
-                                                </td>
+                                                    <td class="text-truncate" style="max-width: 150px;"
+                                                        title="{{ $product->slug }}">
+                                                        {{ $product->slug }}
+                                                    </td>
 
-                                                <td>{{ $product->category->name ?? 'Chưa có' }}</td>
+                                                    <td>{{ $product->category->name ?? 'Chưa có' }}</td>
 
-                                                <td>
-                                                    @if ($product->deleted_at)
-                                                        <!-- Nếu sản phẩm đã bị xóa mềm -->
-                                                        <form action="{{ route('products.restore', $product->id) }}"
-                                                            method="POST" class="restore-form d-inline">
-                                                            @csrf
-                                                            <button type="button"
-                                                                class="btn btn-success btn-sm btn-restore">Khôi
-                                                                phục</button>
-                                                        </form>
-                                                    @else
-                                                        <div class="dropdown">
-                                                            <button class="btn btn-soft-secondary btn-sm" type="button"
-                                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                                                <i class="ri-more-fill"></i>
-                                                            </button>
-                                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                                <li>
-                                                                    <a class="dropdown-item"
-                                                                        href="{{ route('products.show', $product->id) }}">
-                                                                        <i
-                                                                            class="ri-eye-fill align-bottom me-2 text-muted"></i>
-                                                                        Xem
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a class="dropdown-item"
-                                                                        href="{{ route('products.edit', $product->id) }}">
-                                                                        <i
-                                                                            class="ri-pencil-fill align-bottom me-2 text-muted"></i>
-                                                                        Sửa
-                                                                    </a>
-                                                                </li>
-
-                                                                <li>
-                                                                    <form
-                                                                        action="{{ route('products.destroy', $product->id) }}"
-                                                                        method="POST" class="delete-form">
-                                                                        @csrf
-                                                                        @method('DELETE')
-                                                                        <button type="submit"
-                                                                            class="dropdown-item text-danger">
+                                                    <td>
+                                                        @if ($product->deleted_at)
+                                                            <!-- Nếu sản phẩm đã bị xóa mềm -->
+                                                            <form action="{{ route('products.restore', $product->id) }}"
+                                                                method="POST" class="restore-form d-inline">
+                                                                @csrf
+                                                                <button type="button"
+                                                                    class="btn btn-success btn-sm btn-restore">Khôi
+                                                                    phục</button>
+                                                            </form>
+                                                            <form
+                                                                action="{{ route('products.forceDelete', $product->id) }}"
+                                                                method="POST" class="force-delete-form d-inline">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="button"
+                                                                    class="btn btn-danger btn-sm btn-force-delete">Xóa vĩnh
+                                                                    viễn</button>
+                                                            </form>
+                                                        @else
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-soft-secondary btn-sm"
+                                                                    type="button" data-bs-toggle="dropdown"
+                                                                    aria-expanded="false">
+                                                                    <i class="ri-more-fill"></i>
+                                                                </button>
+                                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                                    <li>
+                                                                        <a class="dropdown-item"
+                                                                            href="{{ route('products.show', $product->id) }}">
                                                                             <i
-                                                                                class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
-                                                                            Xóa
-                                                                        </button>
-                                                                    </form>
-                                                                </li>
-                                                                {{-- <li>
+                                                                                class="ri-eye-fill align-bottom me-2 text-muted"></i>
+                                                                            Xem
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item"
+                                                                            href="{{ route('products.edit', $product->id) }}">
+                                                                            <i
+                                                                                class="ri-pencil-fill align-bottom me-2 text-muted"></i>
+                                                                            Sửa
+                                                                        </a>
+                                                                    </li>
+
+                                                                    <li>
+                                                                        <form
+                                                                            action="{{ route('products.destroy', $product->id) }}"
+                                                                            method="POST" class="delete-form">
+                                                                            @csrf
+                                                                            @method('DELETE')
+                                                                            <button type="submit"
+                                                                                class="dropdown-item text-danger">
+                                                                                <i
+                                                                                    class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
+                                                                                Xóa
+                                                                            </button>
+                                                                        </form>
+                                                                    </li>
+                                                                    {{-- <li>
                                                                     <a class="dropdown-item"
                                                                         href="{{ route('variants.create', $product->id) }}">
                                                                         <i
@@ -214,29 +230,29 @@
                                                                         Thêm biến thể
                                                                     </a>
                                                                 </li> --}}
-                                                                <li>
-                                                                    <a class="dropdown-item"
-                                                                        href="{{ route('variants.index', ['product_id' => $product->id]) }}">
-                                                                        <i
-                                                                            class="ri-file-list-3-line align-bottom me-2 text-muted"></i>
-                                                                        Xem biến thể
-                                                                    </a>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                                {{-- Phân trang --}}
-                                <div class="mt-3">
-                                    {{ $products->links() }}
+                                                                    <li>
+                                                                        <a class="dropdown-item"
+                                                                            href="{{ route('variants.index', ['product_id' => $product->id]) }}">
+                                                                            <i
+                                                                                class="ri-file-list-3-line align-bottom me-2 text-muted"></i>
+                                                                            Xem biến thể
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                    {{-- Phân trang --}}
+                                    <div class="mt-3">
+                                        {{ $products->links() }}
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- end card body -->
-                              @endif
+                                <!-- end card body -->
+                            @endif
                         </div>
                         <!-- end card -->
                     </div>
@@ -355,6 +371,27 @@
                             form.submit();
                         }
                     });
+                });
+            });
+        });
+        const forceDeleteForms = document.querySelectorAll('.force-delete-form');
+        forceDeleteForms.forEach(form => {
+            form.querySelector('.btn-force-delete').addEventListener('click', function(e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Bạn có chắc chắn muốn xóa vĩnh viễn?',
+                    text: "Sản phẩm sẽ bị xóa hoàn toàn khỏi hệ thống!",
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e3342f',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Xóa vĩnh viễn',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
                 });
             });
         });
