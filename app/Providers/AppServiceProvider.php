@@ -58,7 +58,12 @@ class AppServiceProvider extends ServiceProvider
         });
         View::composer('card.nav', function ($view) {
             if (Auth::check()) {
-                $cartItems = Cart::with('product', 'productVariant')->where('user_id', Auth::id())->get();
+              $cartItems = Cart::where('user_id', Auth::id())
+    ->whereHas('product') // chỉ lấy cart có product chưa bị soft delete
+    ->whereHas('productVariant') // chỉ lấy cart có variant chưa bị soft delete
+    ->with('product', 'productVariant')
+    ->get();
+
                 $cartCount = $cartItems->count();
                 $cartSubtotal = $cartItems->sum(fn($item) => $item->quantity * $item->price_at_time);
             } else {
