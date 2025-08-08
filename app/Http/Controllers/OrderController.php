@@ -392,7 +392,7 @@ if ($voucherCode) {
             ]);
         }
         // dd($present);
-        if ($present->status_pay == 'paid' && $present->pay_method == 'VNPAY' || $present->pay_method == 'QR') {
+        if ($present->status_pay == 'paid' && $present->pay_method == 'VNPAY' || $present->pay_method == 'QR' ) {
             RefundMoney::create([
                 'user_id' => $present->user_id,
                 'order_id' => $id,

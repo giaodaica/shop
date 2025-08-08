@@ -58,9 +58,12 @@ class AppServiceProvider extends ServiceProvider
         });
         View::composer('card.nav', function ($view) {
             if (Auth::check()) {
+
+
 $cartItems = Cart::with('productVariant.product')
     ->where('user_id', Auth::id())
     ->whereHas('productVariant.product') // lọc luôn product chưa bị soft delete
+
     ->get();
 
                 $cartCount = $cartItems->count();
