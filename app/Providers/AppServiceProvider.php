@@ -58,14 +58,10 @@ class AppServiceProvider extends ServiceProvider
         });
         View::composer('card.nav', function ($view) {
             if (Auth::check()) {
-
-
-$cartItems = Cart::with('productVariant.product')
-    ->where('user_id', Auth::id())
-    ->whereHas('productVariant.product') // lọc luôn product chưa bị soft delete
-
-    ->get();
-
+                $cartItems = Cart::with('productVariant.product')
+                    ->where('user_id', Auth::id())
+                    ->whereHas('productVariant.product') // lọc luôn product chưa bị soft delete
+                    ->get();
                 $cartCount = $cartItems->count();
                 $cartSubtotal = $cartItems->sum(fn($item) => $item->quantity * $item->price_at_time);
             } else {
@@ -73,12 +69,12 @@ $cartItems = Cart::with('productVariant.product')
                 $cartCount = 0;
                 $cartSubtotal = 0;
             }
-             $banner = Categories::all();
+            $banner = Categories::all();
             // dd($cartItems);
             // $cartItems->each(function($item){
             //     // dd($item->product->slug);
             // });
-            
+
             $view->with([
                 'cartItems' => $cartItems,
                 'cartCount' => $cartCount,

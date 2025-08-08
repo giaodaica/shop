@@ -20,18 +20,19 @@ class RevenueController extends Controller
      */
     public function index(Request $request)
     {
-        // dd($_POST);
-        $request->validate([
-            'type' => 'in:day,month,year,hour',
-            'date_from' => 'nullable|date',
-            'date_to' => 'nullable|date|after_or_equal:date_from',
-            'datetime_from' => 'nullable|date',
-            'datetime_to' => 'nullable|date|after_or_equal:datetime_from',
-            'month_from' => 'nullable|date_format:Y-m',
-            'month_to' => 'nullable|date_format:Y-m|after_or_equal:month_from',
-            'year_from' => 'nullable|integer|min:2000|max:2100',
-            'year_to' => 'nullable|integer|min:2000|max:2100|after_or_equal:year_from',
-        ],
+        // dd($_GET);
+        $request->validate(
+            [
+                'type' => 'in:day,month,year,hour',
+                'date_from' => 'nullable|date',
+                'date_to' => 'nullable|date|after_or_equal:date_from',
+                'datetime_from' => 'nullable|date',
+                'datetime_to' => 'nullable|date|after_or_equal:datetime_from',
+                'month_from' => 'nullable|date_format:Y-m',
+                'month_to' => 'nullable|date_format:Y-m|after_or_equal:month_from',
+                'year_from' => 'nullable|integer|min:2000|max:2100',
+                'year_to' => 'nullable|integer|min:2000|max:2100|after_or_equal:year_from',
+            ],
             [
                 'type.in' => 'Loại thống kê không hợp lệ',
                 'date_from.date' => 'Ngày bắt đầu không hợp lệ',
@@ -51,16 +52,28 @@ class RevenueController extends Controller
                 'year_to.max' => 'Năm kết thúc phải nhỏ hơn hoặc bằng 2100',
                 'year_to.after_or_equal' => 'Năm kết thúc phải sau hoặc bằng năm bắt đầu',
             ]
-    );
+        );
         if ($request->type == 'year' && !$request->year_from || !$request->year_to) {
             $request->merge([
                 'year_from' => now()->year,
                 'year_to' => now()->year,
             ]);
+        }
+        if ($request->type == 'month' && (!$request->month_from || !$request->month_to)) {
+            $currentMonth = now()->format('Y-m'); // lấy tháng hiện tại theo định dạng 2025-08
 
+            $request->merge([
+                'month_from' => $currentMonth,
+                'month_to' => $currentMonth,
+            ]);
         }
 
-
+        if ($request->type == 'hour' && !$request->datetime_from || !$request->datetime_to) {
+            $request->merge([
+                'datetime_from' => now(),
+                'datetime_to' => now(),
+            ]);
+        }
         if (!$request->type) {
             $request->merge([
                 'type' => 'day',
@@ -168,7 +181,7 @@ class RevenueController extends Controller
         $doanhthu = $data_doanhthu->doanhthu ?? 0;
         $dtb = $sodonhang > 0 ? $doanhthu / $sodonhang : 0;
 
-        return view('dashboard.pages.revenue.index', compact('dtb', 'start', 'end', 'data_order', 'data_top_5', 'data_doanhthu', 'sodonhang', 'doanhthu', 'data_top_5_users','data_loinhan'));
+        return view('dashboard.pages.revenue.index', compact('dtb', 'start', 'end', 'data_order', 'data_top_5', 'data_doanhthu', 'sodonhang', 'doanhthu', 'data_top_5_users', 'data_loinhan'));
     }
 
 

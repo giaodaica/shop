@@ -8,6 +8,13 @@ class Order extends Model
 {
     protected $fillable = [
         'user_id',
+        'voucher_code_snapshot',
+        'voucher_type_discount_snapshot',
+        'voucher_value_snapshot',
+        'voucher_max_discount_snapshot',
+        'voucher_min_order_value_snapshot',
+        'voucher_start_date_snapshot',
+        'voucher_end_date_snapshot',
         'address_books_id',
         'voucher_id',
         'name',

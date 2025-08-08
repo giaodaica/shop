@@ -139,10 +139,7 @@
                             class="ri-arrow-left-line me-1"></i> Quay lại danh sách</a>
                     @endif
                     <button type="button" class="btn btn-secondary mt-3" data-bs-toggle="modal" id="create-btn"
-                        data-bs-target="#showModal"
-                        @if ($data_voucher->status !== 'draft') {
-                            {{ 'disabled' }}
-                        } @endif><i
+                        data-bs-target="#showModal"><i
                             class="ri-edit-line align-bottom me-1"></i> Sửa</button>
                         <form action="{{route('delete',$data_voucher->id)}}" method="post">
                             @csrf

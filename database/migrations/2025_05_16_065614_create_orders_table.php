@@ -19,8 +19,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone');
             $table->string('address');
-            $table->string('province_code')->nullable(); 
-            $table->string('ward_code')->nullable();
             $table->decimal('total_amount', 10, 2);
             $table->decimal('final_amount', 10, 2);
             $table->enum('status', ['pending', 'confirmed', 'shipping', 'success', 'cancelled'])->default('pending');

@@ -6,8 +6,10 @@ use App\Http\Requests\AdsRequest;
 use App\Http\Requests\VoucherRequest;
 use App\Models\CategoriesVouchers;
 use App\Models\Vouchers;
+use App\Models\VouchersHistory;
 use App\Models\VouchersUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -56,6 +58,16 @@ class VouchersController extends Controller
         if ($data['type_discount'] == "value") {
             $data['max_discount'] = 0;
         }
+        // VouchersHistory::create([
+        //     voucher_id
+        //     	user_id
+        //         user_name
+        //         	from_status
+        //             	to_status
+        //                 	note
+        //                     	time_action
+
+        // ]);
         Vouchers::create($data);
         return redirect()->back();
     }
@@ -70,14 +82,14 @@ class VouchersController extends Controller
     }
     public function update(VoucherRequest $request, $id)
     {
+        // dd($_POST);
         $data_voucher = Vouchers::findOrFail($id);
-
-        if ($data_voucher->status !== 'draft') {
-            abort(403, 'Không được phép sửa');
-        }
-
         $data = $request->validated();
 
+        if ($data_voucher->status == 'active' || $data_voucher->status == 'used_up' || $data_voucher->status = 'expired') {
+            $data = Arr::only($data, ['start_date', 'end_date','max_used']);
+            // dd($data);
+        }
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '.' . $file->getClientOriginalExtension();
@@ -142,7 +154,7 @@ class VouchersController extends Controller
         if (!$voucher) {
             return redirect()->back()->with('error', 'Voucher này không tồn tại vui lòng thử lại sau');
         }
-        if($voucher->status != 'active'){
+        if ($voucher->status != 'active') {
             return redirect()->back()->with('error', 'Voucher này chưa phát hành');
         }
         $voucher_user = VouchersUsers::where('voucher_id', $id)->where('user_id', $user_id)->exists();
@@ -175,9 +187,9 @@ class VouchersController extends Controller
         if (!$data) {
             return abort(403, 'Không hợp lệ');
         }
-        if ($data_voucher->status != 'draft') {
-            return redirect()->back()->with('error', 'Bạn chỉ có thể xóa voucher này khi nó chưa phát hành');
-        }
+        // if ($data_voucher->status != 'draft') {
+        //     return redirect()->back()->with('error', 'Bạn chỉ có thể xóa voucher này khi nó chưa phát hành');
+        // }
 
         $data_voucher->forceDelete();
         return redirect(url("dashboard/voucher/$data->slug"))->with('success', 'Xóa thành công');

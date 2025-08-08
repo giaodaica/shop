@@ -20,7 +20,9 @@ class OrderItem extends Model
         'listed_price',
         'sale_price',
         'quantity',
-        'promotion_type'
+        'promotion_type',
+        'color_name',
+        'size_name'
     ];
 
     public function order()

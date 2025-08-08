@@ -233,7 +233,7 @@ public function updateQuantity(Request $request)
 
             } else {
                 // Sản phẩm thường: check tồn kho
-                if ($cartItem->quantity >= $variant->stock_quantity) {
+                if ($cartItem->quantity >= $variant->stock) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Không thể tăng vượt quá tồn kho.'
@@ -298,7 +298,7 @@ public function getUserVouchers()
         ->join('vouchers', 'vouchers_users.voucher_id', '=', 'vouchers.id')
         ->where('vouchers_users.user_id', $userId)
         ->where('vouchers_users.status', 'available')
-        ->where('vouchers_users.is_used', 'used') 
+        ->where('vouchers_users.is_used', 'used')
         ->where(function ($query) use ($now) {
             $query->whereNull('vouchers_users.start_date')->orWhere('vouchers_users.start_date', '<=', $now);
         })
@@ -393,7 +393,7 @@ public function applyVoucher(Request $request)
         'voucher_code' => $voucher->code,
         'voucher_discount' => $discount
     ]);
-   
+
 // dd($voucher);
 
 
