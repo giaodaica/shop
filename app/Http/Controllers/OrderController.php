@@ -135,33 +135,33 @@ class OrderController extends Controller
             ]);
 
             $userId = Auth::id();
-$voucherCode = session('voucher_code');
+            $voucherCode = session('voucher_code');
 
-if ($voucherCode) {
-    $voucher = DB::table('vouchers')
-        ->where('code', $voucherCode)
-        ->first();
+            if ($voucherCode) {
+                $voucher = DB::table('vouchers')
+                    ->where('code', $voucherCode)
+                    ->first();
 
-    if ($voucher) {
-        // Cập nhật trạng thái đã dùng cho người dùng hiện tại
-        DB::table('vouchers_users')
-            ->where('user_id', auth()->id())
-            ->where('voucher_id', $voucher->id)
-            ->update([
-                'is_used' => 'used',
-                'status' => 'used',
-                'updated_at' => now()
-            ]);
+                if ($voucher) {
+                    // Cập nhật trạng thái đã dùng cho người dùng hiện tại
+                    DB::table('vouchers_users')
+                        ->where('user_id', auth()->id())
+                        ->where('voucher_id', $voucher->id)
+                        ->update([
+                            'is_used' => 'used',
+                            'status' => 'used',
+                            'updated_at' => now()
+                        ]);
 
-        // Tăng lượt đã dùng
-        DB::table('vouchers')
-            ->where('id', $voucher->id)
-            ->increment('used');
+                    // Tăng lượt đã dùng
+                    DB::table('vouchers')
+                        ->where('id', $voucher->id)
+                        ->increment('used');
 
-        // Xoá session để không bị dùng lại
-        session()->forget(['voucher_code', 'voucher_discount']);
-    }
-}
+                    // Xoá session để không bị dùng lại
+                    // session()->forget(['voucher_code', 'voucher_discount']); // clear sesion quá sớm
+                }
+            }
             // Lấy các sản phẩm được chọn từ giỏ hàng
             $selectedIds = session('cart_selected_ids', []);
 
@@ -215,6 +215,7 @@ if ($voucherCode) {
             $voucherDiscount = session('voucher_discount', 0);
             $shippingFee = $this->calculateShippingFee($subtotal, $request->shipping_type);
             $finalAmount = $subtotal - $voucherDiscount + $shippingFee;
+            // dd($finalAmount);
 
             // Lấy địa chỉ
             $address = AddressBook::where('id', $request->address_id)
@@ -225,8 +226,17 @@ if ($voucherCode) {
             $orderCode = 'ORD' . date('Ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
 
             // Tạo đơn hàng
+            $data_vouchers = Vouchers::where('code', session('voucher_code'))->first();
+            // dd($data_vouchers);
             $orderData = [
                 'user_id' => $userId,
+                'voucher_code_snapshot' => $data_vouchers->code ?? '',
+                'voucher_type_discount_snapshot' => $data_vouchers->type_discount ?? '',
+                'voucher_value_snapshot' => $data_vouchers->value ?? '',
+                'voucher_max_discount_snapshot' => $data_vouchers->max_discount ?? '',
+                'voucher_min_order_value_snapshot' => $data_vouchers->min_order_value ?? '',
+                'voucher_start_date_snapshot' => $data_vouchers->start_date ?? '',
+                'voucher_end_date_snapshot' => $data_vouchers->end_date ?? '',
                 'address_books_id' => $address->id,
                 'voucher_id' => session('voucher_code') ? Vouchers::where('code', session('voucher_code'))->first()?->id : null,
                 'name' => $address->name,
@@ -250,6 +260,7 @@ if ($voucherCode) {
             // dd($order);
             // Tạo chi tiết đơn hàng
             foreach ($cartItems as $item) {
+                // dd($item);
                 $orderItemData = [
                     'order_id' => $order->id,
                     'product_variant_id' => $item->product_variants_id,
@@ -268,14 +279,13 @@ if ($voucherCode) {
 
                 OrderItem::create($orderItemData);
                 // Nếu là sản phẩm flash sale thì cập nhật sold_quantity
-                    if ($item->flash_sale_items_id) {
-                        FlashSaleItems::where('id', $item->flash_sale_items_id)
-                            ->increment('sold_quantity', $item->quantity);
-                    }
+                if ($item->flash_sale_items_id) {
+                    FlashSaleItems::where('id', $item->flash_sale_items_id)
+                        ->increment('sold_quantity', $item->quantity);
+                }
 
                 // Cập nhật tồn kho
                 $item->productVariant->decrement('stock', $item->quantity);
-                
             }
 
             // Xóa các sản phẩm đã được chọn khỏi giỏ hàng
@@ -326,22 +336,75 @@ if ($voucherCode) {
     }
 
     public function db_order(Request $request)
-    {
-        $action = ['pending', 'confirmed', 'shipping', 'success', 'cancelled'];
-        $type = $request->query('type');
-        $count = OrderHistories::where('from_status', 'failed')->count();
+{
+    // Validate input filter
+    // $request->validate([
+    //     'everything' => 'nullable|string|max:30',
+    //     'status' => 'nullable|in:pending,success,failed,shipping,all,cancelled,confirmed',
+    //     'pay_method' => 'nullable|in:all,VNPAY,COD',
+    //     'status_pay' => 'nullable|in:unpaid,paid,failed,cod_paid'
+    // ]);
 
-        if ($type && !in_array($type, $action)) {
-            return abort(403, 'Không có hành động này');
-        }
-        if ($type) {
-            $data_order = Order::where('status', $type)->orderBy('created_at', 'desc')->paginate(10);
-        } else {
-            $data_order = Order::orderBy('created_at', 'desc')->paginate(10);
-        }
-        // dd($data_order);
-        return view('dashboard.pages.order.index', compact('data_order', 'count'));
+    // Khởi tạo query
+    $query = Order::query();
+
+    // Nếu có nhập "everything", tìm theo code_order hoặc name
+    if (!empty($request->everything)) {
+        $search = $request->everything;
+        $query->where(function ($q) use ($search) {
+            $q->where('code_order', 'like', "%{$search}%")
+              ->orWhere('name', 'like', "%{$search}%");
+        });
     }
+
+    // Xử lý status
+    $valid_status = ['pending', 'success', 'failed', 'shipping', 'cancelled', 'confirmed'];
+    // Nếu có filter status và khác 'all'
+    if (!empty($request->status) && $request->status !== 'all' && in_array($request->status, $valid_status)) {
+        $query->where('status', $request->status);
+    }
+
+    // Xử lý pay_method
+    $valid_pay_methods = ['VNPAY', 'COD'];
+    if (!empty($request->pay_method) && $request->pay_method !== 'all' && in_array($request->pay_method, $valid_pay_methods)) {
+        $query->where('pay_method', $request->pay_method);
+    }
+
+    // Xử lý status_pay
+    $valid_status_pay = ['unpaid', 'paid', 'failed', 'cod_paid'];
+    if (!empty($request->status_pay) && in_array($request->status_pay, $valid_status_pay)) {
+        $query->where('status_pay', $request->status_pay);
+    }
+
+    // Xử lý param type từ query string, ưu tiên hơn filter status (nếu có)
+    $action = ['pending', 'confirmed', 'shipping', 'success', 'cancelled', 'failed'];
+    $type = $request->query('type');
+
+    if ($type && !in_array($type, $action)) {
+        return abort(403, 'Không có hành động này');
+    }
+    if ($type) {
+        $query->where('status', $type);
+    }
+
+    // Sắp xếp mới nhất trước
+    $query->orderBy('created_at', 'desc');
+
+    // Phân trang 10 item / trang
+    $data_order = $query->paginate(10)->withQueryString();
+
+    // Đếm số order failed (nếu cần)
+    $count_failed = OrderHistories::where('from_status', 'failed')->count();
+
+    // Trả về view, truyền dữ liệu
+    return view('dashboard.pages.order.index', [
+        'data_order' => $data_order,
+        'count_failed' => $count_failed,
+        // Nếu bạn cần truyền thêm filter đã chọn để view dễ hiển thị lại
+        'filters' => $request->only(['everything', 'status', 'pay_method', 'status_pay', 'type']),
+    ]);
+}
+
     public function refund($present, $id)
     {
         $items = OrderItem::where('order_id', $id)->get();
@@ -364,6 +427,7 @@ if ($voucherCode) {
                 ],
                 [
                     'is_used'    => 'unused',
+                    'status' => 'available',
                     'start_date' => now(),
                     'end_date'   => now()->addDays(7),
                 ]
@@ -380,7 +444,8 @@ if ($voucherCode) {
             VouchersUsers::where('user_id', $present->user_id)
                 ->where('voucher_id', $present->voucher_id)
                 ->update([
-                    'is_used' => 'unused',
+                    'status' => 'available',
+                    'is_used' => 'unused'
                 ]);
             VouchersLog::create([
                 'user_id' => $present->user_id,
@@ -391,15 +456,19 @@ if ($voucherCode) {
                 'content' => 'Voucher đã được đánh dấu là chưa sử dụng do đơn hàng bị hủy',
             ]);
         }
-        // dd($present);
-        if ($present->status_pay == 'paid' && $present->pay_method == 'VNPAY' || $present->pay_method == 'QR' ) {
+        if ($present->status != 'confirmed') {
+            $final_amount = $present->final_amount - $present->shipping_fee;
+        } else {
+            $final_amount = $present->final_amount;
+        }
+        if ($present->status_pay == 'paid' && $present->pay_method == 'VNPAY' || $present->pay_method == 'QR') {
             RefundMoney::create([
                 'user_id' => $present->user_id,
                 'order_id' => $id,
-                'amount' => $present->final_amount,
+                'amount' => $final_amount,
                 'status' => 'admin',
             ]);
-            $voucher = VouchersUsers::where('voucher_id',$present->voucher_id)->first();
+            $voucher = VouchersUsers::where('voucher_id', $present->voucher_id)->first();
             // dd($voucher);
             if (!$voucher) {
                 $voucher = null;
@@ -466,7 +535,7 @@ if ($voucherCode) {
                 if ($present->status != 'shipping') {
                     return abort(403, 'Bạn không thể đổi sang trạng thái đã giao hàng khi đơn hàng không ở trạng thái đang giao hàng ');
                 } else {
-                    if($present->pay_method = 'COD'){
+                    if ($present->pay_method = 'COD') {
                         $present->status_pay = 'paid';
                     }
                     $present->status = 'success';
@@ -566,17 +635,17 @@ if ($voucherCode) {
             )->where('orders.id', $id)
             ->first();
         // dd($data_order);
-        $data_order_items = OrderItem::join('orders', 'orders.id', 'order_items.order_id')->join('product_variants', 'product_variants.id', 'order_items.product_variant_id')->join('sizes', 'sizes.id', 'product_variants.size_id')->join('colors', 'colors.id', 'product_variants.color_id')->where('order_id', $id)->select(
+        $data_order_items = OrderItem::join('orders', 'orders.id', 'order_items.order_id')->leftJoin('product_variants', 'product_variants.id', 'order_items.product_variant_id')->leftJoin('sizes', 'sizes.id', 'product_variants.size_id')->leftJoin('colors', 'colors.id', 'product_variants.color_id')->where('order_id', $id)->select(
             'order_items.*',
-            'sizes.size_name',
-            'colors.color_name',
+            'sizes.size_name as p_size',
+            'colors.color_name as p_color',
         )->get();
         $histoty_order = OrderHistories::join('users', 'users.id', 'order_histories.users')->where('order_id', $id)->select(
             'order_histories.*',
             'users.name as user_name',
             'users.id as user_id'
         )->orderBy('created_at', 'desc')->get();
-        $data_refund = RefundMoney::where('order_id',$id)->where('status','approved')->first();
+        $data_refund = RefundMoney::where('order_id', $id)->where('status', 'approved')->first();
         // dd($data_order);
         // dd($histoty_order);
         // $historyItems = OrderHistories::where('order_id', $id)->get()->keyBy('from_status');
@@ -587,7 +656,7 @@ if ($voucherCode) {
         if (!$data_order) {
             return abort(403, "không có đơn này");
         }
-        return view('dashboard.pages.order.detail', compact('data_order', 'data_order_items', 'histoty_order', 'data_provinces','data_refund'));
+        return view('dashboard.pages.order.detail', compact('data_order', 'data_order_items', 'histoty_order', 'data_provinces', 'data_refund'));
     }
     // Method để cập nhật loại vận chuyển trong checkout
     public function updateShippingType(Request $request)
@@ -1043,7 +1112,7 @@ if ($voucherCode) {
         if (!$data_order) {
             return abort(403, "Không tìm thấy đơn này");
         }
-        if ($data_order->status == 'cancelled' || $data_order->status == 'success' || $data_order->status == 'shipping') {
+        if ($data_order->status != 'pending') {
             return redirect()->back()->with('error', 'Bạn không thể sửa địa chỉ của đơn hàng');
         }
         $request->validate([

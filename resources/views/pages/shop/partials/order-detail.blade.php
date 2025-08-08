@@ -169,8 +169,8 @@
                                                     {{ $item->product_name }}
                                                 </div>
                                                 <div style="font-size: 13px; color: #555;">
-                                                    {{ $item->productVariant->color->color_name ?? '-' }},
-                                                    {{ $item->productVariant->size->size_name ?? '-' }}
+                                                    {{ $item->productVariant->color->color_name ?? $item->color_name }},
+                                                    {{ $item->productVariant->size->size_name ?? $item->size_name }}
                                                     <br>
                                                     x{{ $item->quantity }}
                                                 </div>
