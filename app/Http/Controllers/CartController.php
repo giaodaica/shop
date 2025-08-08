@@ -19,10 +19,17 @@ public function index()
 {
     $userId = Auth::id();
 
+$cartItems = Cart::with('productVariant.color', 'productVariant.size', 'productVariant.product')
+    ->where('user_id', $userId)
+    ->whereHas('productVariant', function ($q) {
+        $q->whereNull('deleted_at')
+          ->whereHas('product', function ($q2) {
+              $q2->whereNull('deleted_at');
+          });
+    })
+    ->get();
 
-    $cartItems = Cart::with('productVariant.color')->where('user_id', $userId)->get();
-    $cartItems = Cart::with('productVariant.color', 'productVariant.size', 'productVariant.product')->where('user_id', $userId)->get();
-
+// dd($cartItems);
 
     $selectedIds = session('cart_selected_ids', []);
 
@@ -198,17 +205,44 @@ public function deleteSelected(Request $request)
 public function updateQuantity(Request $request)
 {
     try {
-        $cartItem = Cart::findOrFail($request->id);
+        $cartItem = Cart::with('productVariant')->findOrFail($request->id);
         $variant = $cartItem->productVariant;
 
         if ($request->action === 'increase') {
-            if ($cartItem->quantity >= $variant->stock) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Không thể tăng vượt quá tồn kho.'
-                ]);
+
+            // Nếu là flash_sale
+            if ($cartItem->flash_sale_items_id) {
+                $flashSaleItem = FlashSaleItems::find($cartItem->flash_sale_items_id);
+
+                if (!$flashSaleItem) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Sản phẩm Flash Sale không tồn tại.'
+                    ]);
+                }
+
+                // Tính số lượng còn lại của Flash Sale
+                $available = $flashSaleItem->max_quantity - $flashSaleItem->sold_quantity;
+
+                if ($cartItem->quantity >= $available) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Không thể tăng vượt quá số lượng Flash Sale còn lại.'
+                    ]);
+                }
+
+            } else {
+                // Sản phẩm thường: check tồn kho
+                if ($cartItem->quantity >= $variant->stock_quantity) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Không thể tăng vượt quá tồn kho.'
+                    ]);
+                }
             }
+
             $cartItem->quantity += 1;
+
         } elseif ($request->action === 'decrease') {
             if ($cartItem->quantity > 1) {
                 $cartItem->quantity -= 1;
@@ -229,6 +263,7 @@ public function updateQuantity(Request $request)
             'subtotal' => number_format($subtotal, 0, ',', '.') . ' đ',
             'total' => number_format($total, 0, ',', '.') . ' đ',
         ]);
+
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
@@ -236,6 +271,7 @@ public function updateQuantity(Request $request)
         ], 500);
     }
 }
+
 
 public function calculateTotal(Request $request)
 {
@@ -256,16 +292,29 @@ public function calculateTotal(Request $request)
 public function getUserVouchers()
 {
     $userId = Auth::id();
+    $now = now();
 
     $vouchers = DB::table('vouchers_users')
         ->join('vouchers', 'vouchers_users.voucher_id', '=', 'vouchers.id')
         ->where('vouchers_users.user_id', $userId)
         ->where('vouchers_users.status', 'available')
-        ->select('vouchers.*', 'voucher_user.status', 'vouchers_users.is_used')
+        ->where('vouchers_users.is_used', 'used') 
+        ->where(function ($query) use ($now) {
+            $query->whereNull('vouchers_users.start_date')->orWhere('vouchers_users.start_date', '<=', $now);
+        })
+        ->where(function ($query) use ($now) {
+            $query->whereNull('vouchers_users.end_date')->orWhere('vouchers_users.end_date', '>=', $now);
+        })
+        ->where(function ($query) {
+            $query->whereNull('vouchers.max_used')
+                ->orWhereColumn('vouchers.used', '<', 'vouchers.max_used');
+        })
+        ->where('vouchers.status', 'used')
+        ->select('vouchers.*') // nếu cần thêm status thì thêm các field từ vouchers_users
         ->get();
-
     return response()->json($vouchers);
 }
+
 
 public function applyVoucher(Request $request)
 {
@@ -276,15 +325,12 @@ public function applyVoucher(Request $request)
     $userId = Auth::id();
     $now = now();
 
-    // $voucher = DB::table('vouchers')
-    //     ->where('code', $request->code)
-    //     ->where('status', 'active')
-    //     ->first();
+
     $voucher = VouchersUsers::join('vouchers','vouchers_users.voucher_id','vouchers.id')
     ->where('code',$request->code)->where('is_used','unused')->first();
     // dd($voucher1);
     if (!$voucher) {
-        return redirect()->back()->with('error', 'Mã giảm giá không hợp lệ hoặc không hoạt động.');
+        return redirect()->back()->with('error', 'Mã giảm giá không hợp lệ hoặc đã sử dụng.');
     }
 
     if (($voucher->start_date && $now->lt($voucher->start_date)) ||
@@ -347,6 +393,9 @@ public function applyVoucher(Request $request)
         'voucher_code' => $voucher->code,
         'voucher_discount' => $discount
     ]);
+   
+// dd($voucher);
+
 
     return redirect()->back()->with('success', 'Áp dụng mã giảm giá thành công!');
 }
@@ -390,11 +439,12 @@ public function add_to_cart($id, Request $request)
             return redirect()->back()->with('error', "Chỉ còn $availableFlashSale sản phẩm Flash Sale.");
         }
 
-        // Kiểm tra tồn kho gốc
-        $variant = $flashSaleItem->productVariant;
-        if (!$variant || $variant->stock < $request->quantity) {
-            return redirect()->back()->with('error', "Tồn kho gốc không đủ.");
+    // Kiểm tra tồn kho flash sale
+        $availableFlashSale = $flashSaleItem->max_quantity - $flashSaleItem->sold_quantity;
+        if ($availableFlashSale < $request->quantity) {
+            return redirect()->back()->with('error', "Chỉ còn $availableFlashSale sản phẩm Flash Sale.");
         }
+
 
         $userId = auth()->id();
 
@@ -453,6 +503,8 @@ public function add_to_cart($id, Request $request)
     $product = Products::find($id);
     if (!$product) {
         return redirect()->back()->with('error', 'Sản phẩm không tồn tại');
+        // dd($flashSale);
+
     }
 
     // Kiểm tra biến thể

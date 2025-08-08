@@ -148,12 +148,12 @@
                             @forelse($cartItems as $item)
                                 <li class="cart-item align-items-center">
                                     {{-- <a href="#" class="alt-font close">×</a> --}}
-                                    <div class="product-image">
-                                        <a href="{{ route('home.show', $item->product->slug) }}">
-                                            <img src="{{ asset($item->productVariant->variant_image_url) }}"
-                                                class="cart-thumb" alt="">
-                                        </a>
-                                    </div>
+                                        <div class="product-image">
+                                            <a href="{{ route('home.show', $item->product->slug) }}">
+                                                <img src="{{ asset($item->productVariant->variant_image_url) }}"
+                                                    class="cart-thumb" alt="">
+                                            </a>
+                                        </div>
 
                                     <div class="product-detail fw-600">
                                         <a
