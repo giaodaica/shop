@@ -12,6 +12,7 @@ use App\Models\OrderHistories;
 use App\Models\OrderItem;
 use App\Models\Provinces;
 use App\Models\RefundMoney;
+use App\Models\Review;
 use App\Models\Vouchers;
 use App\Models\VouchersLog;
 use App\Models\VouchersUsers;
@@ -81,7 +82,8 @@ class InfoController extends Controller
         $order = Order::with([
             'orderItems.productVariant.color',
             'orderItems.productVariant.size',
-            'orderItems.productVariant.product'
+            'orderItems.productVariant.product',
+            'orderItems.reviews' // load sẵn để check isEmpty() ở view
         ])->leftJoin('provinces', 'provinces.province_code', 'orders.province_code')
             ->leftJoin('wards', 'wards.ward_code', 'orders.ward_code')
             ->select('orders.*', 'provinces.name as province_name', 'wards.name as ward_name', 'wards.name as ward_name')
@@ -278,7 +280,7 @@ class InfoController extends Controller
         if (!$data_order) {
             return abort(403, "Không tìm thấy đơn này");
         }
-        if ($data_order->status == 'cancelled' || $data_order->status == 'success' || $data_order->status == 'shipping') {
+        if ($data_order->status == 'cancelled' || $data_order->status == 'success' || $data_order->status == 'confirmed')  {
             return redirect()->back()->with('error', 'Bạn không thể sửa địa chỉ của đơn hàng');
         }
         $request->merge([
@@ -316,5 +318,42 @@ class InfoController extends Controller
             'users' => Auth::user()->id,
         ]);
         return redirect()->back()->with('success', 'Sửa địa chỉ thành công');
+    }
+    // comment
+    public function store(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'content' => 'required|string',
+            'color' => 'required|exists:product_variants,color_id',
+            'size' => 'required|exists:product_variants,size_id',
+        ], [
+            'content.required' => 'Nội dung đánh giá không được để trống!',
+            'content.min' => 'Nội dung đánh giá phải tối thiểu :min ký tự!',
+            'color.required' => 'Vui lòng chọn màu sắc.',
+            'color.exists' => 'Màu sắc không hợp lệ.',
+            'size.required' => 'Vui lòng chọn kích thước.',
+            'size.exists' => 'Kích thước không hợp lệ.',
+        ]);
+        dd($request);
+        Review::create([
+            'product_id' => $request->product_id,
+            'color' => $request->color ?? null,
+            'size' => $request->size ?? null,
+            'user_id' => Auth::id(),
+            'rating' => $request->rating,
+            'content' => $request->content,
+            'is_show' => 1, // chờ admin duyệt
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'alert' => 'alert-success',
+                'message' => 'Đánh giá của bạn đã được gửi'
+            ]);
+        }
+
+        return back()->with('success', 'Đánh giá của bạn đã được gửi');
     }
 }

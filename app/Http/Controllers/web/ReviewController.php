@@ -10,18 +10,18 @@ use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
-    
-        public function store(Request $request)
+
+    public function store(Request $request)
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'rating' => 'required|integer|min:1|max:5',
             'content' => 'required|string',
-        ],[
+        ], [
             'content.required' => 'Nội dung đánh giá không được để trống!',
             'content.min' => 'Nội dung đánh giá phải tối thiểu :min ký tự!',
         ]);
-// dd($request);
+        // dd($request);
         Review::create([
             'product_id' => $request->product_id,
             'user_id' => Auth::id(),

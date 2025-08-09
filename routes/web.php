@@ -63,6 +63,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
     Route::get('/search/filter', [SearchController::class, 'search'])->name('search.filter');
     Route::get('/search/trending-categories', [SearchController::class, 'trendingCategories']);
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware(['auth', 'throttle:5,1']);
+    Route::post('/reviews', [InfoController::class, 'store'])->name('reviews.store');
     Route::get('/reviews/list/{product_id}', [ReviewController::class, 'list'])->name('reviews.list');
 
 
@@ -233,7 +234,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
         Route::post('order/change/{id}', [OrderController::class, 'db_order_change'])->name('dashboard.order.change')->middleware('permission:Thay đổi trạng thái đơn hàng');
         Route::get('order/{id}', [OrderController::class, 'db_order_show'])->middleware('permission:Xem trang đơn hàng');
         Route::post('order/change-address/{id}', [OrderController::class, 'change_address'])->middleware('permission:Thay đổi địa chỉ đơn hàng');
-        Route::post('filter-order',[OrderController::class,'db_order'])->name('filter.order');
+        Route::post('filter-order', [OrderController::class, 'db_order'])->name('filter.order');
 
         // Refund Management
         Route::get('refund', [RefundMoneyController::class, 'index'])->name('dashboard.order.refund')->middleware('permission:Xem trang hoàn tiền');
