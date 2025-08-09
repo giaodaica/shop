@@ -19,6 +19,8 @@ use App\Models\VouchersUsers;
 
 class InfoController extends Controller
 {
+   
+
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
