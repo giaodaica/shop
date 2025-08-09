@@ -451,6 +451,14 @@
                                                             @endif
                                                         @endfor
                                                     </span>
+                                                    <span class="text-dark fw-bold d-block">
+                                                        {{ $review->product->name }}
+                                                        @if($review)
+                                                            <small class="text-muted">
+                                                                ({{ $review->color ?? '' }}, {{ $review->size ?? '' }})
+                                                            </small>
+                                                        @endif
+                                                    </span>
                                                     <p class="w-85 sm-w-100 sm-mt-15px">{{ $review->content }}</p>
 
                                                     @if ($review->admin_reply)
@@ -503,7 +511,7 @@
                                     </div>
                                 @endif
                             </div>
-                            <div class="row justify-content-center">
+                            {{-- <div class="row justify-content-center">
                                 <div class="col-12">
                                     <div class="p-7 lg-p-5 sm-p-7 bg-very-light-gray">
                                         @auth
@@ -570,7 +578,7 @@
                                         @endguest
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                         <!-- end tab content -->
                     </div>
@@ -638,7 +646,7 @@
     </section>
     <!-- end section -->
     <style>
-        .rating-stars {
+        /* .rating-stars {
             display: inline-flex;
             direction: rtl;
             justify-content: flex-end;
@@ -646,7 +654,7 @@
 
         .btn-danger:hover {
             background-color: #dc3545 !important;
-            /* màu đỏ mặc định */
+           
             color: #fff !important;
         }
 
@@ -663,8 +671,8 @@
         .rating-stars label:hover i,
         .rating-stars label:hover~label i {
             color: #ffb60f;
-            /* text-golden-yellow */
-        }
+            
+        } */
 
         /* Cải thiện hiệu ứng transition cho ảnh sản phẩm */
         .product-image-slider .swiper-slide img {
