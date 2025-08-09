@@ -44,4 +44,5 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Flash_sale_items::class, 'flash_sale_items_id');
     }
+    
 }

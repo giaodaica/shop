@@ -17,6 +17,10 @@ class Review extends Model
         'rating',
         'is_show',
         'images', 
+        'order_id',
+        'product_variant_id',
+        'color',
+        'size',
     ];
 
     protected $casts = [
@@ -27,6 +31,10 @@ class Review extends Model
     public function product()
     {
         return $this->belongsTo(Products::class);
+    }
+    public function variants()
+    {
+        return $this->belongsTo(Product_variants::class);
     }
 
     public function user()

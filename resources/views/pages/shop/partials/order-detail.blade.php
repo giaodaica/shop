@@ -82,22 +82,25 @@
                                     </h6>
                                     <p class="mb-1"><strong>Người nhận:</strong> {{ $order->name }}</p>
                                     <p class="mb-1"><strong>Địa chỉ:</strong> {{ $order->address }}</p>
-                                    <p class="mb-1">{{ $order->ward_name }}, {{ $order->district_name }},
-                                        {{ $order->province_name }}</p>
+                                    {{-- <p class="mb-1">{{ $order->ward_name }}, {{ $order->district_name }},
+                                        {{ $order->province_name }}</p> --}}
                                     <p class="mb-0"><strong>Điện thoại:</strong> {{ $order->phone }}</p>
                                 </div>
 
                                 {{-- Nút chỉnh sửa --}}
-                                <div>
-                                    <a href="javascript:void(0);" onclick="showEditForm()" class="btn btn-sm no-hover">
-                                        <i class="fas fa-edit me-1"></i> Sửa
-                                    </a>
-                                </div>
+                                @if ($order->status == 'pending')
+                                    <div>
+                                        <a href="javascript:void(0);" onclick="showEditForm()" class="btn btn-sm no-hover">
+                                            <i class="fas fa-edit me-1"></i> Sửa
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                         @endif
                     </div>
 
                     <!-- Form chỉnh sửa địa chỉ (ẩn mặc định) -->
+
                     <form id="addressForm" action="{{ route('order.update', $order->id) }}" method="POST"
                         style="display: none;">
                         @csrf
@@ -174,15 +177,133 @@
                                                     <br>
                                                     x{{ $item->quantity }}
                                                 </div>
+                                                @php
+                                                    $data_item = App\Models\Review::where('order_id', $order->id)
+                                                        ->where('product_variant_id', $item->product_variant_id)
+                                                        ->first();
+                                                @endphp
+                                                @if ($data_item)
+                                                    <span class="badge bg-success px-3 py-2">
+                                                        <i class="bi bi-check-circle-fill me-1"></i> Đã đánh giá
+                                                    </span>
+                                                @else
+                                                    <button type="button"
+                                                        class="btn btn-sm shadow-sm hover-scale"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#reviewModal-{{ $item->id }}">
+                                                        <i class="bi bi-star-fill me-1 text-warning"></i> Đánh giá sản phẩm
+                                                    </button>
+                                                @endif
+
+
+
+
                                             </div>
                                         </td>
                                         <td>{{ number_format($item->sale_price) }}đ</td>
                                     </tr>
+                                    <div class="modal fade" id="reviewModal-{{ $item->id }}" tabindex="-1"
+                                        aria-labelledby="reviewModalLabel-{{ $item->id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                            <div class="modal-content border-radius-6px">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="reviewModalLabel-{{ $item->id }}">
+                                                        Đánh giá sản phẩm: {{ $item->product_name }}
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Đóng"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    @auth
+                                                        <form action="{{ route('reviews.store') }}" method="post">
+                                                            @csrf
+                                                            <input type="hidden" name="product_id"
+                                                                value="{{ $item->product_id }}">
+                                                            <input type="hidden" name="order_id"
+                                                                value="{{ $order->id }}">
+                                                            <input type="hidden" name="product_variant_id"
+                                                                value="{{ $item->product_variant_id }}">
+                                                                <input type="hidden" name="color" value="{{ $item->productVariant->color->color_name ?? '' }}">
+                                                                <input type="hidden" name="size" value="{{ $item->productVariant->size->size_name ?? '' }}">
+                                                                
+
+                                                            {{-- Rating --}}
+                                                            <div class="col-lg-2 mb-20px">
+                                                                <label class="form-label">Đánh giá*</label>
+                                                                <div class="d-block md-mt-0">
+                                                                    <div class="rating-stars icon-small">
+                                                                        @for ($i = 5; $i >= 1; $i--)
+                                                                            <input class="d-none" type="radio"
+                                                                                id="star{{ $i }}-{{ $item->id }}"
+                                                                                name="rating" value="{{ $i }}"
+                                                                                required="{{ $i == 5 ? 'required' : '' }}" />
+                                                                            <label
+                                                                                for="star{{ $i }}-{{ $item->id }}">
+                                                                                <i class="bi bi-star-fill"></i>
+                                                                            </label>
+                                                                        @endfor
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                            {{-- Nội dung --}}
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Đánh giá của bạn</label>
+                                                                <textarea class="form-control border-radius-4px" name="content" rows="4"
+                                                                    placeholder="Nhập nội dung đánh giá..." required></textarea>
+                                                            </div>
+
+                                                            <div class="text-end">
+                                                                <button type="submit" class="btn btn-primary no-hover">Gửi đánh
+                                                                    giá</button>
+                                                            </div>
+                                                        </form>
+                                                    @else
+                                                        <div class="alert alert-info text-center">
+                                                            Vui lòng <a
+                                                                href="{{ route('login') }}?redirect={{ urlencode(url()->current()) }}">đăng
+                                                                nhập</a> để viết bình luận.
+                                                        </div>
+                                                    @endauth
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
+                    {{-- comment --}}
+                    <style>
+                        .rating-stars {
+                            display: inline-flex;
+                            direction: rtl;
+                            justify-content: flex-end;
+                        }
 
+                        .btn-danger:hover {
+                            background-color: #dc3545 !important;
+                            /* màu đỏ mặc định */
+                            color: #fff !important;
+                        }
+
+                        .rating-stars label {
+                            cursor: pointer;
+                        }
+
+                        .rating-stars i {
+                            color: #e4e4e4;
+                            transition: color 0.2s;
+                        }
+
+                        .rating-stars input:checked~label i,
+                        .rating-stars label:hover i,
+                        .rating-stars label:hover~label i {
+                            color: #ffb60f;
+                            /* text-golden-yellow */
+                        }
+                    </style>
                     <!-- Layout cho mobile -->
                     <div class="d-block d-md-none">
                         @foreach ($order->orderItems as $index => $item)
