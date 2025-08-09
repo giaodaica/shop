@@ -62,7 +62,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
     Route::get('/search/suggestions', [SearchController::class, 'suggestions']);
     Route::get('/search/filter', [SearchController::class, 'search'])->name('search.filter');
     Route::get('/search/trending-categories', [SearchController::class, 'trendingCategories']);
-    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware(['auth', 'throttle:5,1']);
+    // Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware(['auth', 'throttle:5,1']);
     Route::post('/reviews', [InfoController::class, 'store'])->name('reviews.store');
     Route::get('/reviews/list/{product_id}', [ReviewController::class, 'list'])->name('reviews.list');
 
@@ -134,7 +134,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
     Route::get('/search/suggestions', [SearchController::class, 'suggestions']);
     Route::get('/search/filter', [SearchController::class, 'search'])->name('search.filter');
     Route::get('/search/trending-categories', [SearchController::class, 'trendingCategories']);
-    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware(['auth', 'throttle:5,1']);
+    // Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware(['auth', 'throttle:5,1']);
     Route::get('/reviews/list/{product_id}', [ReviewController::class, 'list'])->name('reviews.list');
 
 

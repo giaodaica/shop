@@ -482,8 +482,6 @@ namespace App\Models{
  * @property-read \App\Models\Order $order
  * @property-read \App\Models\Products|null $product
  * @property-read \App\Models\Product_variants|null $productVariant
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
- * @property-read int|null $reviews_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem query()
@@ -714,6 +712,8 @@ namespace App\Models{
  * 
  *
  * @property int $id
+ * @property int|null $order_id
+ * @property int|null $product_variant_id
  * @property string|null $color
  * @property string|null $size
  * @property int $product_id
@@ -729,6 +729,7 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ReviewReply> $replies
  * @property-read int|null $replies_count
  * @property-read \App\Models\User $user
+ * @property-read \App\Models\Product_variants|null $variants
  * @method static \Database\Factories\ReviewFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newQuery()
@@ -740,7 +741,9 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereImages($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereIsShow($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereOrderId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereProductVariantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereRating($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereSize($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereUpdatedAt($value)

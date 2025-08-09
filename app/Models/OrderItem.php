@@ -44,10 +44,5 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Flash_sale_items::class, 'flash_sale_items_id');
     }
-    public function reviews()
-{
-    return $this->hasMany(Review::class, 'product_id', 'product_id')
-        ->where('user_id', auth()->id());
-}
-
+    
 }

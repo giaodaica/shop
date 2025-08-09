@@ -19,7 +19,7 @@ use App\Models\VouchersUsers;
 
 class InfoController extends Controller
 {
-   
+
 
     public function updateProfile(Request $request)
     {
@@ -85,17 +85,18 @@ class InfoController extends Controller
             'orderItems.productVariant.color',
             'orderItems.productVariant.size',
             'orderItems.productVariant.product',
-            'orderItems.reviews' // load sẵn để check isEmpty() ở view
+
         ])->leftJoin('provinces', 'provinces.province_code', 'orders.province_code')
             ->leftJoin('wards', 'wards.ward_code', 'orders.ward_code')
             ->select('orders.*', 'provinces.name as province_name', 'wards.name as ward_name', 'wards.name as ward_name')
             ->where('orders.id', $id)->first();
-        //  dd($order);
-
+        // $data_item = Review::where('order_id',$id)->where('product_variant_id',$order->productVariant->id)->first();
+        // dd($data_item);
         if (!$order) {
             abort(404, 'Order not found');
         }
-
+        // $data_reviews = Review::where('order_id',$id)->where('product_variant_id', $order->orderItems)->first();
+        // dd($data_reviews);
         $shippingAddress = $order->addressBook; // đúng với quan hệ trong model
         $subtotal = $order->orderItems->sum(function ($item) {
             return $item->sale_price * $item->quantity;
@@ -282,12 +283,12 @@ class InfoController extends Controller
         if (!$data_order) {
             return abort(403, "Không tìm thấy đơn này");
         }
-        if ($data_order->status == 'cancelled' || $data_order->status == 'success' || $data_order->status == 'confirmed')  {
+        if ($data_order->status == 'cancelled' || $data_order->status == 'success' || $data_order->status == 'confirmed') {
             return redirect()->back()->with('error', 'Bạn không thể sửa địa chỉ của đơn hàng');
         }
         $request->merge([
-    'ward_code' => $request->ward_code ?: $request->ward_code_hidden
-]);
+            'ward_code' => $request->ward_code ?: $request->ward_code_hidden
+        ]);
 
         $request->validate([
             'name' => 'required|string',
@@ -324,23 +325,35 @@ class InfoController extends Controller
     // comment
     public function store(Request $request)
     {
+        // dd($_POST);
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'rating' => 'required|integer|min:1|max:5',
-            'content' => 'required|string',
-            'color' => 'required|exists:product_variants,color_id',
-            'size' => 'required|exists:product_variants,size_id',
+            'content' => 'required|string|min:3',
+            'order_id' => 'required|exists:orders,id',
+            'product_variant_id' => 'required|exists:product_variants,id',
+            'color' => 'required|string|max:50',
+            'size' => 'required|string|max:50',
         ], [
             'content.required' => 'Nội dung đánh giá không được để trống!',
             'content.min' => 'Nội dung đánh giá phải tối thiểu :min ký tự!',
-            'color.required' => 'Vui lòng chọn màu sắc.',
-            'color.exists' => 'Màu sắc không hợp lệ.',
-            'size.required' => 'Vui lòng chọn kích thước.',
-            'size.exists' => 'Kích thước không hợp lệ.',
+            'color.required' => 'Vui lòng chọn màu sản phẩm!',
+            'size.required' => 'Vui lòng chọn kích thước sản phẩm!',
         ]);
-        dd($request);
+
+        // Check nếu đã đánh giá
+        $data_item = Review::where('order_id', $request->order_id)
+            ->where('product_variant_id', $request->product_variant_id)
+            ->first();
+
+        if ($data_item) {
+            return back()->with('error', 'Bạn đã đánh giá, không thể đánh giá lại!');
+        }
+
         Review::create([
             'product_id' => $request->product_id,
+            'order_id' => $request->order_id,
+            'product_variant_id' => $request->product_variant_id,
             'color' => $request->color ?? null,
             'size' => $request->size ?? null,
             'user_id' => Auth::id(),

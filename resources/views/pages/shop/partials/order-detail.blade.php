@@ -177,14 +177,24 @@
                                                     <br>
                                                     x{{ $item->quantity }}
                                                 </div>
-
-                                                @if ($order->status === 'success' && $item->reviews->isEmpty())
-                                                    <button type="button" class="btn btn-sm btn-outline-primary mt-1"
+                                                @php
+                                                    $data_item = App\Models\Review::where('order_id', $order->id)
+                                                        ->where('product_variant_id', $item->product_variant_id)
+                                                        ->first();
+                                                @endphp
+                                                @if ($data_item)
+                                                    <span class="badge bg-success px-3 py-2">
+                                                        <i class="bi bi-check-circle-fill me-1"></i> Đã đánh giá
+                                                    </span>
+                                                @else
+                                                    <button type="button"
+                                                        class="btn btn-sm shadow-sm hover-scale"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#reviewModal-{{ $item->id }}">
-                                                        Đánh giá sản phẩm
+                                                        <i class="bi bi-star-fill me-1 text-warning"></i> Đánh giá sản phẩm
                                                     </button>
                                                 @endif
+
 
 
 
@@ -209,36 +219,33 @@
                                                             @csrf
                                                             <input type="hidden" name="product_id"
                                                                 value="{{ $item->product_id }}">
-                                                            {{-- <input type="hidden" name="color" value="{{ $item->productVariant->color_id }}">
-                                                            <input type="hidden" name="size" value="{{ $item->productVariant->size_id }}"> --}}
+                                                            <input type="hidden" name="order_id"
+                                                                value="{{ $order->id }}">
+                                                            <input type="hidden" name="product_variant_id"
+                                                                value="{{ $item->product_variant_id }}">
+                                                                <input type="hidden" name="color" value="{{ $item->productVariant->color->color_name ?? '' }}">
+                                                                <input type="hidden" name="size" value="{{ $item->productVariant->size->size_name ?? '' }}">
+                                                                
+
                                                             {{-- Rating --}}
                                                             <div class="col-lg-2 mb-20px">
                                                                 <label class="form-label">Đánh giá*</label>
                                                                 <div class="d-block md-mt-0">
                                                                     <div class="rating-stars icon-small">
-                                                                        <input class="d-none" type="radio" id="star5"
-                                                                            name="rating" value="5" required />
-                                                                        <label for="star5" title="5 sao"><i
-                                                                                class="bi bi-star-fill"></i></label>
-                                                                        <input class="d-none" type="radio" id="star4"
-                                                                            name="rating" value="4" />
-                                                                        <label for="star4" title="4 sao"><i
-                                                                                class="bi bi-star-fill"></i></label>
-                                                                        <input class="d-none" type="radio" id="star3"
-                                                                            name="rating" value="3" />
-                                                                        <label for="star3" title="3 sao"><i
-                                                                                class="bi bi-star-fill"></i></label>
-                                                                        <input class="d-none" type="radio" id="star2"
-                                                                            name="rating" value="2" />
-                                                                        <label for="star2" title="2 sao"><i
-                                                                                class="bi bi-star-fill"></i></label>
-                                                                        <input class="d-none" type="radio" id="star1"
-                                                                            name="rating" value="1" />
-                                                                        <label for="star1" title="1 sao"><i
-                                                                                class="bi bi-star-fill"></i></label>
+                                                                        @for ($i = 5; $i >= 1; $i--)
+                                                                            <input class="d-none" type="radio"
+                                                                                id="star{{ $i }}-{{ $item->id }}"
+                                                                                name="rating" value="{{ $i }}"
+                                                                                required="{{ $i == 5 ? 'required' : '' }}" />
+                                                                            <label
+                                                                                for="star{{ $i }}-{{ $item->id }}">
+                                                                                <i class="bi bi-star-fill"></i>
+                                                                            </label>
+                                                                        @endfor
                                                                     </div>
                                                                 </div>
                                                             </div>
+
 
                                                             {{-- Nội dung --}}
                                                             <div class="mb-3">
@@ -248,7 +255,7 @@
                                                             </div>
 
                                                             <div class="text-end">
-                                                                <button type="submit" class="btn btn-primary">Gửi đánh
+                                                                <button type="submit" class="btn btn-primary no-hover">Gửi đánh
                                                                     giá</button>
                                                             </div>
                                                         </form>
