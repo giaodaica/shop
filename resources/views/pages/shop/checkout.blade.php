@@ -88,7 +88,7 @@
                                             <input type="radio" name="address_id" value="{{ $address->id }}"
                                                 class="address-radio d-none" {{ $loop->first ? 'checked' : '' }}>
                                             <div class="address-info">
-                                                <div class="address-card border p-3 rounded mb-2" data-province-code="{{ $address->province_code }}">
+                                                <div class="address-card border p-3 rounded mb-2" data-province-code="{{ $address->province_code }}" data-province-name="{{ $address->province->name ?? '' }}" data-ward-name="{{ $address->ward->name ?? '' }}">
                                                     <div class="mb-2">
                                                         <strong>Địa chỉ {{ $loop->iteration }}</strong>
                                                     </div>
@@ -157,6 +157,10 @@
                                         <td class="text-dark-gray fw-600">{{ number_format($subtotal, 0, ',', '.') }} đ
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <th class="fw-600 text-dark-gray alt-font">Phí vận chuyển</th>
+                                        <td class="text-dark-gray fw-600 shipping-fee-display">{{ number_format($shippingFee ?? 0, 0, ',', '.') }} đ</td>
+                                    </tr>
                                     @if ($voucherDiscount > 0)
                                         <tr>
                                             <th class="fw-600 text-dark-gray alt-font">Giảm giá</th>
@@ -191,11 +195,7 @@
                                     <div id="style-5-collapse-shipping-1" class="collapse show"
                                         data-bs-parent="#accordion-style-05">
                                         <div class="p-25px bg-very-light-gray mt-20px mb-20px fs-14 lh-24">
-                                            @if ($subtotal >= 200000)
-                                                Miễn phí vận chuyển cho đơn hàng từ 200.000 đ trở lên.
-                                            @else
-                                                Phí vận chuyển: 20.000 đ cho đơn hàng dưới 200.000 đ.
-                                            @endif
+                                            Phí vận chuyển được tính theo quy tắc nội bộ dựa trên tỉnh/thành và quận/huyện đã chọn.
                                         </div>
                                     </div>
                                     <!-- end shipping tab content -->
@@ -214,11 +214,7 @@
                                     <div id="style-5-collapse-shipping-2" class="collapse"
                                         data-bs-parent="#accordion-style-05">
                                         <div class="p-25px bg-very-light-gray mt-20px mb-20px fs-14 lh-24">
-                                            @if ($subtotal >= 200000)
-                                                Phí vận chuyển nhanh: +30.000 đ (miễn phí cơ bản + 30.000 đ).
-                                            @else
-                                                Phí vận chuyển nhanh: 50.000 đ (20.000 đ cơ bản + 30.000 đ).
-                                            @endif
+                                            Vận chuyển nhanh cộng thêm phụ phí so với vận chuyển cơ bản.
                                         </div>
                                     </div>
                                     <!-- end shipping tab content -->
@@ -310,6 +306,31 @@
     </style>
 
     <script>
+        function recalcShippingAndTotal() {
+            const shippingType = document.querySelector('input[name="shipping_type"]:checked')?.value || 'basic';
+            const addressRadio = document.querySelector('.address-radio:checked');
+            const addressId = addressRadio ? addressRadio.value : null;
+
+            fetch("{{ route('checkout.updateShippingType') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ shipping_type: shippingType, address_id: addressId })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.success) {
+                        const feeEl = document.querySelector('.shipping-fee-display');
+                        if (feeEl) feeEl.textContent = data.shipping_fee;
+                        const totalEl = document.querySelector('.total-display');
+                        if (totalEl) totalEl.textContent = data.total;
+                    }
+                })
+                .catch(() => {});
+        }
+
         document.querySelectorAll('.address-radio').forEach(function(radio) {
             radio.addEventListener('change', function() {
                 document.querySelectorAll('.address-card').forEach(function(card) {
@@ -321,8 +342,9 @@
                     addressCard.classList.add('selected');
                 }
 
-                // Gọi hàm kiểm tra ship nhanh
+                // Cập nhật khả dụng và tính lại phí ship
                 updateShippingExpressAvailability();
+                recalcShippingAndTotal();
             });
 
 
@@ -336,6 +358,7 @@
 
                 // Kiểm tra lúc khởi tạo
                 updateShippingExpressAvailability();
+                recalcShippingAndTotal();
             }
         });
 
@@ -346,22 +369,32 @@
 
             const addressCard = checkedRadio.parentElement.querySelector('.address-card');
             
-            // Lấy province_code từ data attribute
-            const provinceCode = addressCard ? addressCard.getAttribute('data-province-code') : null;
-            
-            // Hà Nội có province_code = "01"
-            const isHanoi = provinceCode === "01";
+            const provinceName = (addressCard?.getAttribute('data-province-name') || '').toLowerCase();
+            const wardName = (addressCard?.getAttribute('data-ward-name') || '').toLowerCase();
+
+            const isHanoi = provinceName.includes('hà nội') || provinceName.includes('ha noi');
+            const urbanDistricts = ['ba đình','hoàn kiếm','đống đa','hai bà trưng','tây hồ','cầu giấy','thanh xuân','hoàng mai','long biên','nam từ liêm','bắc từ liêm','hà đông'];
+            const isUrban = urbanDistricts.some(d => wardName.includes(d));
 
             const expressRadio = document.querySelector('input[name="shipping_type"][value="express"]');
             if (expressRadio) {
-                expressRadio.disabled = !isHanoi;
-                if (!isHanoi && expressRadio.checked) {
+                // Chỉ bật ship nhanh cho nội thành Hà Nội
+                const allowExpress = isHanoi && isUrban;
+                expressRadio.disabled = !allowExpress;
+                if (!allowExpress && expressRadio.checked) {
                     // Nếu đang chọn express mà không hợp lệ thì chuyển về basic
                     const basicRadio = document.querySelector('input[name="shipping_type"][value="basic"]');
                     if (basicRadio) basicRadio.checked = true;
                 }
             }
         }
+
+        // Lắng nghe thay đổi phương thức vận chuyển
+        document.querySelectorAll('input[name="shipping_type"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                recalcShippingAndTotal();
+            });
+        });
     </script>
     <!-- Thêm link CDN FontAwesome nếu chưa có -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
