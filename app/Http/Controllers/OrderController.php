@@ -62,6 +62,7 @@ $cartItems = Cart::with([
 ->whereIn('id', $selectedIds)
 ->get();
 
+
 if ($cartItems->isEmpty()) {
     return redirect()->route('home.cart')->with('error', 'Giỏ hàng trống!');
 }

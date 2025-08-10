@@ -27,7 +27,22 @@ $cartItems = Cart::with([
               }, 'color', 'size']);
     }
 ])->where('user_id', auth()->id())->get();
+$deletedForeverItems = $cartItems->filter(function ($item) {
+    return !$item->productVariant || !$item->productVariant->product;
+});
 
+if ($deletedForeverItems->isNotEmpty()) {
+    // Xóa luôn khỏi giỏ
+    Cart::whereIn('id', $deletedForeverItems->pluck('id'))->delete();
+
+    // Thông báo cho view
+    session()->flash('error', 'Một số sản phẩm đã ngừng kinh doanh và đã được gỡ khỏi giỏ hàng.');
+}
+
+// Lọc lại giỏ, chỉ giữ sản phẩm còn tồn tại
+$cartItems = $cartItems->filter(function ($item) {
+    return $item->productVariant && $item->productVariant->product;
+});
 // dd($cartItems);
 
     $selectedIds = session('cart_selected_ids', []);
