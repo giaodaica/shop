@@ -87,8 +87,9 @@ class VouchersController extends Controller
         $data = $request->validated();
             // dd($data_voucher);
 
-        if ($data_voucher->status == 'active' || $data_voucher->status == 'used_up' || $data_voucher->status = 'expired') {
-            $data = Arr::only($data, ['start_date', 'end_date','max_used']);
+        if ($data_voucher->status == 'active' || $data_voucher->status == 'used_up' || $data_voucher->status == 'expired') {
+            // dd('chayj vafho day');
+            $data = Arr::only($data, ['start_date', 'end_date', 'max_used']);
             // dd($data);
         }
         if ($request->hasFile('image')) {
@@ -98,11 +99,19 @@ class VouchersController extends Controller
             $data['image'] = 'uploads/vouchers/' . $filename;
             // dd($data);
 
+
         } else {
-            $data['image'] = $data_voucher->image;
-        }
-        if ($data['type_discount'] == "value") {
-            $data['max_discount'] = 0;
+            if ($request->hasFile('image')) {
+                $file = $request->file('image');
+                $filename = time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/vouchers'), $filename);
+                $data['image'] = 'uploads/vouchers/' . $filename;
+            } else {
+                $data['image'] = $data_voucher->image;
+            }
+            if (isset($data['type_discount']) && $data['type_discount'] == "value") {
+                $data['max_discount'] = 0;
+            }
         }
         $data_voucher->update($data);
         return redirect()->back();
