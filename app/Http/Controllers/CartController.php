@@ -19,15 +19,14 @@ public function index()
 {
     $userId = Auth::id();
 
-$cartItems = Cart::with('productVariant.color', 'productVariant.size', 'productVariant.product')
-    ->where('user_id', $userId)
-    ->whereHas('productVariant', function ($q) {
-        $q->whereNull('deleted_at')
-          ->whereHas('product', function ($q2) {
-              $q2->whereNull('deleted_at');
-          });
-    })
-    ->get();
+$cartItems = Cart::with([
+    'productVariant' => function ($query) {
+        $query->withTrashed() // load cả variant bị xóa mềm
+              ->with(['product' => function ($q) {
+                  $q->withTrashed(); // load cả product bị xóa mềm
+              }, 'color', 'size']);
+    }
+])->where('user_id', auth()->id())->get();
 
 // dd($cartItems);
 

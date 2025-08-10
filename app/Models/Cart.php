@@ -14,7 +14,7 @@ class Cart extends Model
     
     public function productVariant()
     {
-        return $this->belongsTo(Product_variants::class, 'product_variants_id');
+        return $this->belongsTo(Product_variants::class, 'product_variants_id')->withTrashed();
     }
 public function flashSaleItem()
 {
@@ -36,4 +36,5 @@ public function flashSaleItem()
     {
         return $this->belongsTo(User::class);
     }
+
 }
