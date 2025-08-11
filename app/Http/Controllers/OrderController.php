@@ -44,7 +44,7 @@ class OrderController extends Controller
         // Lấy các sản phẩm được chọn từ giỏ hàng
         $selectedIds = session('cart_selected_ids', []);
 
- 
+
 if (empty($selectedIds)) {
     return redirect()->route('home.cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán!');
 }
@@ -520,6 +520,8 @@ if ($deletedItems->isNotEmpty()) {
             $final_amount = $present->final_amount;
         }
         if ($present->status_pay == 'paid' && $present->pay_method == 'VNPAY' || $present->pay_method == 'QR') {
+            // dd($final_amount);
+
             RefundMoney::create([
                 'user_id' => $present->user_id,
                 'order_id' => $id,
@@ -532,7 +534,7 @@ if ($deletedItems->isNotEmpty()) {
                 $voucher = null;
             }
             $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
-            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type));
+            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type,$final_amount));
         }
     }
     public function db_order_change(Request $request, $id)
