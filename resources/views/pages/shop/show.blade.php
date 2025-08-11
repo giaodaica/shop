@@ -157,7 +157,7 @@
 
                     <form action="{{ url('add-to-cart', $product->id) }}" method="post">
                         @csrf
-                        @if ($isFlashSale)`
+                        @if ($isFlashSale)
                             <div class="alert alert-danger">🔥 Sản phẩm đang trong Flash Sale!</div>
                             <div class="mb-20px">
                                 <div class="d-flex align-items-center">
@@ -168,7 +168,7 @@
                                 <ul class="shop-color mb-0 mt-2">
 
                                     <li>
-                                        <input class="d-none" type="radio" id="color-{{ $flashSaleItem->color_id }}"
+                                        <input class="d-none" type="radio" id="color-{{ $flashSaleItem->id }}"
                                             name="color" value="{{ $flashSaleItem->id }}"
                                             data-color-name="{{ $flashSaleItem->color->color_name }}"
                                             {{ old('color') == $flashSaleItem->id ? 'checked' : '' }}>

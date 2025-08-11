@@ -23,7 +23,7 @@
 
                     @if ($item->is_active)
                         <div class="stock-info">
-                            ⚡ Còn {{ $item->max_quantity - $item->sold_quantity }}/{{ $item->max_quantity }} suất
+                            ⚡ Còn {{ $item->max_quantity }}/{{ $item->stock_quantity }} suất
                         </div>
 
                         @if ($item->max_quantity - $item->sold_quantity > 0)

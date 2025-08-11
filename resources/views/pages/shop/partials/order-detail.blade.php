@@ -199,11 +199,6 @@
                                                         <i class="bi bi-star-fill me-1 text-warning"></i> Đánh giá sản phẩm
                                                     </button>
                                                 @endif
-
-
-
-
-
                                             </div>
                                         </td>
                                         <td>{{ number_format($item->sale_price) }}đ</td>
