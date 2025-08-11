@@ -42,24 +42,7 @@
                                 </div>
 
                                 {{-- Trạng thái --}}
-                                <div class="mb-3">
-                                    <label for="choices-publish-status-input" class="form-label">Trạng thái</label>
-
-                                    <select name="status" id="choices-publish-status-input"
-                                        class="form-select w-100 @error('status') is-invalid @enderror">
-                                        <option value="" disabled {{ old('status') === null ? 'selected' : '' }}>
-                                            -- Chọn trạng thái --
-                                        </option>
-                                        <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Không hoạt động
-                                        </option>
-                                        <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>Hoạt động
-                                        </option>
-                                    </select>
-
-                                    @error('status')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                             
 
                                 <button type="submit" class="btn btn-primary mt-3 w-100">Tạo danh mục</button>
                                 <a href="{{ route('categories.index') }}" class="btn btn-secondary mt-2 w-100">Quay lại</a>
