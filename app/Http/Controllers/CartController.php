@@ -21,9 +21,9 @@ public function index()
 
 $cartItems = Cart::with([
     'productVariant' => function ($query) {
-        $query->withTrashed() // load cả variant bị xóa mềm
+        $query->withTrashed()
               ->with(['product' => function ($q) {
-                  $q->withTrashed(); // load cả product bị xóa mềm
+                  $q->withTrashed(); 
               }, 'color', 'size']);
     }
 ])->where('user_id', auth()->id())->get();

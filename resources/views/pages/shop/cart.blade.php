@@ -66,22 +66,22 @@
                                             </a>
                                         </td>
                                      <td class="product-name">
-  <td class="product-name">
-    @if ($item->productVariant && $item->productVariant->product)
-        <a href="{{ route('home.show', $item->productVariant->product->slug) }}"
-           class="truncate-text text-dark-gray fw-500 d-block lh-initial">
-            {{ $item->productVariant->name }}
-        </a>
-        <span class="fs-14">Màu: {{ $item->productVariant->color->color_name ?? 'N/A' }}</span><br>
-        <span class="fs-14">Size: {{ $item->productVariant->size->size_name ?? 'N/A' }}</span>
+                                        <td class="product-name">
+                                            @if ($item->productVariant && $item->productVariant->product)
+                                                <a href="{{ route('home.show', $item->productVariant->product->slug) }}"
+                                                class="truncate-text text-dark-gray fw-500 d-block lh-initial">
+                                                    {{ $item->productVariant->name }}
+                                                </a>
+                                                <span class="fs-14">Màu: {{ $item->productVariant->color->color_name ?? 'N/A' }}</span><br>
+                                                <span class="fs-14">Size: {{ $item->productVariant->size->size_name ?? 'N/A' }}</span>
 
-        @if ($item->productVariant->deleted_at || $item->productVariant->product->deleted_at)
-            <small class="text-danger d-block mt-1 fs-11">Sản phẩm này đã bị xóa hoặc ngừng kinh doanh</small>
-        @endif
-    @else
-        <span class="text-danger">Thông tin sản phẩm không tồn tại</span>
-    @endif
-</td>
+                                                @if ($item->productVariant->deleted_at || $item->productVariant->product->deleted_at)
+                                                    <small class="text-danger d-block mt-1 fs-11">Sản phẩm này đã ngừng kinh doanh</small>
+                                                @endif
+                                            @else
+                                                <span class="text-danger">Thông tin sản phẩm không tồn tại</span>
+                                            @endif
+                                        </td>
 
 
                                         <td class="product-price" data-title="Price">
