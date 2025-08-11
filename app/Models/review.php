@@ -46,5 +46,5 @@ class Review extends Model
     return $this->hasMany(ReviewReply::class);
 }
 
-
+protected $a = 2;
 }
