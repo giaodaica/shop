@@ -80,26 +80,16 @@ class VouchersController extends Controller
         }
         return view('dashboard.pages.voucher.detail', compact('data_voucher', 'action', 'categories'));
     }
-    public function update(VoucherRequest $request, $id)
+  public function update(VoucherRequest $request, $id)
     {
         // dd($_POST);
         $data_voucher = Vouchers::findOrFail($id);
         $data = $request->validated();
-            // dd($data_voucher);
 
         if ($data_voucher->status == 'active' || $data_voucher->status == 'used_up' || $data_voucher->status == 'expired') {
             // dd('chayj vafho day');
             $data = Arr::only($data, ['start_date', 'end_date', 'max_used']);
             // dd($data);
-        }
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/vouchers'), $filename);
-            $data['image'] = 'uploads/vouchers/' . $filename;
-            // dd($data);
-
-
         } else {
             if ($request->hasFile('image')) {
                 $file = $request->file('image');
