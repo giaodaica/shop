@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderCancelledMail;
 use App\Models\AddressBook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,7 @@ use App\Models\Review;
 use App\Models\Vouchers;
 use App\Models\VouchersLog;
 use App\Models\VouchersUsers;
+use Mail;
 
 class InfoController extends Controller
 {
@@ -119,7 +121,6 @@ class InfoController extends Controller
             'shipping',
             'total',
             'refund',
-
             'provinces'
         ));
     }
@@ -145,9 +146,11 @@ class InfoController extends Controller
                     [
                         'user_id' => $order->user_id,
                         'voucher_id' => $order->voucher_id,
+
                     ],
                     [
                         'is_used'    => 'unused',
+                        'status' => 'available',
                         'start_date' => now(),
                         'end_date'   => now()->addDays(7),
                     ]
@@ -164,6 +167,7 @@ class InfoController extends Controller
                     ->where('voucher_id', $order->voucher_id)
                     ->update([
                         'is_used' => 'unused',
+                        'status' => 'available',
                     ]);
                 VouchersLog::create([
                     'user_id' => $order->user_id,
@@ -177,9 +181,8 @@ class InfoController extends Controller
 
 
         $order->save();
-
-        // Lưu lịch sử hủy đơn nếu cần
-        OrderHistories::create([
+         // Lưu lịch sử hủy đơn nếu cần
+         OrderHistories::create([
             'users' => Auth::id(),
             'order_id' => $order->id,
             'from_status' => 'pending',
@@ -187,7 +190,29 @@ class InfoController extends Controller
             'note' => $request->cancel_reason,
             'content' => $request->cancel_note,
         ]);
+        if ($order->status != 'confirmed') {
+            $final_amount = $order->final_amount - $order->shipping_fee;
+        } else {
+            $final_amount = $order->final_amount;
+        }
+        if ($order->status_pay == 'paid' && $order->pay_method == 'VNPAY' || $order->pay_method == 'QR') {
+            // dd($final_amount);
 
+            RefundMoney::create([
+                'user_id' => $order->user_id,
+                'order_id' => $id,
+                'amount' => $final_amount,
+                'status' => 'admin',
+            ]);
+            $voucher = VouchersUsers::where('voucher_id', $order->voucher_id)->first();
+            // dd($voucher);
+            if (!$voucher) {
+                $voucher = null;
+            }
+       
+        $type = VouchersLog::where('voucher_id', $order->voucher_id)->first();
+        Mail::to($order->user->email)->send(new OrderCancelledMail($order, $voucher, $type,$final_amount));
+    }
         return redirect()->back()->with('success', 'Đã hủy đơn hàng thành công!');
     }
 
