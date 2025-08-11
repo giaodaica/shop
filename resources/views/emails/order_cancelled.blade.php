@@ -3,7 +3,7 @@
 <p>Đơn hàng <strong>#{{ $present->code_order }}</strong> của bạn đã bị hủy.</p>
 <p>Lý do : Khách hàng yêu cầu hủy</p>
 @if($present)
-    <p>💰 <strong>Hoàn tiền:</strong> {{ number_format($present->final_amount) }} VND. Tiền sẽ được hoàn trong 3–7 ngày làm việc.</p>
+    <p>💰 <strong>Hoàn tiền:</strong> {{ number_format($final_amount) }} VND. Tiền sẽ được hoàn trong 3–7 ngày làm việc.</p>
 @endif
 
 @if($voucher && $type->type == 'refund_new')

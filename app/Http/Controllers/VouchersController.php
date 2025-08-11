@@ -80,7 +80,7 @@ class VouchersController extends Controller
         }
         return view('dashboard.pages.voucher.detail', compact('data_voucher', 'action', 'categories'));
     }
-  public function update(VoucherRequest $request, $id)
+    public function update(VoucherRequest $request, $id)
     {
         // dd($_POST);
         $data_voucher = Vouchers::findOrFail($id);
