@@ -209,8 +209,7 @@ if ($deletedItems->isNotEmpty()) {
                         ->where('id', $voucher->id)
                         ->increment('used');
 
-                    // Xoá session để không bị dùng lại
-                    // session()->forget(['voucher_code', 'voucher_discount']); // clear sesion quá sớm
+                  
                 }
             }
             // Lấy các sản phẩm được chọn từ giỏ hàng
@@ -336,10 +335,15 @@ if ($deletedItems->isNotEmpty()) {
 
                 OrderItem::create($orderItemData);
                 // Nếu là sản phẩm flash sale thì cập nhật sold_quantity
-                if ($item->flash_sale_items_id) {
-                    FlashSaleItems::where('id', $item->flash_sale_items_id)
-                        ->increment('sold_quantity', $item->quantity);
-                }
+             if ($item->flash_sale_items_id) {
+    FlashSaleItems::where('id', $item->flash_sale_items_id)
+        ->where('max_quantity', '>=', $item->quantity) // chỉ trừ nếu đủ hàng
+        ->update([
+            'sold_quantity' => DB::raw('sold_quantity + ' . $item->quantity),
+            'max_quantity'  => DB::raw('max_quantity - ' . $item->quantity)
+        ]);
+}
+
 
                 // Cập nhật tồn kho
                 $item->productVariant->decrement('stock', $item->quantity);
