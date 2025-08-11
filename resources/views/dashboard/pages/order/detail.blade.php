@@ -100,11 +100,11 @@
                                                                 {{ number_format($data_order->total_amount) }}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>Giảm giá :@if($data_order->voucher_type_discount_snapshot == 'percent')
-                                                                {{number_format($data_order->voucher_value_snapshot) ."%"}}
-                                                            @endif <br>
+                                                            <td>Giảm giá :@if ($data_order->voucher_type_discount_snapshot == 'percent')
+                                                                    {{ number_format($data_order->voucher_value_snapshot) . '%' }}
+                                                                @endif <br>
                                                                 <b><a rel="noopener noreferrer" target="_blank"
-                                                                        href="{{ url("dashboard/voucher/s/$data_order->voucher_id") }}">{{ $data_order->code ?? $data_order->voucher_code_snapshot}}</a></b>
+                                                                        href="{{ url("dashboard/voucher/s/$data_order->voucher_id") }}">{{ $data_order->code ?? $data_order->voucher_code_snapshot }}</a></b>
                                                             </td>
 
                                                             <td class="text-end">
@@ -136,10 +136,12 @@
                             </div>
                         </div>
                     </div>
-                    @if (!empty($rende_order_items->flash_sale_items_id))
-                   <p class="text-info">* sản phẩm này thuộc 1 chương trình flash sale</p>
-                    @else
-                    @endif
+                    @foreach ($data_order_items as $check_fl_s)
+                        @if (!empty($check_fl_s->flash_sale_items_id))
+                            <p class="text-info">* sản phẩm này thuộc 1 chương trình flash sale</p>
+                        @else
+                        @endif
+                    @endforeach
                     <!--end card-->
                     <div class="card">
                         <div class="card-header">

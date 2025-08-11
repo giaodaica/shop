@@ -52,18 +52,13 @@ class CategoriesController extends Controller
     {
         $request->validate([
             'name' => 'required|unique:categories,name',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'status' => 'required|in:0,1',
+            'image' => 'required|mimes:jpeg,png,jpg,gif,svg,webp,avif|max:2048',
         ], [
             'name.required' => 'Tên danh mục không được để trống.',
             'name.unique' => 'Tên danh mục đã tồn tại.',
             'image.required' => 'Ảnh không được để trống.',
-            'image.image' => 'Ảnh phải là file ảnh hợp lệ.',
-            'image.mimes' => 'Ảnh chỉ được chấp nhận định dạng jpeg, png, jpg, gif, svg, webp.',
+            'image.mimes' => 'Ảnh chỉ được chấp nhận định dạng jpeg, png, jpg, gif, svg, webp, avif.',
             'image.max' => 'Kích thước ảnh không được vượt quá 2MB.',
-
-            'status.required' => 'Trạng thái không được để trống.',
-            'status.in' => 'Trạng thái không hợp lệ. Chỉ được chọn 0 hoặc 1.',
         ]);
 
         $data = $request->only('name', 'status');
@@ -71,7 +66,15 @@ class CategoriesController extends Controller
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/categories'), $filename);
+            $path = public_path('uploads/categories/' . $filename);
+
+            // Resize ảnh về 600x450
+            $img = imagecreatefromstring(file_get_contents($file->getRealPath()));
+            $resized = imagescale($img, 600, 450);
+            imagejpeg($resized, $path, 90);
+            imagedestroy($img);
+            imagedestroy($resized);
+
             $data['image'] = 'uploads/categories/' . $filename;
         }
 
@@ -86,16 +89,13 @@ class CategoriesController extends Controller
 
         $request->validate([
             'name' => 'required|unique:categories,name,' . $id,
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'image' => 'nullable|mimes:jpeg,png,jpg,gif,svg,webp,avif|max:2048',
             'status' => 'required|in:0,1',
         ], [
             'name.required' => 'Tên danh mục không được để trống.',
             'name.unique' => 'Tên danh mục đã tồn tại.',
-
-            'image.image' => 'Ảnh phải là file ảnh hợp lệ.',
-            'image.mimes' => 'Ảnh chỉ được chấp nhận định dạng jpeg, png, jpg, gif, svg, webp.',
+            'image.mimes' => 'Ảnh chỉ được chấp nhận định dạng jpeg, png, jpg, gif, svg, webp, avif.',
             'image.max' => 'Kích thước ảnh không được vượt quá 2MB.',
-
             'status.required' => 'Trạng thái không được để trống.',
             'status.in' => 'Trạng thái không hợp lệ. Chỉ được chọn 0 hoặc 1.',
         ]);
@@ -103,13 +103,22 @@ class CategoriesController extends Controller
         $data = $request->only('name', 'status');
 
         if ($request->hasFile('image')) {
+            // Xóa ảnh cũ nếu tồn tại
             if ($category->image && file_exists(public_path($category->image))) {
                 unlink(public_path($category->image));
             }
 
             $file = $request->file('image');
             $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/categories'), $filename);
+            $path = public_path('uploads/categories/' . $filename);
+
+            // Resize ảnh về 600x450
+            $img = imagecreatefromstring(file_get_contents($file->getRealPath()));
+            $resized = imagescale($img, 600, 450);
+            imagejpeg($resized, $path, 90);
+            imagedestroy($img);
+            imagedestroy($resized);
+
             $data['image'] = 'uploads/categories/' . $filename;
         }
 
@@ -117,6 +126,7 @@ class CategoriesController extends Controller
 
         return redirect()->route('categories.index')->with('success', 'Cập nhật danh mục thành công!');
     }
+
 
     // {
     //     $category = Categories::findOrFail($id);
