@@ -178,22 +178,28 @@
                                                     x{{ $item->quantity }}
                                                 </div>
                                                 @php
-                                                    $data_item = App\Models\Review::where('order_id', $order->id)
-                                                        ->where('product_variant_id', $item->product_variant_id)
-                                                        ->first();
+                                                    $orderStatus = $order->status ?? null;
+
+                                                    $data_item = null;
+                                                    if ($orderStatus === 'success') {
+                                                        $data_item = App\Models\Review::where('order_id', $order->id)
+                                                            ->where('product_variant_id', $item->product_variant_id)
+                                                            ->first();
+                                                    }
                                                 @endphp
-                                                @if ($data_item)
+
+                                                @if ($orderStatus === 'success' && $data_item)
                                                     <span class="badge bg-success px-3 py-2">
                                                         <i class="bi bi-check-circle-fill me-1"></i> Đã đánh giá
                                                     </span>
-                                                @else
-                                                    <button type="button"
-                                                        class="btn btn-sm shadow-sm hover-scale"
+                                                @elseif ($orderStatus === 'success')
+                                                    <button type="button" class="btn btn-sm shadow-sm hover-scale"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#reviewModal-{{ $item->id }}">
                                                         <i class="bi bi-star-fill me-1 text-warning"></i> Đánh giá sản phẩm
                                                     </button>
                                                 @endif
+
 
 
 
@@ -223,9 +229,11 @@
                                                                 value="{{ $order->id }}">
                                                             <input type="hidden" name="product_variant_id"
                                                                 value="{{ $item->product_variant_id }}">
-                                                                <input type="hidden" name="color" value="{{ $item->productVariant->color->color_name ?? '' }}">
-                                                                <input type="hidden" name="size" value="{{ $item->productVariant->size->size_name ?? '' }}">
-                                                                
+                                                            <input type="hidden" name="color"
+                                                                value="{{ $item->productVariant->color->color_name ?? '' }}">
+                                                            <input type="hidden" name="size"
+                                                                value="{{ $item->productVariant->size->size_name ?? '' }}">
+
 
                                                             {{-- Rating --}}
                                                             <div class="col-lg-2 mb-20px">
@@ -255,7 +263,8 @@
                                                             </div>
 
                                                             <div class="text-end">
-                                                                <button type="submit" class="btn btn-primary no-hover">Gửi đánh
+                                                                <button type="submit" class="btn btn-primary no-hover">Gửi
+                                                                    đánh
                                                                     giá</button>
                                                             </div>
                                                         </form>
