@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
+// GHN removed
 
 class OrderController extends Controller
 {
@@ -43,38 +44,52 @@ class OrderController extends Controller
         // Lấy các sản phẩm được chọn từ giỏ hàng
         $selectedIds = session('cart_selected_ids', []);
 
-        // Nếu chưa có sản phẩm nào được chọn, tự động chọn tất cả
-        if (empty($selectedIds)) {
-            $allCartItems = Cart::where('user_id', $userId)->pluck('id')->toArray();
-            if (!empty($allCartItems)) {
-                session(['cart_selected_ids' => $allCartItems]);
-                $selectedIds = $allCartItems;
-            }
-        }
 
-        if (empty($selectedIds)) {
-            return redirect()->route('home.cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán!');
-        }
+if (empty($selectedIds)) {
+    return redirect()->route('home.cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán!');
+}
 
-        // Lấy giỏ hàng chỉ các sản phẩm được chọn
-        $cartItems = Cart::with(['productVariant.color', 'productVariant.size', 'productVariant.product'])
-            ->where('user_id', $userId)
-            ->whereIn('id', $selectedIds)
-            ->get();
+// Lấy giỏ hàng (kèm sản phẩm bị xóa mềm)
+$cartItems = Cart::with([
+    'productVariant' => function ($query) {
+        $query->withTrashed()
+              ->with(['product' => function ($q) {
+                  $q->withTrashed();
+              }, 'color', 'size']);
+    }
+])
+->where('user_id', $userId)
+->whereIn('id', $selectedIds)
+->get();
 
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('home.cart')->with('error', 'Giỏ hàng trống!');
-        }
+
+if ($cartItems->isEmpty()) {
+    return redirect()->route('home.cart')->with('error', 'Giỏ hàng trống!');
+}
+
+// Kiểm tra sản phẩm bị xóa mềm
+$deletedItems = $cartItems->filter(function ($item) {
+    return optional($item->productVariant)->deleted_at
+        || optional(optional($item->productVariant)->product)->deleted_at;
+});
+
+if ($deletedItems->isNotEmpty()) {
+    return redirect()->route('home.cart')
+        ->with('error', 'Có sản phẩm đã bị xóa hoặc ngừng kinh doanh, vui lòng bỏ chọn.');
+}
+
 
         // Tính toán giá
         $subtotal = $cartItems->sum(fn($item) => $item->quantity * $item->price_at_time);
         $voucherDiscount = session('voucher_discount', 0);
         $shippingType = session('shipping_type', 'basic');
-        $shippingFee = $this->calculateShippingFee($subtotal, $shippingType);
+        $addresses = AddressBook::where('user_id', $userId)->with(['province', 'ward'])->get();
+        $defaultAddress = $addresses->first();
+        $shippingFee = $this->calculateShippingFee($subtotal, $shippingType, $defaultAddress);
         $total = $subtotal - $voucherDiscount + $shippingFee;
 
         // Lấy địa chỉ giao hàng
-        $addresses = AddressBook::where('user_id', $userId)->with(['province', 'ward'])->get();
+        // $addresses đã lấy ở trên
 
         // Lấy voucher đã áp dụng
         $appliedVoucher = null;
@@ -94,24 +109,60 @@ class OrderController extends Controller
         ));
     }
 
-    // Thêm method tính phí vận chuyển
-    private function calculateShippingFee($subtotal, $shippingType = 'basic')
+    // Tính phí vận chuyển nội bộ dựa trên tỉnh/thành (province) và quận/huyện (ward) của bạn
+    private function calculateShippingFee($subtotal, $shippingType = 'basic', ?AddressBook $address = null)
     {
-        $baseShippingFee = 0;
+        try {
+            if (!$address) {
+                return 0;
+            }
 
-        // Tính phí cơ bản
-        if ($subtotal >= 200000) {
-            $baseShippingFee = 0; // Free shipping cho đơn hàng >= 200k
-        } else {
-            $baseShippingFee = 20000; // 20k cho đơn hàng < 200k
+            $provinceName = mb_strtolower(trim(optional($address->province)->name ?? ''), 'UTF-8');
+            $districtName = mb_strtolower(trim(optional($address->ward)->name ?? ''), 'UTF-8');
+            // Nếu subtotal ≥ 200.000đ: cơ bản = 0đ; nhanh +20k.
+            // Nếu Hà Nội:
+            // Quận nội thành (ví dụ: Ba Đình, Hoàn Kiếm, Đống Đa, Hai Bà Trưng, Tây Hồ, Cầu Giấy, Thanh Xuân, Hoàng Mai, Long Biên, Nam Từ Liêm, Bắc Từ Liêm, Hà Đông): cơ bản = 20k.
+            // Huyện ngoại thành: cơ bản = 25k.
+            // Tỉnh khác: cơ bản = 30k.
+            // Nhanh: +30k nếu subtotal < 200k; +20k nếu subtotal ≥ 200k.
+
+            $isHanoi = str_contains($provinceName, 'hà nội') || str_contains($provinceName, 'ha noi');
+            $isUrbanDistrict = false;
+            if ($isHanoi) {
+                $urbanList = ['ba đình', 'hoàn kiếm', 'đống đa', 'hai bà trưng', 'tây hồ', 'cầu giấy', 'thanh xuân', 'hoàng mai', 'long biên', 'nam từ liêm', 'bắc từ liêm', 'hà đông'];
+                foreach ($urbanList as $q) {
+                    if (str_contains($districtName, $q)) {
+                        $isUrbanDistrict = true;
+                        break;
+                    }
+                }
+            }
+
+            $base = 0;
+            if ($subtotal >= 200000) {
+                $base = 0;
+            } else {
+                if ($isHanoi) {
+                    $base = $isUrbanDistrict ? 20000 : 25000;
+                } else {
+                    $base = 30000;
+                }
+            }
+
+            if ($shippingType === 'express') {
+                // Chỉ cho phép ship nhanh nội thành Hà Nội
+                if (!($isHanoi && $isUrbanDistrict)) {
+                    // Nếu không đủ điều kiện, coi như chuyển về basic
+                    return $base;
+                }
+                $base += ($subtotal >= 200000 ? 20000 : 30000);
+            }
+
+            return $base;
+        } catch (\Throwable $e) {
+            Log::warning('calculateShippingFee local error: ' . $e->getMessage());
+            return 0;
         }
-
-        // Thêm phí vận chuyển nhanh nếu chọn
-        if ($shippingType === 'express') {
-            $baseShippingFee += 30000; // Thêm 30k cho vận chuyển nhanh
-        }
-
-        return $baseShippingFee;
     }
 
     public function processCheckout(Request $request)
@@ -145,7 +196,7 @@ class OrderController extends Controller
                 if ($voucher) {
                     // Cập nhật trạng thái đã dùng cho người dùng hiện tại
                     DB::table('vouchers_users')
-                        ->where('user_id', auth()->id())
+                        ->where('user_id', Auth::id())
                         ->where('voucher_id', $voucher->id)
                         ->update([
                             'is_used' => 'used',
@@ -213,13 +264,19 @@ class OrderController extends Controller
             // Tính toán giá
             $subtotal = $cartItems->sum(fn($item) => $item->quantity * $item->price_at_time);
             $voucherDiscount = session('voucher_discount', 0);
-            $shippingFee = $this->calculateShippingFee($subtotal, $request->shipping_type);
+            // Lấy địa chỉ để tính phí GHN
+            $addressForFee = AddressBook::where('id', $request->address_id)
+                ->where('user_id', $userId)
+                ->with(['province', 'ward'])
+                ->first();
+            $shippingFee = $this->calculateShippingFee($subtotal, $request->shipping_type, $addressForFee);
             $finalAmount = $subtotal - $voucherDiscount + $shippingFee;
             // dd($finalAmount);
 
             // Lấy địa chỉ
             $address = AddressBook::where('id', $request->address_id)
                 ->where('user_id', $userId)
+                ->with(['province', 'ward'])
                 ->firstOrFail();
 
             // Tạo mã đơn hàng
@@ -286,6 +343,7 @@ class OrderController extends Controller
 
                 // Cập nhật tồn kho
                 $item->productVariant->decrement('stock', $item->quantity);
+                $item->productVariant->increment('sold_quantity', $item->quantity);
             }
 
             // Xóa các sản phẩm đã được chọn khỏi giỏ hàng
@@ -336,74 +394,74 @@ class OrderController extends Controller
     }
 
     public function db_order(Request $request)
-{
-    // Validate input filter
-    // $request->validate([
-    //     'everything' => 'nullable|string|max:30',
-    //     'status' => 'nullable|in:pending,success,failed,shipping,all,cancelled,confirmed',
-    //     'pay_method' => 'nullable|in:all,VNPAY,COD',
-    //     'status_pay' => 'nullable|in:unpaid,paid,failed,cod_paid'
-    // ]);
+    {
+        // Validate input filter
+        // $request->validate([
+        //     'everything' => 'nullable|string|max:30',
+        //     'status' => 'nullable|in:pending,success,failed,shipping,all,cancelled,confirmed',
+        //     'pay_method' => 'nullable|in:all,VNPAY,COD',
+        //     'status_pay' => 'nullable|in:unpaid,paid,failed,cod_paid'
+        // ]);
 
-    // Khởi tạo query
-    $query = Order::query();
+        // Khởi tạo query
+        $query = Order::query();
 
-    // Nếu có nhập "everything", tìm theo code_order hoặc name
-    if (!empty($request->everything)) {
-        $search = $request->everything;
-        $query->where(function ($q) use ($search) {
-            $q->where('code_order', 'like', "%{$search}%")
-              ->orWhere('name', 'like', "%{$search}%");
-        });
+        // Nếu có nhập "everything", tìm theo code_order hoặc name
+        if (!empty($request->everything)) {
+            $search = $request->everything;
+            $query->where(function ($q) use ($search) {
+                $q->where('code_order', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%");
+            });
+        }
+
+        // Xử lý status
+        $valid_status = ['pending', 'success', 'failed', 'shipping', 'cancelled', 'confirmed'];
+        // Nếu có filter status và khác 'all'
+        if (!empty($request->status) && $request->status !== 'all' && in_array($request->status, $valid_status)) {
+            $query->where('status', $request->status);
+        }
+
+        // Xử lý pay_method
+        $valid_pay_methods = ['VNPAY', 'COD'];
+        if (!empty($request->pay_method) && $request->pay_method !== 'all' && in_array($request->pay_method, $valid_pay_methods)) {
+            $query->where('pay_method', $request->pay_method);
+        }
+
+        // Xử lý status_pay
+        $valid_status_pay = ['unpaid', 'paid', 'failed', 'cod_paid'];
+        if (!empty($request->status_pay) && in_array($request->status_pay, $valid_status_pay)) {
+            $query->where('status_pay', $request->status_pay);
+        }
+
+        // Xử lý param type từ query string, ưu tiên hơn filter status (nếu có)
+        $action = ['pending', 'confirmed', 'shipping', 'success', 'cancelled', 'failed'];
+        $type = $request->query('type');
+
+        if ($type && !in_array($type, $action)) {
+            return abort(403, 'Không có hành động này');
+        }
+        if ($type) {
+            $query->where('status', $type);
+        }
+
+        // Sắp xếp mới nhất trước
+        $query->orderBy('created_at', 'desc');
+
+        // Phân trang 10 item / trang
+        $data_order = $query->paginate(10)->withQueryString();
+
+        // Đếm số order failed (nếu cần)
+        $count_failed = OrderHistories::where('from_status', 'failed')->count();
+
+        // Trả về view, truyền dữ liệu
+        return view('dashboard.pages.order.index', [
+            'data_order' => $data_order,
+            'count_failed' => $count_failed,
+            // Nếu bạn cần truyền thêm filter đã chọn để view dễ hiển thị lại
+            'filters' => $request->only(['everything', 'status', 'pay_method', 'status_pay', 'type']),
+        ]);
     }
-
-    // Xử lý status
-    $valid_status = ['pending', 'success', 'failed', 'shipping', 'cancelled', 'confirmed'];
-    // Nếu có filter status và khác 'all'
-    if (!empty($request->status) && $request->status !== 'all' && in_array($request->status, $valid_status)) {
-        $query->where('status', $request->status);
-    }
-
-    // Xử lý pay_method
-    $valid_pay_methods = ['VNPAY', 'COD'];
-    if (!empty($request->pay_method) && $request->pay_method !== 'all' && in_array($request->pay_method, $valid_pay_methods)) {
-        $query->where('pay_method', $request->pay_method);
-    }
-
-    // Xử lý status_pay
-    $valid_status_pay = ['unpaid', 'paid', 'failed', 'cod_paid'];
-    if (!empty($request->status_pay) && in_array($request->status_pay, $valid_status_pay)) {
-        $query->where('status_pay', $request->status_pay);
-    }
-
-    // Xử lý param type từ query string, ưu tiên hơn filter status (nếu có)
-    $action = ['pending', 'confirmed', 'shipping', 'success', 'cancelled', 'failed'];
-    $type = $request->query('type');
-
-    if ($type && !in_array($type, $action)) {
-        return abort(403, 'Không có hành động này');
-    }
-    if ($type) {
-        $query->where('status', $type);
-    }
-
-    // Sắp xếp mới nhất trước
-    $query->orderBy('created_at', 'desc');
-
-    // Phân trang 10 item / trang
-    $data_order = $query->paginate(10)->withQueryString();
-
-    // Đếm số order failed (nếu cần)
-    $count_failed = OrderHistories::where('from_status', 'failed')->count();
-
-    // Trả về view, truyền dữ liệu
-    return view('dashboard.pages.order.index', [
-        'data_order' => $data_order,
-        'count_failed' => $count_failed,
-        // Nếu bạn cần truyền thêm filter đã chọn để view dễ hiển thị lại
-        'filters' => $request->only(['everything', 'status', 'pay_method', 'status_pay', 'type']),
-    ]);
-}
 
     public function refund($present, $id)
     {
@@ -462,6 +520,8 @@ class OrderController extends Controller
             $final_amount = $present->final_amount;
         }
         if ($present->status_pay == 'paid' && $present->pay_method == 'VNPAY' || $present->pay_method == 'QR') {
+            // dd($final_amount);
+
             RefundMoney::create([
                 'user_id' => $present->user_id,
                 'order_id' => $id,
@@ -474,7 +534,7 @@ class OrderController extends Controller
                 $voucher = null;
             }
             $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
-            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type));
+            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type,$final_amount));
         }
     }
     public function db_order_change(Request $request, $id)
@@ -498,8 +558,8 @@ class OrderController extends Controller
                 'image_ship.required_if' => 'Ảnh giao hàng là bắt buộc khi cập nhật trạng thái giao hàng thành công',
             ]
         );
-        if (!$request->content) {
-            $content = $request->content1;
+        if (!$request->input('content')) {
+            $content = $request->input('content1');
         }
         $data_change = ['pending', 'confirmed', 'shipping', 'cancelled', 'failed', 'return'];
         if ($before && !in_array($before, $data_change)) {
@@ -591,7 +651,7 @@ class OrderController extends Controller
             'from_status' => $old_status->status,
             'to_status' => $present->status,
             'note' => $note,
-            'content' => $request->content ?? '',
+            'content' => $request->input('content', ''),
         ]);
 
         if ($count >= 2 && $present->status == 'failed') {
@@ -687,14 +747,25 @@ class OrderController extends Controller
 
         $subtotal = $cartItems->sum(fn($item) => $item->quantity * $item->price_at_time);
         $voucherDiscount = session('voucher_discount', 0);
-        $shippingFee = $this->calculateShippingFee($subtotal, $request->shipping_type);
+        // Lấy địa chỉ đang chọn từ client (nếu gửi) hoặc địa chỉ đầu tiên của user
+        $addressId = $request->input('address_id');
+        $address = null;
+        if ($addressId) {
+            $address = AddressBook::where('id', $addressId)->where('user_id', $userId)->with(['province', 'ward'])->first();
+        }
+        if (!$address) {
+            $address = AddressBook::where('user_id', $userId)->with(['province', 'ward'])->first();
+        }
+        $shippingFee = $this->calculateShippingFee($subtotal, $request->shipping_type, $address);
         $total = $subtotal - $voucherDiscount + $shippingFee;
 
         return response()->json([
             'success' => true,
             'shipping_type' => $request->shipping_type,
             'shipping_fee' => number_format($shippingFee, 0, ',', '.') . ' đ',
-            'total' => number_format($total, 0, ',', '.') . ' đ'
+            'shipping_fee_raw' => (int) $shippingFee,
+            'total' => number_format($total, 0, ',', '.') . ' đ',
+            'total_raw' => (int) $total
         ]);
     }
 
