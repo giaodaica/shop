@@ -314,6 +314,22 @@ $('.qty-plus').click(function () {
     
     
     function updateProductPrice() {
+        // Nếu đang ở Flash Sale thì không đụng vào giá
+        if (document.querySelector('.alert.alert-danger')) {
+            // Nếu muốn vẫn update giá flash khi đổi biến thể:
+            const flashPriceEl = document.getElementById('product-sale-price');
+            const color = document.querySelector('input[name="color"]:checked')?.value;
+            const size = document.querySelector('input[name="size"]:checked')?.value;
+            if (flashPriceEl && color && size) {
+                const flashPrice = document.querySelector(`input[name="color"]:checked`)?.dataset.flashPrice;
+                if (flashPrice) {
+                    flashPriceEl.textContent = Number(flashPrice).toLocaleString() + 'đ';
+                }
+            }
+            return;
+        }
+    
+        // Trường hợp bình thường
         const color = document.querySelector('input[name="color"]:checked')?.value;
         const size = document.querySelector('input[name="size"]:checked')?.value;
         if (!color || !size) return;
@@ -322,13 +338,11 @@ $('.qty-plus').click(function () {
         const priceData = window.variantPriceMap[key];
         if (!priceData) return;
     
-        // Cập nhật giá sale
         const salePriceEl = document.getElementById('product-sale-price');
         if (salePriceEl) {
             salePriceEl.textContent = Number(priceData.sale_price).toLocaleString() + 'đ';
         }
     
-        // Cập nhật giá niêm yết (nếu có)
         const listedPriceEl = document.getElementById('product-listed-price');
         if (listedPriceEl) {
             if (priceData.listed_price != priceData.sale_price) {
@@ -339,6 +353,7 @@ $('.qty-plus').click(function () {
             }
         }
     }
+    
     
     // Lắng nghe sự kiện thay đổi
     document.querySelectorAll('input[name="color"], input[name="size"]').forEach(el => {
