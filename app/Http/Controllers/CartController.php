@@ -19,16 +19,30 @@ public function index()
 {
     $userId = Auth::id();
 
-$cartItems = Cart::with('productVariant.color', 'productVariant.size', 'productVariant.product')
-    ->where('user_id', $userId)
-    ->whereHas('productVariant', function ($q) {
-        $q->whereNull('deleted_at')
-          ->whereHas('product', function ($q2) {
-              $q2->whereNull('deleted_at');
-          });
-    })
-    ->get();
+$cartItems = Cart::with([
+    'productVariant' => function ($query) {
+        $query->withTrashed() // load cả variant bị xóa mềm
+              ->with(['product' => function ($q) {
+                  $q->withTrashed(); // load cả product bị xóa mềm
+              }, 'color', 'size']);
+    }
+])->where('user_id', auth()->id())->get();
+$deletedForeverItems = $cartItems->filter(function ($item) {
+    return !$item->productVariant || !$item->productVariant->product;
+});
 
+if ($deletedForeverItems->isNotEmpty()) {
+    // Xóa luôn khỏi giỏ
+    Cart::whereIn('id', $deletedForeverItems->pluck('id'))->delete();
+
+    // Thông báo cho view
+    session()->flash('error', 'Một số sản phẩm đã ngừng kinh doanh và đã được gỡ khỏi giỏ hàng.');
+}
+
+// Lọc lại giỏ, chỉ giữ sản phẩm còn tồn tại
+$cartItems = $cartItems->filter(function ($item) {
+    return $item->productVariant && $item->productVariant->product;
+});
 // dd($cartItems);
 
     $selectedIds = session('cart_selected_ids', []);

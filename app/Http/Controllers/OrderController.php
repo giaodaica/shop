@@ -44,28 +44,40 @@ class OrderController extends Controller
         // Lấy các sản phẩm được chọn từ giỏ hàng
         $selectedIds = session('cart_selected_ids', []);
 
-        // Nếu chưa có sản phẩm nào được chọn, tự động chọn tất cả
-        if (empty($selectedIds)) {
-            $allCartItems = Cart::where('user_id', $userId)->pluck('id')->toArray();
-            if (!empty($allCartItems)) {
-                session(['cart_selected_ids' => $allCartItems]);
-                $selectedIds = $allCartItems;
-            }
-        }
+ 
+if (empty($selectedIds)) {
+    return redirect()->route('home.cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán!');
+}
 
-        if (empty($selectedIds)) {
-            return redirect()->route('home.cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán!');
-        }
+// Lấy giỏ hàng (kèm sản phẩm bị xóa mềm)
+$cartItems = Cart::with([
+    'productVariant' => function ($query) {
+        $query->withTrashed()
+              ->with(['product' => function ($q) {
+                  $q->withTrashed();
+              }, 'color', 'size']);
+    }
+])
+->where('user_id', $userId)
+->whereIn('id', $selectedIds)
+->get();
 
-        // Lấy giỏ hàng chỉ các sản phẩm được chọn
-        $cartItems = Cart::with(['productVariant.color', 'productVariant.size', 'productVariant.product'])
-            ->where('user_id', $userId)
-            ->whereIn('id', $selectedIds)
-            ->get();
 
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('home.cart')->with('error', 'Giỏ hàng trống!');
-        }
+if ($cartItems->isEmpty()) {
+    return redirect()->route('home.cart')->with('error', 'Giỏ hàng trống!');
+}
+
+// Kiểm tra sản phẩm bị xóa mềm
+$deletedItems = $cartItems->filter(function ($item) {
+    return optional($item->productVariant)->deleted_at
+        || optional(optional($item->productVariant)->product)->deleted_at;
+});
+
+if ($deletedItems->isNotEmpty()) {
+    return redirect()->route('home.cart')
+        ->with('error', 'Có sản phẩm đã bị xóa hoặc ngừng kinh doanh, vui lòng bỏ chọn.');
+}
+
 
         // Tính toán giá
         $subtotal = $cartItems->sum(fn($item) => $item->quantity * $item->price_at_time);
@@ -331,6 +343,7 @@ class OrderController extends Controller
 
                 // Cập nhật tồn kho
                 $item->productVariant->decrement('stock', $item->quantity);
+                $item->productVariant->increment('sold_quantity', $item->quantity);
             }
 
             // Xóa các sản phẩm đã được chọn khỏi giỏ hàng
