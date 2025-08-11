@@ -58,7 +58,7 @@
                                                         $variant = $product->variants->first();
                                                     @endphp
                                                     <a href="{{ route('home.show', $product->slug) }}">
-                                                        <img src="{{ asset(optional($variant)->variant_image_url) }}"
+                                                        <img src="{{ asset(optional($product)->image_url) }}"
                                                             alt="{{ $product->name }}">
                                                         <div class="shop-overlay bg-gradient-gray-light-dark-transparent">
                                                         </div>
