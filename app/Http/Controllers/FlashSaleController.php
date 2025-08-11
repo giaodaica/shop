@@ -155,6 +155,7 @@ class FlashSaleController extends Controller
                 Product_variants::where('id', $item->product_variant_id)->increment('stock', $item->max_quantity);
             });
         }
+        FlashSaleItems::where('flash_sale_id', $id)->update(['max_quantity'=> 0]);
         $data_flash_sale->delete();
         return redirect()->back()->with('success', 'Xóa thành công');
     }

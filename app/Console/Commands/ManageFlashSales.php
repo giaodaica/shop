@@ -33,6 +33,7 @@ class ManageFlashSales extends Command
                     \App\Models\Product_variants::where('id', $item->product_variant_id)
                         ->increment('stock', $item->max_quantity);
                 });
+                $flashSale->items()->update(['max_quantity' => 0]);
             });
 
         // Kết thúc nếu hết hàng
