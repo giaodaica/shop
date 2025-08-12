@@ -44,4 +44,8 @@ class ContactController extends Controller
         ]);
         return redirect()->back()->with('success','Cảm ơn bạn đã liên hệ,chúng tôi sẽ trả lời bạn trong thời gian sớm nhất');
     }
+    public function verify()
+    {
+        return view('pages.contact.verify');
+    }
 }

@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row mb-4 xs-mb-7">
             <div class="col-12 text-center">
-                <h2 class="alt-font text-dark-gray mb-0 ls-minus-2px">Fashion <span class="text-highlight fw-600">magazine<span class="bg-base-color h-5px bottom-2px"></span></span></h2>
+                <h2 class="alt-font text-dark-gray mb-0 ls-minus-2px"> <span class="text-highlight fw-600">Bài viết<span class="bg-base-color h-5px bottom-2px"></span></span></h2>
             </div>
         </div>
     </div>
@@ -15,11 +15,13 @@
                     <li class="grid-item">
                         <div class="card bg-transparent border-0 h-100">
                             <div class="blog-image position-relative overflow-hidden">
-                                <a href="demo-fashion-store-blog-single-creative.html"><img src="{{asset('assets/images/shop/demo-fashion-store-blog-01.jpg')}}" alt="" /></a>
+                                <a href="#"><img src="{{asset('assets/images/shop/demo-fashion-store-blog-01.jpg')}}" alt="" /></a>
                             </div>
                             <div class="card-body px-0 pt-30px pb-30px sm-pb-15px">
-                                <span class="mb-5px d-block">By <a href="#" class="text-dark-gray fw-500 categories-text">Den viliamson</a><a href="#" class="blog-date">26 December 2023</a></span>
-                                <a href="demo-fashion-store-blog-single-creative.html" class="alt-font card-title fs-20 lh-30 fw-500 text-dark-gray d-inline-block w-75 xl-w-85 lg-w-100">Elegance is not standing out, but being remembered.</a>
+                                <span class="mb-5px d-block">By <a href="#" class="text-dark-gray fw-500 categories-text">Nguyễn Minh</a><a href="#" class="blog-date">12 Tháng 8 2025</a></span>
+                                <a href="#" class="alt-font card-title fs-20 lh-30 fw-500 text-dark-gray d-inline-block w-75 xl-w-85 lg-w-100">
+                                    5 bí quyết phối đồ mùa hè cực chất cho giới trẻ
+                                </a>
                             </div>
                         </div>
                     </li>
@@ -28,11 +30,13 @@
                     <li class="grid-item">
                         <div class="card bg-transparent border-0 h-100">
                             <div class="blog-image position-relative overflow-hidden">
-                                <a href="demo-fashion-store-blog-single-creative.html"><img src="{{asset('assets/images/shop/demo-fashion-store-blog-01.jpg')}}" alt="" /></a>
+                                <a href="#"><img src="{{asset('assets/images/shop/demo-fashion-store-blog-01.jpg')}}" alt="" /></a>
                             </div>
                             <div class="card-body px-0 pt-30px pb-30px sm-pb-15px">
-                                <span class="mb-5px d-block">By <a href="#" class="text-dark-gray fw-500 categories-text">Hugh macleod</a><a href="#" class="blog-date">20 December 2023</a></span>
-                                <a href="demo-fashion-store-blog-single-creative.html" class="alt-font card-title fs-20 lh-30 fw-500 text-dark-gray d-inline-block w-75 xl-w-85 lg-w-100">Fashion is the armor to survive the reality of everyday life.</a>
+                                <span class="mb-5px d-block">By <a href="#" class="text-dark-gray fw-500 categories-text">Trần Thu Hà</a><a href="#" class="blog-date">05 Tháng 8 2025</a></span>
+                                <a href="#" class="alt-font card-title fs-20 lh-30 fw-500 text-dark-gray d-inline-block w-75 xl-w-85 lg-w-100">
+                                    Xu hướng thời trang 2025: Đơn giản mà tinh tế
+                                </a>
                             </div>
                         </div>
                     </li>
@@ -41,11 +45,13 @@
                     <li class="grid-item">
                         <div class="card bg-transparent border-0 h-100">
                             <div class="blog-image position-relative overflow-hidden">
-                                <a href="demo-fashion-store-blog-single-creative.html"><img src="{{asset('assets/images/shop/demo-fashion-store-blog-01.jpg')}}" alt="" /></a>
+                                <a href="#"><img src="{{asset('assets/images/shop/demo-fashion-store-blog-01.jpg')}}" alt="" /></a>
                             </div>
                             <div class="card-body px-0 pt-30px pb-30px sm-pb-15px">
-                                <span class="mb-5px d-block">By <a href="#" class="text-dark-gray fw-500 categories-text">Walton smith</a><a href="#" class="blog-date">10 December 2023</a></span>
-                                <a href="demo-fashion-store-blog-single-creative.html" class="alt-font card-title fs-20 lh-30 fw-500 text-dark-gray d-inline-block w-75 xl-w-85 lg-w-100">In order to be irreplaceable one must always be different.</a>
+                                <span class="mb-5px d-block">By <a href="#" class="text-dark-gray fw-500 categories-text">Lê Quốc Bảo</a><a href="#" class="blog-date">28 Tháng 7 2025</a></span>
+                                <a href="#" class="alt-font card-title fs-20 lh-30 fw-500 text-dark-gray d-inline-block w-75 xl-w-85 lg-w-100">
+                                    Cách chọn phụ kiện phù hợp với từng phong cách
+                                </a>
                             </div>
                         </div>
                     </li>
@@ -54,11 +60,13 @@
                     <li class="grid-item">
                         <div class="card bg-transparent border-0 h-100">
                             <div class="blog-image position-relative overflow-hidden">
-                                <a href="demo-fashion-store-blog-single-creative.html"><img src="{{asset('assets/images/shop/demo-fashion-store-blog-01.jpg')}}" alt="" /></a>
+                                <a href="#"><img src="{{asset('assets/images/shop/demo-fashion-store-blog-01.jpg')}}" alt="" /></a>
                             </div>
                             <div class="card-body px-0 pt-30px pb-30px sm-pb-15px">
-                                <span class="mb-5px d-block">By <a href="#" class="text-dark-gray fw-500 categories-text">Walton smith</a><a href="#" class="blog-date">10 December 2023</a></span>
-                                <a href="demo-fashion-store-blog-single-creative.html" class="alt-font card-title fs-20 lh-30 fw-500 text-dark-gray d-inline-block w-75 xl-w-85 lg-w-100">Gucci has represented design and contemporary lifestyle.</a>
+                                <span class="mb-5px d-block">By <a href="#" class="text-dark-gray fw-500 categories-text">Phạm Hồng Sơn</a><a href="#" class="blog-date">15 Tháng 7 2025</a></span>
+                                <a href="#" class="alt-font card-title fs-20 lh-30 fw-500 text-dark-gray d-inline-block w-75 xl-w-85 lg-w-100">
+                                    Top 10 thương hiệu thời trang Việt nổi bật hiện nay
+                                </a>
                             </div>
                         </div>
                     </li>
