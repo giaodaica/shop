@@ -136,12 +136,10 @@
                             </div>
                         </div>
                     </div>
-                    @foreach ($data_order_items as $check_fl_s)
-                        @if (!empty($check_fl_s->flash_sale_items_id))
-                            <p class="text-info">* sản phẩm này thuộc 1 chương trình flash sale</p>
-                        @else
-                        @endif
-                    @endforeach
+                    @if ($data_order_items->contains(fn($item) => !empty($item->flash_sale_items_id)))
+                        <p class="text-info">* sản phẩm trong thuộc chương trình flash sale</p>
+                    @endif
+
                     <!--end card-->
                     <div class="card">
                         <div class="card-header">
