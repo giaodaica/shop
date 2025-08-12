@@ -21,7 +21,8 @@ class FlashSaleItems extends Model
         'import_price',
         'listed_price',
         'sale_price',
-        'stock_quantity'
+        'stock_quantity',
+        'slug'
     ];
 
     public function flashSale()

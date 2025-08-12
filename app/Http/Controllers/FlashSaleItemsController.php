@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FlashSale;
 use App\Models\FlashSaleItems;
 use App\Models\Product_variants;
+use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -46,6 +47,7 @@ class FlashSaleItemsController extends Controller
          if (($checkAll == 1 || isset($data['selected']) || !isset($checkAll)) && isset($data['quantity']) && $data['quantity'] > 0) {
                 $quantity = $data['quantity'];
                 $data_product_variant = Product_variants::findOrFail($product_id);
+                $data_product = Products::findOrFail($data_product_variant->product_id);
                 if( $quantity <= 0){
                     $errors[] = "Số lượng cho sản phẩm {$data_product_variant->name} không hợp lệ";
                     continue;
@@ -59,7 +61,8 @@ class FlashSaleItemsController extends Controller
                 if ($data_flash_sale_item) {
                     // dd($data_product_variant);
                     $data_flash_sale_item->update(
-                        ['max_quantity' => $data_flash_sale_item->max_quantity + $quantity]
+                        ['max_quantity' => $data_flash_sale_item->max_quantity + $quantity,
+                                        'stock_quantity' => $data_flash_sale_item->stock_quantity + $quantity]
                     );
                     $data_product_variant->update([
                         'stock' => $data_product_variant->stock - $quantity
@@ -80,7 +83,8 @@ class FlashSaleItemsController extends Controller
                         'import_price' => $data_product_variant->import_price,
                         'listed_price' => $data_product_variant->listed_price,
                         'sale_price' => $data_product_variant->sale_price,
-                        'stock_quantity'=> $quantity
+                        'stock_quantity'=> $quantity,
+                        'slug' => $data_product->slug,
                     ]);
                      $data_product_variant->update([
                         'stock' => $data_product_variant->stock - $quantity
