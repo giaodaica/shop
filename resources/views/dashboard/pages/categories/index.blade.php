@@ -116,10 +116,9 @@
                                                     @endif
                                                 </td>
                                                 <td>
-
                                                     <ul class="list-inline hstack gap-2 mb-0">
-                                                        @if ($status === 'trashed')
-                                                            {{-- Nút Khôi phục --}}
+                                                        @if ($status === 'trashed' || $category->trashed())
+                                                            {{-- Hành động cho danh mục đã xóa --}}
                                                             <li class="list-inline-item" data-bs-toggle="tooltip"
                                                                 data-bs-trigger="hover" data-bs-placement="top"
                                                                 title="Khôi phục">
@@ -135,6 +134,7 @@
                                                                 </form>
                                                             </li>
                                                         @else
+                                                            {{-- Hành động cho danh mục đang hoạt động --}}
                                                             <li class="list-inline-item" data-bs-toggle="tooltip"
                                                                 data-bs-trigger="hover" data-bs-placement="top"
                                                                 title="Xem">
@@ -166,9 +166,10 @@
                                                                     </button>
                                                                 </form>
                                                             </li>
-                                                            @endif
+                                                        @endif
                                                     </ul>
                                                 </td>
+
                                             </tr>
                                         @endforeach
                                     </tbody>
