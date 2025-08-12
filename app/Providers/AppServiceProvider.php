@@ -60,8 +60,14 @@ class AppServiceProvider extends ServiceProvider
             if (Auth::check()) {
                 $cartItems = Cart::with('productVariant.product')
                     ->where('user_id', Auth::id())
-                    ->whereHas('productVariant.product') // lọc luôn product chưa bị soft delete
+                    ->whereHas('productVariant', function ($q) {
+                        $q->whereNull('deleted_at') // lọc biến thể chưa bị soft delete
+                            ->whereHas('product', function ($q2) {
+                                $q2->whereNull('deleted_at'); // lọc product chưa bị soft delete
+                            });
+                    })
                     ->get();
+
                 $cartCount = $cartItems->count();
                 $cartSubtotal = $cartItems->sum(fn($item) => $item->quantity * $item->price_at_time);
             } else {
