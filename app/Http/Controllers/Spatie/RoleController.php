@@ -82,6 +82,19 @@ class RoleController extends Controller
                 'name.unique' => __('Name đã tồn tại'),
                 'name.required' => __('Vui lòng nhập name'),
             ]);
+            
+            // Ngăn việc tạo vai trò mới với tên 'Quản trị viên'
+            if ($request->name === 'Quản trị viên') {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Không thể tạo vai trò với tên "Quản trị viên"'
+                    ], 403);
+                }
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['name' => 'Không thể tạo vai trò với tên "Quản trị viên"']);
+            }
         } catch (\Illuminate\Validation\ValidationException $e) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -145,6 +158,18 @@ class RoleController extends Controller
     public function edit(Request $request, $id)
     {
         $data = Role::findOrFail($id);
+        
+        // Ngăn việc chỉnh sửa vai trò admin
+        if ($data->name === 'Quản trị viên') {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể chỉnh sửa vai trò Admin'
+                ], 403);
+            }
+            return redirect()->route('dashboard.roles.index')
+                ->with('error', 'Không thể chỉnh sửa vai trò Admin');
+        }
 
         $dataCategory = Role::where('id', '!=', $id)->orderBy('order', 'asc')->get();
         $permissions = Permission::orderBy('order', 'asc')->get();
@@ -176,6 +201,43 @@ class RoleController extends Controller
     public function update(Request $request, $id)
     {
         $data = Role::findOrFail($id);
+        
+        // Ngăn việc cập nhật vai trò admin
+        if ($data->name === 'Quản trị viên') {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể cập nhật vai trò Admin'
+                ], 403);
+            }
+            return redirect()->route('dashboard.roles.index')
+                ->with('error', 'Không thể cập nhật vai trò Admin');
+        }
+        
+        // Ngăn việc thay đổi tên của vai trò admin thành tên khác
+        if ($data->name === 'Quản trị viên' && $request->name !== 'Quản trị viên') {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể thay đổi tên của vai trò Admin'
+                ], 403);
+            }
+            return redirect()->route('dashboard.roles.index')
+                ->with('error', 'Không thể thay đổi tên của vai trò Admin');
+        }
+        
+        // Ngăn việc thay đổi tiêu đề của vai trò admin
+        if ($data->name === 'Quản trị viên' && $request->title !== $data->title) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể thay đổi tiêu đề của vai trò Admin'
+                ], 403);
+            }
+            return redirect()->route('dashboard.roles.index')
+                ->with('error', 'Không thể thay đổi tiêu đề của vai trò Admin');
+        }
+        
         try {
             $this->validate($request, [
                 'title' => 'required|unique:roles,title,' . $id,
@@ -197,12 +259,90 @@ class RoleController extends Controller
             throw $e;
         }
         $input = $request->all();
+        
+        // Ngăn việc thay đổi parent_id của vai trò admin
+        if ($data->name === 'Quản trị viên' && isset($input['parent_id']) && $input['parent_id'] != $data->parent_id) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể thay đổi cấu trúc phân cấp của vai trò Admin'
+                ], 403);
+            }
+            return redirect()->route('dashboard.roles.index')
+                ->with('error', 'Không thể thay đổi cấu trúc phân cấp của vai trò Admin');
+        }
+        
+        // Ngăn việc thay đổi order của vai trò admin
+        if ($data->name === 'Quản trị viên' && isset($input['order']) && $input['order'] != $data->order) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể thay đổi thứ tự của vai trò Admin'
+                ], 403);
+            }
+            return redirect()->route('dashboard.roles.index')
+                ->with('error', 'Không thể thay đổi thứ tự của vai trò Admin');
+        }
+        
+        // Ngăn việc thay đổi description của vai trò admin
+        if ($data->name === 'Quản trị viên' && isset($input['description']) && $input['description'] != $data->description) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể thay đổi mô tả của vai trò Admin'
+                ], 403);
+            }
+            return redirect()->route('dashboard.roles.index')
+                ->with('error', 'Không thể thay đổi mô tả của vai trò Admin');
+        }
+        
+        // Ngăn việc thay đổi guard_name của vai trò admin
+        if ($data->name === 'Quản trị viên' && isset($input['guard_name']) && $input['guard_name'] != $data->guard_name) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể thay đổi guard_name của vai trò Admin'
+                ], 403);
+            }
+            return redirect()->route('dashboard.roles.index')
+                ->with('error', 'Không thể thay đổi guard_name của vai trò Admin');
+        }
+        
+        // Ngăn việc thay đổi timestamps của vai trò admin
+        if ($data->name === 'Quản trị viên') {
+            unset($input['created_at'], $input['updated_at']);
+        }
+        
+        // Ngăn việc thay đổi id của vai trò admin
+        if ($data->name === 'Quản trị viên') {
+            unset($input['id']);
+        }
+        
+        // Ngăn việc thay đổi các trường khác của vai trò admin
+        if ($data->name === 'Quản trị viên') {
+            // Chỉ cho phép cập nhật các trường cần thiết
+            $allowedFields = ['title', 'name', 'description'];
+            $input = array_intersect_key($input, array_flip($allowedFields));
+        }
+        
         $data->update($input);
         if ($request->has('permissions')) {
             $permissionIds = Permission::whereIn('name', $request->permissions)->pluck('id')->toArray();
             $data->permissions()->sync($permissionIds);
         } else {
             $permissionIds = isset($request->permission_ids) ? explode(",", $request->permission_ids) : [];
+            
+            // Ngăn việc thay đổi permissions của vai trò admin
+            if ($data->name === 'Quản trị viên') {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Không thể thay đổi permissions của vai trò Admin'
+                    ], 403);
+                }
+                return redirect()->route('dashboard.roles.index')
+                    ->with('error', 'Không thể thay đổi permissions của vai trò Admin');
+            }
             
             // Tự động thêm permissions con khi có permission cha
             $allPermissionIds = $permissionIds;
@@ -234,7 +374,29 @@ class RoleController extends Controller
     public function destroy(Request $request)
     {
         $input = explode(',', $request->id);
+        
+        // Kiểm tra xem có vai trò admin nào trong danh sách cần xóa không
+        $adminRoles = Role::whereIn('id', $input)->where('name', 'Quản trị viên')->get();
+        if ($adminRoles->count() > 0) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể xóa vai trò Admin'
+                ], 403);
+            }
+            return redirect()->route('dashboard.roles.index')
+                ->with('error', 'Không thể xóa vai trò Admin');
+        }
+        
         Role::destroy($input);
+        
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa thành công!'
+            ]);
+        }
+        
         return redirect()->route('dashboard.roles.index')->with('success', __('Xóa thành công !'));
     }
 
@@ -245,6 +407,15 @@ class RoleController extends Controller
         $source = e($request->get('source'));
         $destination = $request->get('destination');
         $item = Role::find($source);
+        
+        // Ngăn việc thay đổi thứ tự của vai trò admin
+        if ($item && $item->name === 'Quản trị viên') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể thay đổi thứ tự của vai trò Admin'
+            ], 403);
+        }
+        
         $item->parent_id = isset($destination) ? $destination : 0;
         $item->save();
         $ordering = json_decode($request->get('order'));
@@ -252,6 +423,10 @@ class RoleController extends Controller
         if ($ordering) {
             foreach ($ordering as $order => $item_id) {
                 if ($itemToOrder = Role::find($item_id)) {
+                    // Ngăn việc thay đổi thứ tự của vai trò admin
+                    if ($itemToOrder->name === 'Quản trị viên') {
+                        continue;
+                    }
                     $itemToOrder->order = $order;
                     $itemToOrder->save();
                 }
@@ -259,6 +434,10 @@ class RoleController extends Controller
         } else {
             foreach ($rootOrdering as $order => $item_id) {
                 if ($itemToOrder = Role::find($item_id)) {
+                    // Ngăn việc thay đổi thứ tự của vai trò admin
+                    if ($itemToOrder->name === 'Quản trị viên') {
+                        continue;
+                    }
                     $itemToOrder->order = $order;
                     $itemToOrder->save();
                 }
@@ -285,11 +464,18 @@ class RoleController extends Controller
                     $description = $item->description;
                 }
                 $result .= "<div class='btnControll'>";
-                $result .= "<a href='#' class='btn btn-sm btn-primary edit_toggle' data-url='" . route("dashboard.roles.edit", $item->id) . "' rel='{$item->id}' >Sửa</a>
+                
+                // Ẩn nút sửa và xóa cho vai trò admin đầu tiên
+                if ($item->name === 'Quản trị viên') {
+                    $result .= "<span class='text-muted' style='font-size: 12px;'>Không thể chỉnh sửa</span>";
+                } else {
+                    $result .= "<a href='#' class='btn btn-sm btn-primary edit_toggle' data-url='" . route("dashboard.roles.edit", $item->id) . "' rel='{$item->id}' >Sửa</a>
             <a href=\"#\" class=\"btn btn-sm btn-danger  delete_toggle \" rel=\"{$item->id}\">
                                 Xóa
-            </a>
-        </div>
+            </a>";
+                }
+                
+                $result .= "</div>
       </div>" . $this->buildMenu($menu, $item->id) . "</li>";
             }
         return $result ? "\n<ol class=\"dd-list\">\n$result</ol>\n" : null;
