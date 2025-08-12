@@ -748,7 +748,7 @@
         window.colorImageMap = @json($colorImageMap);
         window.variantPriceMap = @json($priceMap);
         window.flashSaleStock = {
-    '{{ $flashSaleItem->color_id }}-{{ $flashSaleItem->size_id }}': {{ $flashSaleItem->stock_quantity }}
+    '{{ $flashSaleItem->color_id }}-{{ $flashSaleItem->size_id }}': {{ $flashSaleItem->max_quantity }}
 };
     </script>
 @endpush
