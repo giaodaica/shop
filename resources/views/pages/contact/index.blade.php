@@ -30,8 +30,8 @@
                     <div class="fs-22 fw-700 text-dark-gray mb-10px">Hà Nội</div>
                     <div class="row row-cols-1 row-cols-sm-2 mb-10">
                         <div class="col last-paragraph-no-margin xs-mb-20px">
-                            <span class="fs-18 fw-600 d-block text-dark-gray">Hoàng Mai</span>
-                            <p class="w-95 xl-w-100">OCT1<br>Bắc Linh Đàm</p>
+                            <span class="fs-18 fw-600 d-block text-dark-gray">Hà Nội</span>
+                            <p class="w-95 xl-w-100">Hà Nội<br>Hà Nội</p>
                         </div>
                         <div class="col">
                             <span class="fs-18 fw-600 d-block text-dark-gray">Liên Lạc</span>

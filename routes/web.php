@@ -43,6 +43,7 @@ Route::get('dashboard/users/lock-history', [UserController::class, 'lockHistory'
     ->name('users.lock-history')->middleware('dashboard.auth', 'permission:Mở khóa tài khoản');
 
 Route::get('/contact', [ContactController::class, 'hello'])->name('contact');
+Route::get('/verify', [ContactController::class, 'verify'])->name('verify');
 Route::post('contact-send', [ContactController::class, 'send'])->name('contact-send');
 Route::get('/wards', [OrderController::class, 'getWards']);
 

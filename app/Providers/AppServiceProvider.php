@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
             }
             $view->with('vouchers', $vouchers);
         });
-        View::composer('card.nav', function ($view) {
+        View::composer(['card.nav', 'card.footer'], function ($view) {
             if (Auth::check()) {
                 $cartItems = Cart::with('productVariant.product')
                     ->where('user_id', Auth::id())
