@@ -499,6 +499,8 @@ class ProductsController extends Controller
     public function destroy($id)
     {
         $product = Products::findOrFail($id);
+        Product_variants::where('product_id',$id)->where('use_flash_sale', 1)
+        ->update(['use_flash_sale' => 0]);
         $product->delete();
 
         return redirect()->route('products.index')->with('success', 'Xóa sản phẩm thành công!');

@@ -295,6 +295,9 @@ class ProductVariantsController extends Controller
     public function destroy($id)
     {
         $variant = Product_variants::findOrFail($id);
+        if ($variant->use_flash_sale == 1) {
+            $variant->update(['use_flash_sale' => 0]);
+        }
         $variant->delete();
 
         return redirect()->route('variants.index')->with('success', 'Xóa biến thể thành công!');
