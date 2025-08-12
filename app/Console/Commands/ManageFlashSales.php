@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\FlashSale;
+use App\Models\Product_variants;
 use Carbon\Carbon;
 
 class ManageFlashSales extends Command
@@ -46,7 +47,34 @@ class ManageFlashSales extends Command
                 $flashSale->update(['status' => 'ended']);
             }
         });
+// 4) Lấy danh sách variant đang nằm trong bất kỳ FlashSale nào active
+        $activeVariantIds = FlashSale::where('status', 'active')
+            ->with('items')
+            ->get()
+            ->flatMap(function ($fs) {
+                return $fs->items->pluck('product_variant_id');
+            })
+            ->unique()
+            ->values()
+            ->toArray();
 
+        // 5) Ẩn những variant đang được bán trong flash sale (nếu chưa ẩn)
+        if (!empty($activeVariantIds)) {
+            Product_variants::whereIn('id', $activeVariantIds)
+                ->where('is_show', 1)
+                ->update(['is_show' => 0]);
+        }
+
+        // 6) Bật lại những variant hiện bị ẩn nhưng không còn nằm trong active flash sale nào
+        if (!empty($activeVariantIds)) {
+            Product_variants::where('is_show', 0)
+                ->whereNotIn('id', $activeVariantIds)
+                ->update(['is_show' => 1]);
+        } else {
+            // Nếu không còn variant nào active, bật hết những variant đang bị ẩn
+            Product_variants::where('is_show', 0)
+                ->update(['is_show' => 1]);
+        }
         \Log::info('Flash Sale checked at ' . now());
     }
 }
