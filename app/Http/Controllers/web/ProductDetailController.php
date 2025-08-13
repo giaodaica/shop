@@ -53,7 +53,7 @@ class ProductDetailController extends Controller
             ->where('product_id', '=', $product->id)
             ->where('is_show', 1)->get();
         // dd($variants);
-        if($variants->isEmpty()){
+        if($variants->isEmpty() & !$flashItemId){
             return redirect()->route('home')->with('error', 'Sản phẩm không tồn tại hoặc đã bị xóa.');
         }
         $colors = $variants->pluck('color')->unique('id'); // Lấy tất cả màu không trùng
