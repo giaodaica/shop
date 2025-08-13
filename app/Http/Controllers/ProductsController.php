@@ -264,6 +264,7 @@ class ProductsController extends Controller
                     'listed_price' => $variantData['listed_price'],
                     'sale_price' => $variantData['sale_price'],
                     'stock' => $variantData['stock'],
+                    'initial_stock' => $variantData['stock'],
                 ]);
             }
 
@@ -439,6 +440,7 @@ class ProductsController extends Controller
                         'listed_price' => $variantData['listed_price'],
                         'sale_price' => $variantData['sale_price'],
                         'stock' => $variantData['stock'],
+                        'initial_stock' => $variantData['stock'],
                         'variant_image_url' => $variantImagePath,
                     ]);
                     $existingIds[] = $variant->id;
@@ -452,6 +454,7 @@ class ProductsController extends Controller
                     'listed_price' => $variantData['listed_price'],
                     'sale_price' => $variantData['sale_price'],
                     'stock' => $variantData['stock'],
+                    'initial_stock' => $variantData['stock'],
                     'variant_image_url' => $variantImagePath,
                 ]);
                 $existingIds[] = $newVariant->id;

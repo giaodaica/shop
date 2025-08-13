@@ -221,6 +221,12 @@
                                                             </td>
                                                         @break
 
+                                                        @case('save')
+                                                            <td class="status"><span
+                                                                    class="badge bg-muted-subtle text-black text-uppercase">Lưu trữ</span>
+                                                            </td>
+                                                        @break
+
                                                         @default
                                                     @endswitch
 
@@ -488,10 +494,9 @@
     </div>
 @endsection
 @section('js-content')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-
         @if (session('success'))
             Swal.fire({
                 icon: 'success',

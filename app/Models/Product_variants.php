@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Product_variants extends Model
 {
     use SoftDeletes; use HasFactory;
-
+    protected $table ='product_variants';
     protected $fillable = [
         'product_id',
         'color_id',
@@ -21,6 +21,7 @@ class Product_variants extends Model
         'listed_price',
         'sale_price',
         'stock',
+        'initial_stock',
         'is_show'
     ];
 

@@ -654,7 +654,7 @@
 
         .btn-danger:hover {
             background-color: #dc3545 !important;
-           
+
             color: #fff !important;
         }
 
@@ -671,7 +671,7 @@
         .rating-stars label:hover i,
         .rating-stars label:hover~label i {
             color: #ffb60f;
-            
+
         } */
 
         /* Cải thiện hiệu ứng transition cho ảnh sản phẩm */
@@ -800,7 +800,7 @@
                 }
             });
         }
-  
+
 </script>
 
 

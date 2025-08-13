@@ -214,6 +214,7 @@ class OrderController extends Controller
                     DB::table('vouchers')
                         ->where('id', $voucher->id)
                         ->increment('used');
+
                 }
             }
             // Lấy các sản phẩm được chọn từ giỏ hàng
@@ -359,7 +360,7 @@ class OrderController extends Controller
                     'product_variant_id' => $item->product_variants_id,
                     'flash_sale_items_id' => $item->flash_sale_items_id ?? null,
                     'product_id' => $item->productVariant->product_id,
-                    'product_name' => $item->productVariant->product->name,
+                    'product_name' => $item->product_name,
                     'product_image_url' => $item->productVariant->variant_image_url ?? $item->productVariant->product->image_url ?? '',
                     'import_price' => $item->productVariant->import_price,
                     'listed_price' => $item->productVariant->listed_price,
@@ -516,6 +517,7 @@ class OrderController extends Controller
             FlashSaleItems::where('product_variant_id', $item->product_variant_id)
                 ->where('id', $item->flash_sale_items_id)
                 ->increment('max_quantity', $item->quantity);
+                $item->update(['sold_quantity'=> 0]);
         });
         $voucher = Vouchers::find($present->voucher_id);
         if ($present->voucher_id && $voucher->end_date < now()) {
@@ -528,7 +530,7 @@ class OrderController extends Controller
                     'is_used'    => 'unused',
                     'status' => 'available',
                     'start_date' => now(),
-                    'end_date'   => now()->addDays(7),
+                    'end_date'   => now()->addDays(3),
                 ]
             );
             VouchersLog::create([

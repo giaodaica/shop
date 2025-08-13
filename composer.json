@@ -16,6 +16,7 @@
         "laravel/socialite": "^5.21",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",
+        "openai-php/client": "dev-gpt5",
         "spatie/laravel-permission": "^6.20"
     },
     "require-dev": {

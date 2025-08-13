@@ -66,8 +66,8 @@
                                                         <div class="flex-grow-1 ms-3">
                                                             <h5 class="fs-15"><a rel="noopener noreferrer" target="_blank"
                                                                     href="{{ url('dashboard/variants/' . $rende_order_items->product_variant_id) }}"
-                                                                    class="link-primary">{{ $rende_order_items->product_name . ' ' . $rende_order_items->color_name }}
-                                                                    @if (!empty($rende_order_items->flash_sale_items_id))
+                                                                    class="link-primary">{{ $rende_order_items->product_name }}
+                                                                    @if ($rende_order_items->promotion_type == 'flash_sale')
                                                                         (*)
                                                                     @else
                                                                     @endif
@@ -136,7 +136,7 @@
                             </div>
                         </div>
                     </div>
-                    @if ($data_order_items->contains(fn($item) => !empty($item->flash_sale_items_id)))
+                    @if ($data_order_items->contains(fn($item) => !empty($item->promotion_type) && $item->promotion_type == 'flash_sale'))
                         <p class="text-info">* sản phẩm trong thuộc chương trình flash sale</p>
                     @endif
 

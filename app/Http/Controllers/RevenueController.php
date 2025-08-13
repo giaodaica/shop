@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product_variants;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -114,6 +115,19 @@ class RevenueController extends Controller
             ->groupBy('product_id', 'product_name')
             ->orderByDesc('soluong_ban')
             ->take(5);
+        // thống kê sản phẩm bán ế
+        $least_sold_variants = Product_variants::select(
+            'id',
+            'product_id',
+            'name as variant_name',
+            'initial_stock',
+            'sold_quantity',
+            DB::raw('CASE WHEN initial_stock > 0 THEN ROUND((sold_quantity / initial_stock) * 100, 2) ELSE 0 END as sold_percentage')
+        )
+            ->orderBy('sold_percentage', 'asc')
+            ->take(5)
+            ->get();
+            // dd($least_sold_variants);
         $revenue_top_users = Order::selectRaw('
         SUM(final_amount) as tong_tien_mua,
         SUM(user_id) as so_don_hang,
@@ -181,7 +195,7 @@ class RevenueController extends Controller
         $doanhthu = $data_doanhthu->doanhthu ?? 0;
         $dtb = $sodonhang > 0 ? $doanhthu / $sodonhang : 0;
 
-        return view('dashboard.pages.revenue.index', compact('dtb', 'start', 'end', 'data_order', 'data_top_5', 'data_doanhthu', 'sodonhang', 'doanhthu', 'data_top_5_users', 'data_loinhan'));
+        return view('dashboard.pages.revenue.index', compact('dtb', 'start', 'end', 'data_order', 'data_top_5', 'data_doanhthu', 'sodonhang', 'doanhthu', 'data_top_5_users', 'data_loinhan', 'least_sold_variants'));
     }
 
 
