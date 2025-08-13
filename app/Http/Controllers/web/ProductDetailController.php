@@ -78,7 +78,7 @@ class ProductDetailController extends Controller
             ->get()
             ->unique('color_id')
             ->pluck('variant_image_url');
-
+        // $disabled = Product_variants::where()
         $reviews = Review::where('product_id', $product->id)
             ->where('is_show', 1)
             ->with('user') // Eager load the user information
