@@ -53,13 +53,13 @@
                 @foreach ($flashSales as $sale1)
                     <div class="flash-sale-products mb-4" id="products-{{ $sale1->id }}"></div>
                     {{-- @php
-                    dd($sale1);
                     @endphp --}}
-                @endforeach
+                    @endforeach
+                </div>
             </div>
         </div>
-    </div>
-@endif
+        @endif
+        {{-- {{dd($flashSales)}} --}}
 
 <!-- JavaScript tối ưu hóa -->
 <script src="{{ asset('assets/js/shop/flash_sale.js') }}"></script>

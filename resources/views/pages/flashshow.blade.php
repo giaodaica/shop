@@ -3,10 +3,10 @@
         @forelse($sale as $item)
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                 <div class="product-card">
-                    <a href="{{ route('home.show', ['slug' => $item->product->slug, 'flash_item_id' => $item->id]) }}"
+                    <a href="{{ route('home.show', ['slug' => $item->slug, 'flash_item_id' => $item->id]) }}"
                         class="text-decoration-none text-dark">
                         <div class="product-image">
-                            <img src="{{ $item->product->image_url }}" alt="{{ $item->name }}"
+                            <img src="{{ $item->variant_image_url }}" alt="{{ $item->name }}"
                                  style="width:100%;height:150px;object-fit:contain;">
                         </div>
                         <div class="product-name-truncate">
@@ -44,5 +44,7 @@
         @empty
             <div class="col-12 text-center">Không có flash sale đang diễn ra.</div>
         @endforelse
+        
+        {{-- {{dd($sale)  }} --}}
     </div>
 </div>

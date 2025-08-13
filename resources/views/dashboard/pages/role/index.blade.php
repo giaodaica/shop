@@ -200,6 +200,60 @@
                 modal.show();
             });
             
+            // Xử lý submit form xóa bằng AJAX để hiển thị alert giống thêm/sửa
+            $(document).on('submit', '#deleteModal form', function(e) {
+                e.preventDefault();
+                const form = $(this);
+                const formData = new FormData(form[0]);
+                const url = form.attr('action');
+                const submitBtn = form.find('button[type="submit"]');
+                const originalText = submitBtn.text();
+                submitBtn.prop('disabled', true).text('Đang xử lý...');
+
+                // Đảm bảo có CSRF token
+                if (!formData.has('_token')) {
+                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+                    if (csrfToken) {
+                        formData.append('_token', csrfToken);
+                    }
+                }
+
+                $.ajax({
+                    url: url,
+                    type: 'POST', // sử dụng POST + _method=DELETE
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        // Đóng modal và hiển thị thông báo thành công
+                        $('#deleteModal').modal('hide');
+                        if (typeof response === 'object' && response.message) {
+                            showAlert('success', response.message);
+                        } else {
+                            showAlert('success', 'Xóa thành công!');
+                        }
+                        // Cập nhật lại dữ liệu bảng
+                        updateTableData();
+                    },
+                    error: function(xhr) {
+                        let message = 'Có lỗi xảy ra. Vui lòng thử lại.';
+                        if (xhr.status === 403) {
+                            try {
+                                const res = JSON.parse(xhr.responseText);
+                                message = res.message || message;
+                            } catch (_) {}
+                        }
+                        showAlert('error', message + (xhr.status ? ' (Status: ' + xhr.status + ')' : ''));
+                    },
+                    complete: function() {
+                        submitBtn.prop('disabled', false).text(originalText);
+                    }
+                });
+            });
+
                         // Function để khởi tạo các components trong modal
             function initializeModalComponents() {
                 // Khởi tạo select2
