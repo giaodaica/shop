@@ -131,11 +131,58 @@ class OrderController extends Controller
             $isUrbanDistrict = false;
             if ($isHanoi) {
                 $urbanList = [
-    'ba đình','ngọc hà','giảng võ','hoàn kiếm','cửa nam','phú thượng','hồng hà','tây hồ','bồ đề','việt hưng','phúc lợi','long biên','nghĩa đô','cầu giấy','yên hòa','ô chợ dừa',
-    'láng','văn miếu - quốc tử giám','kim liên','đống đa','hai bà trưng','vĩnh tuy','bạch mai','vĩnh hưng','định công','tương mai','lĩnh nam','hoàng mai','hoàng liệt','yên sở','phương liệt','khương đình',
-    'thanh xuân','từ liêm','thượng cát','đông ngạc','xuân đỉnh','tây tựu','phú diễn','xuân phương','tây mỗ','đại mỗ','thanh liệt','kiến hưng','hà đông','yên nghĩa','phú lương','sơn tây','tùng thiện',
-    'dương nội','chương mỹ'
-];
+                    'ba đình',
+                    'ngọc hà',
+                    'giảng võ',
+                    'hoàn kiếm',
+                    'cửa nam',
+                    'phú thượng',
+                    'hồng hà',
+                    'tây hồ',
+                    'bồ đề',
+                    'việt hưng',
+                    'phúc lợi',
+                    'long biên',
+                    'nghĩa đô',
+                    'cầu giấy',
+                    'yên hòa',
+                    'ô chợ dừa',
+                    'láng',
+                    'văn miếu - quốc tử giám',
+                    'kim liên',
+                    'đống đa',
+                    'hai bà trưng',
+                    'vĩnh tuy',
+                    'bạch mai',
+                    'vĩnh hưng',
+                    'định công',
+                    'tương mai',
+                    'lĩnh nam',
+                    'hoàng mai',
+                    'hoàng liệt',
+                    'yên sở',
+                    'phương liệt',
+                    'khương đình',
+                    'thanh xuân',
+                    'từ liêm',
+                    'thượng cát',
+                    'đông ngạc',
+                    'xuân đỉnh',
+                    'tây tựu',
+                    'phú diễn',
+                    'xuân phương',
+                    'tây mỗ',
+                    'đại mỗ',
+                    'thanh liệt',
+                    'kiến hưng',
+                    'hà đông',
+                    'yên nghĩa',
+                    'phú lương',
+                    'sơn tây',
+                    'tùng thiện',
+                    'dương nội',
+                    'chương mỹ'
+                ];
                 foreach ($urbanList as $q) {
                     if (str_contains($districtName, $q)) {
                         $isUrbanDistrict = true;
@@ -214,7 +261,6 @@ class OrderController extends Controller
                     DB::table('vouchers')
                         ->where('id', $voucher->id)
                         ->increment('used');
-
                 }
             }
             // Lấy các sản phẩm được chọn từ giỏ hàng
@@ -329,7 +375,7 @@ class OrderController extends Controller
                     'price_at_time' => $item->price_at_time
                 ];
             }
-            
+
             // Lấy thông tin voucher trước khi xóa session
             $voucherInfo = null;
             if (session('voucher_code')) {
@@ -342,7 +388,7 @@ class OrderController extends Controller
                     ];
                 }
             }
-            
+
             session([
                 'cancelled_order_data' => [
                     'cart_items' => $cartItemsData,
@@ -509,16 +555,25 @@ class OrderController extends Controller
     {
         $items = OrderItem::where('order_id', $id)->get();
 
+        // Xử lý sản phẩm bình thường
         $items->whereNull('flash_sale_items_id')->each(function ($item) {
             $item->productVariant->increment('stock', $item->quantity);
         });
 
+        // Xử lý sản phẩm flash sale
         $items->whereNotNull('flash_sale_items_id')->each(function ($item) {
-            FlashSaleItems::where('product_variant_id', $item->product_variant_id)
+            $flashItem = FlashSaleItems::where('product_variant_id', $item->product_variant_id)
                 ->where('id', $item->flash_sale_items_id)
-                ->increment('max_quantity', $item->quantity);
-                $item->update(['sold_quantity'=> 0]);
+                ->first();
+
+            if ($flashItem) {
+                $flashItem->increment('max_quantity', $item->quantity); // tăng max_quantity
+                $flashItem->sold_quantity = 0; // reset sold_quantity
+                $flashItem->save();
+            }
         });
+
+        // dd('đang ở đyâ');
         $voucher = Vouchers::find($present->voucher_id);
         if ($present->voucher_id && $voucher->end_date < now()) {
             VouchersUsers::updateOrCreate(
@@ -865,10 +920,10 @@ class OrderController extends Controller
             if ($responseCode === '00' && $transactionStatus === '00') {
                 // Thanh toán thành công
                 Log::info('VNPAY payment successful', ['order_id' => $order->id]);
-                
+
                 // Xóa session data vì thanh toán đã thành công
                 session()->forget('cancelled_order_data');
-                
+
                 $order->update([
                     'status_pay' => 'paid',
                     'status' => 'confirmed',
@@ -892,24 +947,24 @@ class OrderController extends Controller
                     'responseCode' => $responseCode,
                     'transactionStatus' => $transactionStatus
                 ]);
-                
+
                 // Lưu thông tin voucher trước khi xóa đơn hàng
                 $voucherToRestore = null;
                 if ($order->voucher_id) {
                     $voucherToRestore = Vouchers::find($order->voucher_id);
                 }
-                
+
                 // Khôi phục sản phẩm từ session
                 Log::info('About to call restoreProductsFromSession');
                 $this->restoreProductsFromSession();
                 Log::info('Finished calling restoreProductsFromSession');
-                
+
                 // Xóa đơn hàng thất bại
                 Log::info('About to delete failed order', ['order_id' => $order->id]);
                 OrderItem::where('order_id', $order->id)->delete();
                 $order->delete();
                 Log::info('Successfully deleted failed order');
-                
+
                 // Tạo thông báo lỗi chi tiết
                 $errorMsg = 'Thanh toán thất bại! Các sản phẩm đã được khôi phục về giỏ hàng.';
 
@@ -972,11 +1027,11 @@ class OrderController extends Controller
                     $cancelledOrderData = session('cancelled_order_data', []);
                     $totalAmount = 0;
                     if (isset($cancelledOrderData['cart_items'])) {
-                        $totalAmount = collect($cancelledOrderData['cart_items'])->sum(function($item) {
+                        $totalAmount = collect($cancelledOrderData['cart_items'])->sum(function ($item) {
                             return $item['quantity'] * $item['price_at_time'];
                         });
                     }
-                    
+
                     Log::info('Voucher restoration debug info', [
                         'voucherToRestore_id' => $voucherToRestore->id,
                         'cancelledOrderData' => $cancelledOrderData,
@@ -984,14 +1039,14 @@ class OrderController extends Controller
                         'has_voucher_code' => isset($cancelledOrderData['voucher_code']),
                         'has_voucher_discount' => isset($cancelledOrderData['voucher_discount'])
                     ]);
-                    
+
                     // Sử dụng thông tin voucher từ session nếu có
                     if (isset($cancelledOrderData['voucher_code']) && isset($cancelledOrderData['voucher_discount'])) {
                         session([
                             'voucher_code' => $cancelledOrderData['voucher_code'],
                             'voucher_discount' => $cancelledOrderData['voucher_discount']
                         ]);
-                        
+
                         Log::info('Restored voucher session from cancelled_order_data', [
                             'voucher_code' => $cancelledOrderData['voucher_code'],
                             'voucher_discount' => $cancelledOrderData['voucher_discount'],
@@ -1003,7 +1058,7 @@ class OrderController extends Controller
                             'voucher_code' => $voucherToRestore->code,
                             'voucher_discount' => $this->calculateVoucherDiscount($voucherToRestore, $totalAmount)
                         ]);
-                        
+
                         Log::info('Restored voucher session with recalculated discount', [
                             'voucher_code' => $voucherToRestore->code,
                             'voucher_discount' => session('voucher_discount'),
@@ -1019,7 +1074,6 @@ class OrderController extends Controller
                 session()->forget('cancelled_order_data');
 
                 return redirect()->route('home.checkout')->with('success', $errorMsg);
-                
             }
         } catch (\Exception $e) {
             Log::error('Lỗi trong handleVnpayCallback: ' . $e->getMessage(), [
@@ -1039,7 +1093,7 @@ class OrderController extends Controller
         try {
             $userId = Auth::id();
             $cancelledOrderData = session('cancelled_order_data', []);
-            
+
             if (empty($cancelledOrderData)) {
                 Log::warning('No cancelled order data in session');
                 return;
@@ -1052,7 +1106,7 @@ class OrderController extends Controller
             // Khôi phục sản phẩm về giỏ hàng
             if (isset($cancelledOrderData['cart_items'])) {
                 $restoredCartIds = [];
-                
+
                 foreach ($cancelledOrderData['cart_items'] as $item) {
                     $existingCartItem = Cart::where('user_id', $userId)
                         ->where('product_variants_id', $item['product_variant_id'])
@@ -1091,7 +1145,7 @@ class OrderController extends Controller
                         ]);
                     }
                 }
-                
+
                 // Khôi phục session cart_selected_ids để có thể thanh toán lại
                 session(['cart_selected_ids' => $restoredCartIds]);
                 Log::info('Restored cart_selected_ids session', ['cart_ids' => $restoredCartIds]);
@@ -1117,7 +1171,7 @@ class OrderController extends Controller
                         'voucher_code' => $cancelledOrderData['voucher_code'],
                         'voucher_discount' => $cancelledOrderData['voucher_discount']
                     ]);
-                    
+
                     Log::info('Restored voucher session from cancelled_order_data', [
                         'voucher_code' => $cancelledOrderData['voucher_code'],
                         'voucher_discount' => $cancelledOrderData['voucher_discount']
@@ -1126,15 +1180,15 @@ class OrderController extends Controller
                     // Fallback: tính toán lại discount
                     $voucher = Vouchers::find($cancelledOrderData['voucher_id']);
                     if ($voucher) {
-                        $totalAmount = collect($cancelledOrderData['cart_items'])->sum(function($item) {
+                        $totalAmount = collect($cancelledOrderData['cart_items'])->sum(function ($item) {
                             return $item['quantity'] * $item['price_at_time'];
                         });
-                        
+
                         session([
                             'voucher_code' => $voucher->code,
                             'voucher_discount' => $this->calculateVoucherDiscount($voucher, $totalAmount)
                         ]);
-                        
+
                         Log::info('Restored voucher session with recalculated discount', [
                             'voucher_code' => $voucher->code,
                             'voucher_discount' => session('voucher_discount')
@@ -1151,9 +1205,8 @@ class OrderController extends Controller
 
             // KHÔNG xóa session data ngay lập tức - để handleVnpayCallback có thể sử dụng
             // session()->forget('cancelled_order_data');
-            
-            Log::info('Successfully restored products from cancelled order session');
 
+            Log::info('Successfully restored products from cancelled order session');
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Error restoring products from session: ' . $e->getMessage());
