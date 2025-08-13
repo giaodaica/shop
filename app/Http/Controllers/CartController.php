@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Carbon\Carbon;
 use App\Models\Cart;
 use App\Models\FlashSaleItems;
 use App\Models\Vouchers;
@@ -19,48 +19,71 @@ public function index()
 {
     $userId = Auth::id();
 
-$cartItems = Cart::with([
-    'productVariant' => function ($query) {
-        $query->withTrashed()
-              ->with(['product' => function ($q) {
-                  $q->withTrashed();
-              }, 'color', 'size']);
+    $cartItems = Cart::with([
+        'productVariant' => function ($query) {
+            $query->withTrashed()
+                ->with(['product' => function ($q) {
+                    $q->withTrashed(); 
+                }, 'color', 'size']);
+        },
+        'flashSaleItem.flashSale' 
+    ])->where('user_id', $userId)->get();
+
+    // 1. Xóa sản phẩm không còn tồn tại
+    $deletedForeverItems = $cartItems->filter(function ($item) {
+        return !$item->productVariant || !$item->productVariant->product;
+    });
+
+    if ($deletedForeverItems->isNotEmpty()) {
+        Cart::whereIn('id', $deletedForeverItems->pluck('id'))->delete();
+        session()->flash('error', 'Một số sản phẩm đã ngừng kinh doanh và đã được gỡ khỏi giỏ hàng.');
     }
-])->where('user_id', auth()->id())->get();
-$deletedForeverItems = $cartItems->filter(function ($item) {
-    return !$item->productVariant || !$item->productVariant->product;
+
+    // 2. Xóa Flash Sale hết hạn
+    $expiredFlashSaleItems = $cartItems->filter(function ($item) {
+        if ($item->flashSaleItem && $item->flashSaleItem->flashSale) {
+            $flashSale = $item->flashSaleItem->flashSale;
+            return !$flashSale->end_date || now()->greaterThan(Carbon::parse($flashSale->end_date));
+        }
+        return false;
+    });
+// 3. Xóa sản phẩm vượt quá số lượng cho phép (Flash Sale và thường)
+$overLimitItems = $cartItems->filter(function ($item) {
+    // Nếu là Flash Sale
+    if ($item->flashSaleItem && $item->flashSaleItem->flashSale) {
+        $remaining = (int) $item->flashSaleItem->max_quantity;
+        return $item->quantity > $remaining;
+    }
+    // Sản phẩm thường
+    if ($item->productVariant) {
+        $stock = (int) $item->productVariant->stock;
+        return $item->quantity > $stock;
+    }
+    return false;
 });
 
-if ($deletedForeverItems->isNotEmpty()) {
-    // Xóa luôn khỏi giỏ
-    Cart::whereIn('id', $deletedForeverItems->pluck('id'))->delete();
-
-    // Thông báo cho view
-    session()->flash('error', 'Một số sản phẩm đã ngừng kinh doanh và đã được gỡ khỏi giỏ hàng.');
+if ($overLimitItems->isNotEmpty()) {
+    Cart::whereIn('id', $overLimitItems->pluck('id'))->delete();
+    session()->flash('error', 'Một số sản phẩm đã hết hàng hoặc vượt số lượng cho phép và đã được gỡ khỏi giỏ.');
 }
 
-// Lọc lại giỏ, chỉ giữ sản phẩm còn tồn tại
-$cartItems = $cartItems->filter(function ($item) {
-    return $item->productVariant && $item->productVariant->product;
-});
-// dd($cartItems);
+    if ($expiredFlashSaleItems->isNotEmpty()) {
+        Cart::whereIn('id', $expiredFlashSaleItems->pluck('id'))->delete();
+        session()->flash('error', 'Một số sản phẩm Flash Sale đã hết hạn sẽ được gỡ khỏi giỏ hàng.');
+    }
+
+    // Lọc lại giỏ sau khi xóa
+    $cartItems = $cartItems->filter(function ($item) {
+        return $item->productVariant && $item->productVariant->product;
+    });
 
     $selectedIds = session('cart_selected_ids', []);
-
-
     $selectedItems = $cartItems->whereIn('id', $selectedIds);
 
     $subtotal = $selectedItems->sum(fn($item) => $item->quantity * $item->price_at_time);
-    // CHỈ lấy voucher nếu thực sự có session mã
-    $voucherDiscount = session()->has('voucher_code') && session()->has('voucher_discount')
-        ? session('voucher_discount')
-        : 0;
 
-    $total = $subtotal - $voucherDiscount;
-
+    // Tính voucher
     $voucherDiscount = 0;
-
-
     if (count($selectedItems) > 0 && session()->has('voucher_code')) {
         $voucherCode = session('voucher_code');
         $voucher = DB::table('vouchers')
@@ -81,7 +104,6 @@ $cartItems = $cartItems->filter(function ($item) {
     }
 
     $total = $subtotal - $voucherDiscount;
-
 
     $availableVouchers = DB::table('vouchers')
         ->join('vouchers_users', 'vouchers.id', '=', 'vouchers_users.voucher_id')
@@ -236,7 +258,7 @@ public function updateQuantity(Request $request)
                 }
 
                 // Tính số lượng còn lại của Flash Sale
-                $available = $flashSaleItem->max_quantity - $flashSaleItem->sold_quantity;
+                $available = $flashSaleItem->max_quantity;
 
                 if ($cartItem->quantity >= $available) {
                     return response()->json([
@@ -440,63 +462,50 @@ public function add_to_cart($id, Request $request)
         ]);
 
         // Lấy chính xác flash_sale_item theo id
-        $flashSaleItem = FlashSaleItems::with('productVariant')
-            ->find($request->flash_sale_item_id);
+        $flashSaleItem = FlashSaleItems::with('productVariant')->findOrFail($request->flash_sale_item_id);
 
-        if (!$flashSaleItem) {
-            return redirect()->back()->with('error', 'Sản phẩm Flash Sale không tồn tại');
+        // Kiểm tra thời gian kết thúc Flash Sale
+        $flashSale = $flashSaleItem->flashSale;
+        if (!$flashSale || !$flashSale->end_date || now()->greaterThan(\Carbon\Carbon::parse($flashSale->end_date))) {
+            return back()->with('error', 'Chương trình Flash Sale này đã kết thúc.');
         }
 
-        // Kiểm tra tồn kho flash sale
-        $availableFlashSale = $flashSaleItem->max_quantity - $flashSaleItem->sold_quantity;
-        if ($availableFlashSale < $request->quantity) {
-            return redirect()->back()->with('error', "Chỉ còn $availableFlashSale sản phẩm Flash Sale.");
-        }
+        // Lấy lại bản ghi mới nhất để tránh số liệu cũ từ tab khác
+        $flashSaleItemFresh = FlashSaleItems::with('productVariant')->findOrFail($request->flash_sale_item_id);
 
-    // Kiểm tra tồn kho flash sale
-        $availableFlashSale = $flashSaleItem->max_quantity - $flashSaleItem->sold_quantity;
-        if ($availableFlashSale < $request->quantity) {
-            return redirect()->back()->with('error', "Chỉ còn $availableFlashSale sản phẩm Flash Sale.");
-        }
+        // Số lượng còn có thể mua được trong Flash Sale (đÃ là số còn lại)
+        $remaining = (int) $flashSaleItemFresh->max_quantity;
 
-
+        // Kiểm tra nếu trong giỏ đã có sẵn cùng flash_sale_item thì cộng dồn để so
         $userId = auth()->id();
-
-        // Kiểm tra nếu sản phẩm đã có trong giỏ (đúng flash_sale_items_id)
-        $items_cart = Cart::where('user_id', $userId)
-            ->where('product_variants_id', $flashSaleItem->product_variant_id)
-            ->where('flash_sale_items_id', $flashSaleItem->id)
+        $cartItem = Cart::where('user_id', $userId)
+            ->where('product_variants_id', $flashSaleItemFresh->product_variant_id)
+            ->where('flash_sale_items_id', $flashSaleItemFresh->id)
             ->first();
 
-        $quantity_in_db = $items_cart->quantity ?? 0;
-        $new_quantity = $request->quantity + $quantity_in_db;
+        $newQuantity = (int)$request->quantity + (int)($cartItem->quantity ?? 0);
 
-        // Kiểm tra tổng số lượng có vượt số lượng flash sale không
-        if ($new_quantity > $availableFlashSale) {
-            return redirect()->back()->with(
-                'error',
-                "Số lượng sản phẩm Flash Sale không đủ, chỉ còn $availableFlashSale."
-            );
+        if ($newQuantity > $remaining) {
+            return back()->with('error', "Số lượng sản phẩm Flash Sale không đủ.");
         }
 
         // Nếu chưa có trong giỏ -> tạo mới, ngược lại cập nhật số lượng
-        if (!$items_cart) {
+        if (!$cartItem) {
             Cart::create([
                 'user_id' => $userId,
-                'product_variants_id' => $flashSaleItem->product_variant_id,
-                'flash_sale_items_id' => $flashSaleItem->id,
+                'product_variants_id' => $flashSaleItemFresh->product_variant_id,
+                'flash_sale_items_id' => $flashSaleItemFresh->id,
                 'quantity' => $request->quantity,
-                'price_at_time' => $flashSaleItem->price_at_flash_sale,
-                'promotion_type' => 'flash_sale',
-                'product_name' => $flashSaleItem->name
+                'price_at_time' => $flashSaleItemFresh->price_at_flash_sale,
+                'promotion_type' => 'flash_sale'
             ]);
         } else {
-            $items_cart->update([
-                'quantity' => $new_quantity
+            $cartItem->update([
+                'quantity' => $newQuantity
             ]);
         }
 
-        return redirect()->back()->with('success', 'Đã thêm Flash Sale vào giỏ hàng');
+        return back()->with('success', 'Đã thêm Flash Sale vào giỏ hàng');
     }
 
     // 2. Xử lý sản phẩm thường
@@ -517,9 +526,7 @@ public function add_to_cart($id, Request $request)
     // Kiểm tra sản phẩm thường
     $product = Products::find($id);
     if (!$product) {
-        return redirect()->back()->with('error', 'Sản phẩm không tồn tại');
-        // dd($flashSale);
-
+        return back()->with('error', 'Sản phẩm không tồn tại');
     }
 
     // Kiểm tra biến thể
@@ -529,14 +536,12 @@ public function add_to_cart($id, Request $request)
         ->first();
 
     if (!$variants) {
-        return redirect()->back()->with('error', 'Sản phẩm này đã hết hàng hoặc không có xin vui lòng thao tác lại');
+        return back()->with('error', 'Sản phẩm này đã hết hàng hoặc không có, vui lòng thao tác lại');
     }
-    if($variants->is_show == 0){
-        return redirect()->back()->with('error', 'Sản phẩm này đã hết hàng hoặc không có xin vui lòng thao tác lại');
-    }
+
     // Kiểm tra tồn kho
     if ($variants->stock < $request->quantity) {
-        return redirect()->back()->with('error', "Số lượng sản phẩm tồn kho chỉ còn $variants->stock");
+        return back()->with('error', "Số lượng sản phẩm tồn kho chỉ còn $variants->stock");
     }
 
     $user_id = auth()->id();
@@ -549,7 +554,7 @@ public function add_to_cart($id, Request $request)
     $new_quantity = $request->quantity + $quantity_in_db;
 
     if ($new_quantity > $variants->stock) {
-        return redirect()->back()->with('error', 'Số lượng sản phẩm tồn kho không đủ vui lòng kiểm tra lại');
+        return back()->with('error', 'Số lượng sản phẩm tồn kho không đủ, vui lòng kiểm tra lại');
     }
 
     if (!$items_cart) {
@@ -557,9 +562,7 @@ public function add_to_cart($id, Request $request)
             'user_id' => $user_id,
             'product_variants_id' => $variants->id,
             'quantity' => $request->quantity,
-            'price_at_time' => $variants->sale_price,
-            'product_name' => $variants->name
-
+            'price_at_time' => $variants->sale_price
         ]);
     } else {
         $items_cart->update([
@@ -567,8 +570,9 @@ public function add_to_cart($id, Request $request)
         ]);
     }
 
-    return redirect()->back()->with('success', 'Thêm thành công');
+    return back()->with('success', 'Thêm thành công');
 }
+
 
 
 }
