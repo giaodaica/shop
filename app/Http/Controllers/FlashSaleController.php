@@ -20,14 +20,23 @@ class FlashSaleController extends Controller
         $this->middleware('permission:Kích hoạt flash sale')->only(['change_active']);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $flashSales  = FlashSale::join('users', 'flash_sales.user_id', 'users.id')->select(
-            'flash_sales.*',
-            'users.name as name',
-            'users.id as user_id'
-        )->orderBy('slot_time','asc')->get();
-        // dd($flashSales);
+        $query = FlashSale::join('users', 'flash_sales.user_id', 'users.id')
+            ->select(
+                'flash_sales.*',
+                'users.name as name',
+                'users.id as user_id'
+            )
+            ->orderBy('slot_time', 'asc');
+
+        // Lọc theo trạng thái nếu có
+        if ($request->filled('status')) {
+            $query->where('flash_sales.status', $request->status);
+        }
+
+        $flashSales = $query->get();
+
         return view('dashboard.pages.flashsale.index', compact('flashSales'));
     }
     public function show($id)
@@ -35,7 +44,7 @@ class FlashSaleController extends Controller
         $variants = FlashSaleItems::where('flash_sale_id', $id)
             ->join('colors', 'flash_sale_items.color_id', 'colors.id')
             ->join('sizes', 'flash_sale_items.size_id', 'sizes.id')
-            ->select('flash_sale_items.*','colors.color_name as color_name','sizes.size_name as size_name')
+            ->select('flash_sale_items.*', 'colors.color_name as color_name', 'sizes.size_name as size_name')
             ->get();
         // dd($variants);
         $flash_sale_id = $id;
@@ -136,6 +145,11 @@ class FlashSaleController extends Controller
                     $data_flash_sale->status = 'ended';
                     FlashSaleItems::where('flash_sale_id', $id)->get()->each(function ($item) {
                         Product_variants::where('id', $item->product_variant_id)->increment('stock', $item->max_quantity);
+                        // tăng số lượng bán được vào product variant
+                        Product_variants::where('id', $item->product_variant_id)
+                            ->increment('sold_quantity', $item->sold_quantity);
+                        //reset max_quantity về 0
+                        FlashSaleItems::where('id', $item->id)->update(['max_quantity' => 0, 'stock_quantity' => 0]);
                     });
                 }
                 break;
@@ -155,7 +169,6 @@ class FlashSaleController extends Controller
                 Product_variants::where('id', $item->product_variant_id)->increment('stock', $item->max_quantity);
             });
         }
-        FlashSaleItems::where('flash_sale_id', $id)->update(['max_quantity'=> 0]);
         $data_flash_sale->delete();
         return redirect()->back()->with('success', 'Xóa thành công');
     }

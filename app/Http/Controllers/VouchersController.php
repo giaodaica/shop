@@ -196,4 +196,20 @@ class VouchersController extends Controller
         $data_voucher->forceDelete();
         return redirect(url("dashboard/voucher/$data->slug"))->with('success', 'Xóa thành công');
     }
+    public function restore($id)
+    {
+       $voucher = Vouchers::where('id',$id)->first();
+        if (!$voucher) {
+            return redirect()->back()->with('error', 'Voucher không tồn tại');
+        }
+        if ($voucher->status != 'save') {
+            return redirect()->back()->with('error', 'Voucher này không thể phát hành lại');
+        }
+        if($voucher->created_at > now()->subDays(30)) {
+            return redirect()->back()->with('error', 'Chỉ có thể khôi phục lại sau 30 ngày');
+        }
+        VouchersUsers::where('voucher_id',$id)->delete();
+        $voucher->update(['status' => 'draft']);
+        return redirect()->back()->with('success', 'Phát hành lại voucher thành công');
+    }
 }

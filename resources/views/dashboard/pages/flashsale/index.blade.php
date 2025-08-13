@@ -31,6 +31,36 @@
             </div>
             <!-- end page title -->
 
+            <!-- Bộ lọc trạng thái Flash Sale dạng tab -->
+            <div class="mb-3">
+                <ul class="nav nav-tabs nav-tabs-custom nav-success" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link {{ request('status') == '' ? 'active' : '' }}"
+                            href="{{ route('flash-sale') }}">
+                            <i class="ri-list-check-2"></i> Tất cả
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request('status') == 'active' ? 'active' : '' }}"
+                            href="{{ route('flash-sale', ['status' => 'active']) }}">
+                            <i class="ri-flashlight-fill"></i> Đang diễn ra
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request('status') == 'upcoming' ? 'active' : '' }}"
+                            href="{{ route('flash-sale', ['status' => 'upcoming']) }}">
+                            <i class="ri-timer-flash-line"></i> Sắp diễn ra
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request('status') == 'finished' ? 'active' : '' }}"
+                            href="{{ route('flash-sale', ['status' => 'finished']) }}">
+                            <i class="ri-checkbox-circle-line"></i> Kết thúc
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
             <!-- Flash Sale Table -->
             <div class="row">
                 <div class="col-lg-12">
@@ -75,7 +105,8 @@
                                                 </td>
                                                 <td>{{ date('d/m/Y H:i', strtotime($flashSale->start_date)) }}</td>
                                                 <td>{{ date('d/m/Y H:i', strtotime($flashSale->end_date)) }}</td>
-                                                <td><a href="{{route('users.show',$flashSale->user_id)}}">{{ $flashSale->name }}</a></td>
+                                                <td><a href="{{route('users.show',$flashSale->user_id)}}">{{ $flashSale->name }}</a>
+                                                </td>
                                                 <td>
                                                     <a href="{{ route('flash-sales.edit', $flashSale->id) }}"
                                                         class="btn btn-sm btn-warning"><i class="ri-edit-2-fill"></i></a>

@@ -23,7 +23,7 @@ $cartItems = Cart::with([
     'productVariant' => function ($query) {
         $query->withTrashed()
               ->with(['product' => function ($q) {
-                  $q->withTrashed(); 
+                  $q->withTrashed();
               }, 'color', 'size']);
     }
 ])->where('user_id', auth()->id())->get();
@@ -487,7 +487,8 @@ public function add_to_cart($id, Request $request)
                 'flash_sale_items_id' => $flashSaleItem->id,
                 'quantity' => $request->quantity,
                 'price_at_time' => $flashSaleItem->price_at_flash_sale,
-                'promotion_type' => 'flash_sale'
+                'promotion_type' => 'flash_sale',
+                'product_name' => $flashSaleItem->name
             ]);
         } else {
             $items_cart->update([
@@ -530,7 +531,9 @@ public function add_to_cart($id, Request $request)
     if (!$variants) {
         return redirect()->back()->with('error', 'Sản phẩm này đã hết hàng hoặc không có xin vui lòng thao tác lại');
     }
-
+    if($variants->is_show == 0){
+        return redirect()->back()->with('error', 'Sản phẩm này đã hết hàng hoặc không có xin vui lòng thao tác lại');
+    }
     // Kiểm tra tồn kho
     if ($variants->stock < $request->quantity) {
         return redirect()->back()->with('error', "Số lượng sản phẩm tồn kho chỉ còn $variants->stock");
@@ -554,7 +557,9 @@ public function add_to_cart($id, Request $request)
             'user_id' => $user_id,
             'product_variants_id' => $variants->id,
             'quantity' => $request->quantity,
-            'price_at_time' => $variants->sale_price
+            'price_at_time' => $variants->sale_price,
+            'product_name' => $variants->name
+
         ]);
     } else {
         $items_cart->update([

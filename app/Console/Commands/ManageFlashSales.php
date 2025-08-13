@@ -33,6 +33,9 @@ class ManageFlashSales extends Command
                 $flashSale->items->each(function ($item) {
                     Product_variants::where('id', $item->product_variant_id)
                         ->increment('stock', $item->max_quantity);
+                    // tăng số lượng bán được vào product variant
+                    Product_variants::where('id', $item->product_variant_id)
+                        ->increment('sold_quantity', $item->sold_quantity);
                 });
                 $flashSale->items()->update(['max_quantity' => 0]);
             });
@@ -72,9 +75,18 @@ class ManageFlashSales extends Command
 
         // 6) Bật lại variant hết hàng
         if (!empty($outOfStockVariantIds)) {
-            Product_variants::whereIn('id', $outOfStockVariantIds)
+            $updated = Product_variants::whereIn('id', $outOfStockVariantIds)
                 ->where('is_show', 0)
                 ->update(['is_show' => 1]);
+
+            // Nếu không còn bản ghi nào được update → kết thúc flash sale
+            if ($updated === 0) {
+                FlashSale::where('status', 'active')
+                    ->whereHas('items', function ($q) use ($outOfStockVariantIds) {
+                        $q->whereIn('product_variant_id', $outOfStockVariantIds);
+                    })
+                    ->update(['status' => 'ended']);
+            }
         }
 
         // 7) Nếu không còn flash sale active → bật tất cả variant về 1
