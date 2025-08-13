@@ -75,18 +75,9 @@ class ManageFlashSales extends Command
 
         // 6) Bật lại variant hết hàng
         if (!empty($outOfStockVariantIds)) {
-            $updated = Product_variants::whereIn('id', $outOfStockVariantIds)
+            Product_variants::whereIn('id', $outOfStockVariantIds)
                 ->where('is_show', 0)
                 ->update(['is_show' => 1]);
-
-            // Nếu không còn bản ghi nào được update → kết thúc flash sale
-            if ($updated === 0) {
-                FlashSale::where('status', 'active')
-                    ->whereHas('items', function ($q) use ($outOfStockVariantIds) {
-                        $q->whereIn('product_variant_id', $outOfStockVariantIds);
-                    })
-                    ->update(['status' => 'ended']);
-            }
         }
 
         // 7) Nếu không còn flash sale active → bật tất cả variant về 1
