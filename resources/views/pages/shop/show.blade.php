@@ -10,9 +10,15 @@
     }
 
     $stockMap = [];
-    foreach ($variants as $variant) {
-        $stockMap[$variant->color_id . '-' . $variant->size_id] = $variant->stock;
-    }
+foreach ($variants as $variant) {
+    $key = $variant->color_id . '-' . $variant->size_id;
+    $stockMap[$key] = [
+        'stock'   => $variant->stock,
+        'is_show' => $variant->is_show
+    ];
+}
+
+
 
     $priceMap = [];
     foreach ($variants as $variant) {
