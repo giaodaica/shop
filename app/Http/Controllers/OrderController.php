@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Cart;
 use App\Models\AddressBook;
 use App\Models\FlashSaleItems;
+use App\Models\Product_variants;
 use App\Models\Provinces;
 use App\Models\RefundMoney;
 use App\Models\User;
@@ -17,6 +18,7 @@ use App\Models\VouchersLog;
 use App\Models\VouchersUsers;
 use App\Models\Wards;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +31,7 @@ class OrderController extends Controller
 {
     public function index()
     {
+         DB::beginTransaction();
         // Kiểm tra nếu có callback từ VNPAY
         if (request()->has('vnp_ResponseCode')) {
             return $this->handleVnpayCallback(request());
@@ -165,232 +168,278 @@ if ($deletedItems->isNotEmpty()) {
         }
     }
 
-    public function processCheckout(Request $request)
-    {
-        try {
-            $request->validate([
-                'address_id' => 'required|exists:address_books,id',
-                'payment_method' => 'required|in:COD,VNPAY',
-                'shipping_type' => 'required|in:basic,express',
-                'notes' => 'nullable|string|max:500',
-                'terms_condition' => 'required|accepted'
-            ], [
-                'address_id.required' => 'Vui lòng chọn địa chỉ giao hàng',
-                'address_id.exists' => 'Địa chỉ không hợp lệ',
-                'payment_method.required' => 'Vui lòng chọn phương thức thanh toán',
-                'payment_method.in' => 'Phương thức thanh toán không hợp lệ',
-                'shipping_type.required' => 'Vui lòng chọn loại vận chuyển',
-                'shipping_type.in' => 'Loại vận chuyển không hợp lệ',
-                'terms_condition.required' => 'Vui lòng đồng ý với điều khoản',
-                'terms_condition.accepted' => 'Vui lòng đồng ý với điều khoản'
-            ]);
+public function processCheckout(Request $request)
+{
+    try {
+        // 1) Validate input như hiện tại
+        $request->validate([
+            'address_id' => 'required|exists:address_books,id',
+            'payment_method' => 'required|in:COD,VNPAY',
+            'shipping_type' => 'required|in:basic,express',
+            'notes' => 'nullable|string|max:500',
+            'terms_condition' => 'required|accepted'
+        ], [
+            'address_id.required' => 'Vui lòng chọn địa chỉ giao hàng',
+            'address_id.exists' => 'Địa chỉ không hợp lệ',
+            'payment_method.required' => 'Vui lòng chọn phương thức thanh toán',
+            'payment_method.in' => 'Phương thức thanh toán không hợp lệ',
+            'shipping_type.required' => 'Vui lòng chọn loại vận chuyển',
+            'shipping_type.in' => 'Loại vận chuyển không hợp lệ',
+            'terms_condition.required' => 'Vui lòng đồng ý với điều khoản',
+            'terms_condition.accepted' => 'Vui lòng đồng ý với điều khoản'
+        ]);
 
-            $userId = Auth::id();
-            $voucherCode = session('voucher_code');
+        $userId = Auth::id();
 
-            if ($voucherCode) {
-                $voucher = DB::table('vouchers')
-                    ->where('code', $voucherCode)
+        // 2) Xác định danh sách item được chọn
+        $selectedIds = session('cart_selected_ids', []);
+        if (empty($selectedIds)) {
+            $allCartItems = Cart::where('user_id', $userId)->pluck('id')->toArray();
+            if (!empty($allCartItems)) {
+                session(['cart_selected_ids' => $allCartItems]);
+                $selectedIds = $allCartItems;
+            }
+        }
+        if (empty($selectedIds)) {
+            return redirect()->route('home.cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán!');
+        }
+
+        // 3) Lấy giỏ hàng chỉ các sản phẩm được chọn (kèm đủ quan hệ để render lỗi đẹp)
+        $cartItems = Cart::with([
+            'productVariant.color',
+            'productVariant.size',
+            'productVariant.product'
+        ])
+        ->where('user_id', $userId)
+        ->whereIn('id', $selectedIds)
+        ->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('home.cart')->with('error', 'Giỏ hàng trống!');
+        }
+
+        // 4) Lấy địa chỉ (đúng user) để tính phí & lưu snapshot
+        $address = AddressBook::where('id', $request->address_id)
+            ->where('user_id', $userId)
+            ->with(['province', 'ward'])
+            ->firstOrFail();
+
+        // 5) Bắt đầu transaction để CHỐT kho an toàn (chống 2 tab)
+        DB::beginTransaction();
+
+        // 5.1) KHÓA & TRỪ TỒN KHO NGAY LÚC ĐẶT HÀNG
+      
+        $subtotal = 0;
+
+        foreach ($cartItems as $item) {
+            // Kiểm tra biến thể & sản phẩm còn tồn tại
+            if (!$item->productVariant || !$item->productVariant->product) {
+                throw new \Exception('Có sản phẩm đã ngừng kinh doanh hoặc không còn tồn tại.');
+            }
+
+            if ($item->flash_sale_items_id) {
+                // Lock flash sale item + kèm flashSale để check end_date
+                $flashSaleItem = FlashSaleItems::with('flashSale')
+                    ->where('id', $item->flash_sale_items_id)
+                    ->lockForUpdate()
                     ->first();
 
-                if ($voucher) {
-                    // Cập nhật trạng thái đã dùng cho người dùng hiện tại
-                    DB::table('vouchers_users')
-                        ->where('user_id', Auth::id())
-                        ->where('voucher_id', $voucher->id)
-                        ->update([
-                            'is_used' => 'used',
-                            'status' => 'used',
-                            'updated_at' => now()
-                        ]);
+                if (!$flashSaleItem) {
+                    throw new \Exception("Sản phẩm Flash Sale không tồn tại.");
+                }
 
-                    // Tăng lượt đã dùng
-                    DB::table('vouchers')
-                        ->where('id', $voucher->id)
-                        ->increment('used');
+                // Kiểm tra chương trình còn hiệu lực
+                $fs = $flashSaleItem->flashSale;
+                if (!$fs || !$fs->end_date || now()->greaterThan(Carbon::parse($fs->end_date))) {
+                    throw new \Exception("Chương trình Flash Sale đã kết thúc.");
+                }
 
-                  
+                // max_quantity lúc này là số còn lại (remaining)
+                $remaining = (int) $flashSaleItem->max_quantity;
+                if ($item->quantity > $remaining) {
+                    $name = $item->productVariant->product->name ?? 'Sản phẩm';
+                    throw new \Exception("Sản phẩm Flash Sale {$name} không đủ số lượng. Chỉ còn {$remaining}.");
+                }
+
+                // Trừ ngay trong transaction
+                $flashSaleItem->decrement('max_quantity', $item->quantity);
+                $flashSaleItem->increment('sold_quantity', $item->quantity);
+            } else {
+                // Lock biến thể hàng thường
+                $variant = Product_variants::where('id', $item->product_variants_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$variant) {
+                    throw new \Exception("Biến thể sản phẩm không tồn tại.");
+                }
+
+                if ($item->quantity > (int)$variant->stock) {
+                    $name = $item->productVariant->product->name ?? 'Sản phẩm';
+                    $available = (int)$variant->stock;
+                    throw new \Exception("{$name} không đủ số lượng. Chỉ còn {$available}.");
+                }
+
+                $variant->decrement('stock', $item->quantity);
+                $variant->increment('sold_quantity', $item->quantity);
+            }
+
+            // Tính subtotal theo giá chốt trong cart
+            $subtotal += ($item->quantity * $item->price_at_time);
+        }
+
+        // 5.2) TÍNH VOUCHER (re-calc để chắc chắn, rồi lưu snapshot)
+        $voucherDiscount = 0;
+        $voucherData = null;
+        $voucherCode = session('voucher_code');
+
+        if ($voucherCode) {
+            $voucherData = Vouchers::where('code', $voucherCode)->first();
+
+            if ($voucherData && $voucherData->status === 'active') {
+                // Kiểm tra thời gian hiệu lực (nếu có)
+                $now = now();
+                $validTime = true;
+                if (!empty($voucherData->start_date) && $now->lt(Carbon::parse($voucherData->start_date))) {
+                    $validTime = false;
+                }
+                if (!empty($voucherData->end_date) && $now->gt(Carbon::parse($voucherData->end_date))) {
+                    $validTime = false;
+                }
+
+                if ($validTime && $subtotal >= ($voucherData->min_order_value ?? 0)) {
+                    if ($voucherData->type_discount === 'percent') {
+                        $voucherDiscount = round($subtotal * ($voucherData->value / 100));
+                        if (!empty($voucherData->max_discount) && $voucherDiscount > $voucherData->max_discount) {
+                            $voucherDiscount = $voucherData->max_discount;
+                        }
+                    } else {
+                        $voucherDiscount = min($voucherData->value, $subtotal);
+                    }
                 }
             }
-            // Lấy các sản phẩm được chọn từ giỏ hàng
-            $selectedIds = session('cart_selected_ids', []);
+        }
 
-            // Nếu chưa có sản phẩm nào được chọn, tự động chọn tất cả
-            if (empty($selectedIds)) {
-                $allCartItems = Cart::where('user_id', $userId)->pluck('id')->toArray();
-                if (!empty($allCartItems)) {
-                    session(['cart_selected_ids' => $allCartItems]);
-                    $selectedIds = $allCartItems;
-                }
-            }
+        // 5.3) TÍNH PHÍ VẬN CHUYỂN & FINAL AMOUNT
+        $shippingFee = $this->calculateShippingFee($subtotal, $request->shipping_type, $address);
+        $finalAmount = $subtotal - $voucherDiscount + $shippingFee;
 
-            if (empty($selectedIds)) {
-                return redirect()->route('home.cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán!');
-            }
+        // 5.4) TẠO MÃ ĐƠN
+        $orderCode = 'ORD' . date('Ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
 
-            // Lấy giỏ hàng chỉ các sản phẩm được chọn
-            $cartItems = Cart::with(['productVariant.color', 'productVariant.size', 'productVariant.product'])
-                ->where('user_id', $userId)
-                ->whereIn('id', $selectedIds)
-                ->get();
+        // 5.5) LƯU ORDER (kèm snapshot voucher)
+        $orderData = [
+            'user_id' => $userId,
 
-            if ($cartItems->isEmpty()) {
-                return redirect()->route('home.cart')->with('error', 'Giỏ hàng trống!');
-            }
+            'voucher_code_snapshot' => $voucherData->code ?? null,
+            'voucher_type_discount_snapshot' => $voucherData->type_discount ?? null,
+            'voucher_value_snapshot' => $voucherData->value ?? null,
+            'voucher_max_discount_snapshot' => $voucherData->max_discount ?? null,
+            'voucher_min_order_value_snapshot' => $voucherData->min_order_value ?? null,
+            'voucher_start_date_snapshot' => $voucherData->start_date ?? null,
+            'voucher_end_date_snapshot' => $voucherData->end_date ?? null,
 
-            // Kiểm tra tồn kho
-            $outOfStockItems = [];
-            foreach ($cartItems as $item) {
-                if ($item->quantity > $item->productVariant->stock) {
-                    $outOfStockItems[] = [
-                        'name' => $item->productVariant->product->name,
-                        'requested' => $item->quantity,
-                        'available' => $item->productVariant->stock
-                    ];
-                }
-            }
+            'address_books_id' => $address->id,
+            'voucher_id' => $voucherCode ? ($voucherData->id ?? null) : null,
 
-            if (!empty($outOfStockItems)) {
-                $errorMessage = 'Một số sản phẩm không đủ tồn kho:';
-                foreach ($outOfStockItems as $item) {
-                    $errorMessage .= "\n- {$item['name']}: Yêu cầu {$item['requested']}, có sẵn {$item['available']}";
-                }
-                return redirect()->back()->with('error', $errorMessage);
-            }
+            'name' => $address->name,
+            'phone' => $address->phone,
+            'address' => $address->address,
+            'province_code' => $address->province_code,
+            'ward_code' => $address->ward_code,
 
-            DB::beginTransaction();
+            'total_amount' => $subtotal,
+            'final_amount' => $finalAmount,
+            'discount_amount' => $voucherDiscount,
 
-            // Tính toán giá
-            $subtotal = $cartItems->sum(fn($item) => $item->quantity * $item->price_at_time);
-            $voucherDiscount = session('voucher_discount', 0);
-            // Lấy địa chỉ để tính phí GHN
-            $addressForFee = AddressBook::where('id', $request->address_id)
-                ->where('user_id', $userId)
-                ->with(['province', 'ward'])
-                ->first();
-            $shippingFee = $this->calculateShippingFee($subtotal, $request->shipping_type, $addressForFee);
-            $finalAmount = $subtotal - $voucherDiscount + $shippingFee;
-            // dd($finalAmount);
+            'status' => 'pending',
+            'code_order' => $orderCode,
 
-            // Lấy địa chỉ
-            $address = AddressBook::where('id', $request->address_id)
-                ->where('user_id', $userId)
-                ->with(['province', 'ward'])
-                ->firstOrFail();
+            'pay_method' => $request->payment_method,
+            'status_pay' => $request->payment_method === 'VNPAY' ? 'unpaid' : 'cod_paid',
 
-            // Tạo mã đơn hàng
-            $orderCode = 'ORD' . date('Ymd') . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+            'notes' => $request->notes ?? null,
+            'shipping_fee' => $shippingFee,
+            'shipping_method' => $request->shipping_type,
+        ];
 
-            // Tạo đơn hàng
-            $data_vouchers = Vouchers::where('code', session('voucher_code'))->first();
-            // dd($data_vouchers);
-            $orderData = [
-                'user_id' => $userId,
-                'voucher_code_snapshot' => $data_vouchers->code ?? null,
-                'voucher_type_discount_snapshot' => $data_vouchers->type_discount ?? null,
-                'voucher_value_snapshot' => $data_vouchers->value ?? null,
-                'voucher_max_discount_snapshot' => $data_vouchers->max_discount ?? null,
-                'voucher_min_order_value_snapshot' => $data_vouchers->min_order_value ?? null,
-                'voucher_start_date_snapshot' => $data_vouchers->start_date ?? null,
-                'voucher_end_date_snapshot' => $data_vouchers->end_date ?? null,
-                'address_books_id' => $address->id,
-                'voucher_id' => session('voucher_code') ? Vouchers::where('code', session('voucher_code'))->first()?->id : null,
-                'name' => $address->name,
-                'phone' => $address->phone,
-                'address' => $address->address,
-                'province_code' => $address->province_code,
-                'ward_code' => $address->ward_code,
-                'total_amount' => $subtotal,
-                'final_amount' => $finalAmount,
-                'discount_amount' => $voucherDiscount,
-                'status' => 'pending',
-                'code_order' => $orderCode,
-                'pay_method' => $request->payment_method,
-                'status_pay' => $request->payment_method === 'VNPAY' ? 'unpaid' : 'cod_paid',
-                'notes' => $request->notes ?? null,
-                'shipping_fee' => $shippingFee,
-                'shipping_method' => $request->shipping_type
+        $order = Order::create($orderData);
+
+        // 5.6) LƯU ORDER ITEMS (dùng price_at_time + thông tin màu/size như bạn)
+        foreach ($cartItems as $item) {
+            $orderItemData = [
+                'order_id' => $order->id,
+                'product_variant_id' => $item->product_variants_id,
+                'flash_sale_items_id' => $item->flash_sale_items_id ?? null,
+
+                'product_id' => $item->productVariant->product_id,
+                'product_name' => $item->productVariant->product->name,
+                'product_image_url' => $item->productVariant->variant_image_url
+                    ?? $item->productVariant->product->image_url
+                    ?? '',
+
+                'import_price' => $item->productVariant->import_price,
+                'listed_price' => $item->productVariant->listed_price,
+                'sale_price' => $item->price_at_time, // GIÁ CHỐT
+
+                'quantity' => $item->quantity,
+                'promotion_type' => $item->promotion_type ?? '0',
+
+                'color_name' => $item->productVariant->color->color_name ?? '',
+                'size_name' => $item->productVariant->size->size_name ?? '',
             ];
 
-            $order = Order::create($orderData);
-            // dd($order);
-            // Tạo chi tiết đơn hàng
-            foreach ($cartItems as $item) {
-                // dd($item);
-                $orderItemData = [
-                    'order_id' => $order->id,
-                    'product_variant_id' => $item->product_variants_id,
-                    'flash_sale_items_id' => $item->flash_sale_items_id ?? null,
-                    'product_id' => $item->productVariant->product_id,
-                    'product_name' => $item->productVariant->product->name,
-                    'product_image_url' => $item->productVariant->variant_image_url ?? $item->productVariant->product->image_url ?? '',
-                    'import_price' => $item->productVariant->import_price,
-                    'listed_price' => $item->productVariant->listed_price,
-                    'sale_price' => $item->price_at_time,
-                    'quantity' => $item->quantity,
-                    'promotion_type' => $item->promotion_type ?? '0',
-                    'color_name' => $item->productVariant->color->color_name ?? '',
-                    'size_name' => $item->productVariant->size->size_name ?? ''
-                ];
+            OrderItem::create($orderItemData);
+        }
 
-                OrderItem::create($orderItemData);
-                // Nếu là sản phẩm flash sale thì cập nhật sold_quantity
-             if ($item->flash_sale_items_id) {
-    FlashSaleItems::where('id', $item->flash_sale_items_id)
-        ->where('max_quantity', '>=', $item->quantity) // chỉ trừ nếu đủ hàng
-        ->update([
-            'sold_quantity' => DB::raw('sold_quantity + ' . $item->quantity),
-            'max_quantity'  => DB::raw('max_quantity - ' . $item->quantity)
+        // 5.7) XOÁ CHỈ NHỮNG ITEM ĐÃ CHỌN KHỎI GIỎ
+        Cart::where('user_id', $userId)
+            ->whereIn('id', $selectedIds)
+            ->delete();
+
+        // 5.8) ĐÁNH DẤU VOUCHER ĐÃ DÙNG (nếu có) — làm trong transaction để an toàn
+        if (!empty($voucherCode) && $voucherData) {
+            DB::table('vouchers_users')
+                ->where('user_id', $userId)
+                ->where('voucher_id', $voucherData->id)
+                ->update([
+                    'is_used' => 'used',
+                    'status' => 'used',
+                    'updated_at' => now()
+                ]);
+
+            DB::table('vouchers')
+                ->where('id', $voucherData->id)
+                ->increment('used');
+        }
+
+        // 5.9) XOÁ SESSION LIÊN QUAN
+        session()->forget(['voucher_code', 'voucher_discount', 'shipping_fee', 'cart_selected_ids']);
+
+        // 5.10) LƯU THÔNG TIN HIỂN THỊ SAU THANH TOÁN
+        session([
+            'payment_method' => $request->payment_method,
+            'shipping_type' => $request->shipping_type,
+            'order_code' => $orderCode
         ]);
+
+        // Commit — từ đây tab khác mới có thể tiếp tục và sẽ thấy kho đã bị trừ
+        DB::commit();
+
+        // 6) Điều hướng theo phương thức thanh toán
+        if ($request->payment_method === 'VNPAY') {
+            $paymentUrl = $this->createVnpayPaymentUrl($order, $finalAmount);
+            return redirect($paymentUrl);
+        } else {
+            return redirect()->route('home.done')->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode);
+        }
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->with('error', 'Có lỗi xảy ra khi đặt hàng: ' . $e->getMessage());
+    }
 }
 
-
-                // Cập nhật tồn kho
-                $item->productVariant->decrement('stock', $item->quantity);
-                $item->productVariant->increment('sold_quantity', $item->quantity);
-            }
-
-            // Xóa các sản phẩm đã được chọn khỏi giỏ hàng
-            Cart::whereIn('id', $selectedIds)->delete();
-
-            // Cập nhật trạng thái voucher đã sử dụng
-            if (session('voucher_code')) {
-                $voucher = Vouchers::where('code', session('voucher_code'))->first();
-                if ($voucher) {
-                    DB::table('vouchers_users')
-                        ->where('user_id', $userId)
-                        ->where('voucher_id', $voucher->id)
-                        ->update(['is_used' => 'used']);
-                }
-            }
-
-            // Xóa session voucher và cart_selected_ids
-            session()->forget(['voucher_code', 'voucher_discount', 'shipping_fee', 'cart_selected_ids']);
-
-            // Lưu thông tin thanh toán vào session để hiển thị ở trang thành công
-            session([
-                'payment_method' => $request->payment_method,
-                'shipping_type' => $request->shipping_type,
-                'order_code' => $orderCode
-            ]);
-
-            DB::commit();
-
-            // Xử lý thanh toán theo phương thức
-            if ($request->payment_method === 'VNPAY') {
-                // Tạo URL thanh toán VNPAY
-                $paymentUrl = $this->createVnpayPaymentUrl($order, $finalAmount);
-
-                // Redirect trực tiếp đến VNPAY
-                return redirect($paymentUrl);
-            } else {
-                return redirect()->route('home.done')->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode);
-            }
-        } catch (\Exception $e) {
-            DB::rollback();
-            return redirect()->back()->with('error', 'Có lỗi xảy ra khi đặt hàng: ' . $e->getMessage());
-        }
-    }
 
     public function done()
     {
