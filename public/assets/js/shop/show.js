@@ -222,12 +222,27 @@ document.addEventListener('DOMContentLoaded', function() {
         var stockInfo = document.getElementById('stock-info');
         var stockIcon = document.getElementById('stock-icon');
         var stockText = document.getElementById('stock-text');
-        
+        var addToCartBtn = document.querySelector('.btn-cart');
+    
         if (color && size) {
             var key = color.value + '-' + size.value;
-            var stock = window.variantStock[key] !== undefined ? window.variantStock[key] : 0;
-            
-            if (stock > 0) {
+    
+            var isFlashSale = typeof window.flashSaleStock !== 'undefined';
+            var variantData = isFlashSale 
+                ? (window.flashSaleStock[key] ?? { stock: 0, is_show: 0 }) 
+                : (window.variantStock[key] ?? { stock: 0, is_show: 0 });
+    
+            var stock = variantData.stock;
+            var isShow = variantData.is_show;
+    
+            // Nếu không show hoặc hết hàng → disable nút
+            if (!isShow || stock <= 0) {
+                addToCartBtn.disabled = true;
+            } else {
+                addToCartBtn.disabled = false;
+            }
+    
+            if (stock > 0 && isShow) {
                 if (stock <= 5) {
                     stockText.textContent = 'Tồn kho: ' + stock + ' (Sắp hết hàng!)';
                     stockInfo.className = 'text-danger fw-bold d-flex align-items-center';
@@ -240,16 +255,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     stockIcon.style.display = 'inline-block';
                 }
             } else {
-                stockText.textContent = 'Hết hàng';
+                stockText.textContent = isShow ? 'Hết hàng' : '';
                 stockInfo.className = 'text-danger fw-bold d-flex align-items-center';
-                stockIcon.className = 'bi bi-x-circle-fill me-2';
+                stockIcon.className = isShow ? 'bi bi-x-circle-fill me-2': '';
                 stockIcon.style.display = 'inline-block';
             }
         } else {
             stockText.textContent = '';
             stockIcon.style.display = 'none';
+            addToCartBtn.disabled = true;
         }
     }
+    
+    
 
     document.querySelectorAll('input[name="color"], input[name="size"]').forEach(function(input) {
         input.addEventListener('change', function() {
@@ -314,6 +332,22 @@ $('.qty-plus').click(function () {
     
     
     function updateProductPrice() {
+        // Nếu đang ở Flash Sale thì không đụng vào giá
+        if (document.querySelector('.alert.alert-danger')) {
+            // Nếu muốn vẫn update giá flash khi đổi biến thể:
+            const flashPriceEl = document.getElementById('product-sale-price');
+            const color = document.querySelector('input[name="color"]:checked')?.value;
+            const size = document.querySelector('input[name="size"]:checked')?.value;
+            if (flashPriceEl && color && size) {
+                const flashPrice = document.querySelector(`input[name="color"]:checked`)?.dataset.flashPrice;
+                if (flashPrice) {
+                    flashPriceEl.textContent = Number(flashPrice).toLocaleString() + 'đ';
+                }
+            }
+            return;
+        }
+    
+        // Trường hợp bình thường
         const color = document.querySelector('input[name="color"]:checked')?.value;
         const size = document.querySelector('input[name="size"]:checked')?.value;
         if (!color || !size) return;
@@ -322,13 +356,11 @@ $('.qty-plus').click(function () {
         const priceData = window.variantPriceMap[key];
         if (!priceData) return;
     
-        // Cập nhật giá sale
         const salePriceEl = document.getElementById('product-sale-price');
         if (salePriceEl) {
             salePriceEl.textContent = Number(priceData.sale_price).toLocaleString() + 'đ';
         }
     
-        // Cập nhật giá niêm yết (nếu có)
         const listedPriceEl = document.getElementById('product-listed-price');
         if (listedPriceEl) {
             if (priceData.listed_price != priceData.sale_price) {
@@ -339,6 +371,7 @@ $('.qty-plus').click(function () {
             }
         }
     }
+    
     
     // Lắng nghe sự kiện thay đổi
     document.querySelectorAll('input[name="color"], input[name="size"]').forEach(el => {

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\FlashSale;
+use App\Models\Product_variants;
 use Carbon\Carbon;
 
 class ManageFlashSales extends Command
@@ -15,12 +16,12 @@ class ManageFlashSales extends Command
     {
         $now = Carbon::now();
 
-        // Kích hoạt flash sale nếu đã đến giờ
+        // 1) Kích hoạt flash sale nếu đã đến giờ
         FlashSale::where('status', 'upcoming')
             ->where('start_date', '<=', $now)
             ->update(['status' => 'active']);
 
-        // Kết thúc nếu hết hạn
+        // 2) Kết thúc nếu hết hạn
         FlashSale::where('status', 'active')
             ->where('end_date', '<=', $now)
             ->get()
@@ -30,22 +31,63 @@ class ManageFlashSales extends Command
 
                 // Trả sản phẩm còn dư về kho
                 $flashSale->items->each(function ($item) {
-                    \App\Models\Product_variants::where('id', $item->product_variant_id)
+                    Product_variants::where('id', $item->product_variant_id)
                         ->increment('stock', $item->max_quantity);
+                    // tăng số lượng bán được vào product variant
+                    Product_variants::where('id', $item->product_variant_id)
+                        ->increment('sold_quantity', $item->sold_quantity);
                 });
+                $flashSale->items()->update(['max_quantity' => 0]);
             });
 
-        // Kết thúc nếu hết hàng
-        FlashSale::where('status', 'active')->get()->each(function ($flashSale) {
-            $allOut = $flashSale->items->every(function ($item) {
-                return $item->max_quantity <= 0;
-            });
+        // 3) Lấy danh sách variant CÒN HÀNG trong FS active
+        $activeVariantIds = FlashSale::where('status', 'active')
+            ->with('items')
+            ->get()
+            ->flatMap(function ($fs) {
+                return $fs->items
+                    ->where('max_quantity', '>', 0) // chỉ lấy còn hàng
+                    ->pluck('product_variant_id');
+            })
+            ->unique()
+            ->values()
+            ->toArray();
 
-            if ($allOut) {
-                $flashSale->update(['status' => 'ended']);
-            }
-        });
+        // 4) Lấy danh sách variant HẾT HÀNG trong FS active
+        $outOfStockVariantIds = FlashSale::where('status', 'active')
+            ->with('items')
+            ->get()
+            ->flatMap(function ($fs) {
+                return $fs->items
+                    ->where('max_quantity', '<=', 0) // chỉ lấy hết hàng
+                    ->pluck('product_variant_id');
+            })
+            ->unique()
+            ->values()
+            ->toArray();
 
-        \Log::info('Flash Sale checked at ' . now());
+        // 5) Ẩn variant còn hàng
+        if (!empty($activeVariantIds)) {
+            Product_variants::whereIn('id', $activeVariantIds)
+                ->where('is_show', 1)
+                ->update(['is_show' => 0]);
+        }
+
+        // 6) Bật lại variant hết hàng
+        if (!empty($outOfStockVariantIds)) {
+            Product_variants::whereIn('id', $outOfStockVariantIds)
+                ->where('is_show', 0)
+                ->update(['is_show' => 1]);
+        }
+
+        // 7) Nếu không còn flash sale active → bật tất cả variant về 1
+        if (empty($activeVariantIds) && empty($outOfStockVariantIds)) {
+            Product_variants::where('is_show', 0)->update(['is_show' => 1]);
+        }
+
+        \Log::info('Flash Sale checked at ' . now(), [
+            'hidden_variants' => $activeVariantIds,
+            'shown_variants' => $outOfStockVariantIds
+        ]);
     }
 }

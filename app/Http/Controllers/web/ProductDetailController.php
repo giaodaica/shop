@@ -53,6 +53,9 @@ class ProductDetailController extends Controller
             ->where('product_id', '=', $product->id)
             ->where('is_show', 1)->get();
         // dd($variants);
+        if($variants->isEmpty() & !$flashItemId){
+            return redirect()->route('home')->with('error', 'Sản phẩm không tồn tại hoặc đã bị xóa.');
+        }
         $colors = $variants->pluck('color')->unique('id'); // Lấy tất cả màu không trùng
         $sizes = $variants->pluck('size')->unique('id'); // Lấy tất cả màu không trùng
 
@@ -75,7 +78,7 @@ class ProductDetailController extends Controller
             ->get()
             ->unique('color_id')
             ->pluck('variant_image_url');
-
+        // $disabled = Product_variants::where()
         $reviews = Review::where('product_id', $product->id)
             ->where('is_show', 1)
             ->with('user') // Eager load the user information

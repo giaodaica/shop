@@ -37,8 +37,17 @@ class ExpireVouchers extends Command
             ->where('end_date', '<', $now)
             ->where('status', 'active')
             ->update(['status' => 'expired']);
+        //3.1 hết hạn voucher user
+        $expired1 = DB::table('vouchers_users')
+            ->where('end_date', '<', $now)
+            ->where('status', 'active')
+            ->update(['status' => 'expired']);
+        // 4. Chuyển voucher về trạng thái save nếu là used_up hoặc expired
+        $saved = DB::table('vouchers')
+            ->whereIn('status', ['used_up', 'expired'])
+            ->update(['status' => 'save']);
 
-        Log::info("CRON VOUCHER: Kích hoạt $activated | Kết thúc $finished | Hết hạn $expired lúc $now");
-        $this->info("Đã cập nhật: $activated voucher kích hoạt, $finished kết thúc, $expired hết hạn.");
+        Log::info("CRON VOUCHER: Kích hoạt $activated | Kết thúc $finished | Hết hạn $expired lúc $now| Hết hạn user: $expired1|Lưu trữ: $saved");
+        $this->info("Đã cập nhật: $activated voucher kích hoạt, $finished kết thúc, $expired hết hạn, $expired1 hết hạn user, $saved lưu trữ");
     }
 }

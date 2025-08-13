@@ -155,7 +155,7 @@ class ProductVariantsController extends Controller
             $variant->listed_price = $variantData['listed_price'];
             $variant->sale_price = $variantData['sale_price'] ?? 0;
             $variant->stock = $variantData['stock'];
-
+            $variant->initial_stock = $variantData['stock'];
             // Tạo tên biến thể: Tên sản phẩm + Màu + Size
             $size = Size::find($variantData['size_id']);
             $color = Color::find($variantData['color_id']);
@@ -169,7 +169,6 @@ class ProductVariantsController extends Controller
                 // Lưu đúng vào variant_image_url
                 $variant->variant_image_url = 'uploads/variants/' . $imageName;
             }
-
             $variant->save();
         }
 
@@ -295,6 +294,9 @@ class ProductVariantsController extends Controller
     public function destroy($id)
     {
         $variant = Product_variants::findOrFail($id);
+        if ($variant->use_flash_sale == 1) {
+            $variant->update(['use_flash_sale' => 0]);
+        }
         $variant->delete();
 
         return redirect()->route('variants.index')->with('success', 'Xóa biến thể thành công!');

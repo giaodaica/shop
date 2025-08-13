@@ -68,7 +68,12 @@ class HomeController extends Controller
         // Lấy các flash sale trong ngày có trạng thái là 'active' hoặc 'upcoming'
         $flashSales = FlashSale::whereIn('status', ['active', 'upcoming'])
             ->whereBetween('start_date', [$todayStart, $todayEnd])
-            ->whereHas('items') // chỉ lấy flash sale có ít nhất 1 sản phẩm
+            ->whereHas('items.product', function ($q) {
+                $q->withoutTrashed(); // hoặc whereNull('deleted_at')
+            })
+            ->with(['items.product' => function ($q) {
+                $q->withoutTrashed();
+            }])
             ->get()
             ->map(function ($sale) use ($now) {
                 // Kiểm tra xem flash sale này đang diễn ra hay chưa
@@ -93,37 +98,55 @@ class HomeController extends Controller
 
 
         // dd($flashSales);
-            $category_product = Categories::take(4)->get();
+        $category_product = Categories::take(4)->get();
 
-           
+
         // Mặc định: trả về giao diện
         return view('pages.shop.index', compact(
             'voucher_block_3',
             'bestSellers',
             'featured',
-            'flashSales','category_product'
+            'flashSales',
+            'category_product'
         ));
     }
 
- public function getProducts($id)
-{
-    $flashSale = FlashSale::findOrFail($id);
-    $now = Carbon::now('Asia/Ho_Chi_Minh');
-    $isActive = $flashSale->start_date <= $now && $flashSale->end_date > $now;
+    public function getProducts($id)
+    {
+        $flashSale = FlashSale::findOrFail($id);
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        $isActive = $flashSale->start_date <= $now && $flashSale->end_date > $now;
 
-    $sale = FlashSaleItems::with('product') // Thêm dòng này để load product
-        ->where('flash_sale_id', $id)
-        ->join('colors', 'flash_sale_items.color_id', 'colors.id')
-        ->join('sizes', 'flash_sale_items.size_id', 'sizes.id')
-        ->select('flash_sale_items.*', 'colors.color_name as color_name', 'sizes.size_name as size_name')
-        ->get()
-        ->map(function ($item) use ($isActive) {
-            $item->is_active = $isActive;
-            return $item;
-        });
+        $sale = FlashSaleItems::query()
+            ->join('product_variants', function ($join) {
+                $join->on('flash_sale_items.product_variant_id', '=', 'product_variants.id')
+                    ->whereNull('product_variants.deleted_at'); // chỉ lấy variant chưa bị soft delete
+            })
+            ->join('products', function ($join) {
+                $join->on('product_variants.product_id', '=', 'products.id')
+                    ->whereNull('products.deleted_at'); // chỉ lấy product chưa bị soft delete
+            })
+            ->join('colors', 'flash_sale_items.color_id', '=', 'colors.id')
+            ->join('sizes', 'flash_sale_items.size_id', '=', 'sizes.id')
+            ->where('flash_sale_id', $id)
+            ->select(
+                'flash_sale_items.*',
+                'products.name as product_name',
+                'colors.color_name',
+                'sizes.size_name'
+            )
+            ->get()
+            ->map(function ($item) use ($isActive) {
+                $item->is_active = $isActive;
+                return $item;
+            });
 
-    return view('pages.flashshow', compact('sale'));
-}
+
+
+
+        return view('pages.flashshow', compact('sale'));
+    }
+
 
     public function show($id)
     {

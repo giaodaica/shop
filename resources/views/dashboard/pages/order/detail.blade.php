@@ -66,8 +66,8 @@
                                                         <div class="flex-grow-1 ms-3">
                                                             <h5 class="fs-15"><a rel="noopener noreferrer" target="_blank"
                                                                     href="{{ url('dashboard/variants/' . $rende_order_items->product_variant_id) }}"
-                                                                    class="link-primary">{{ $rende_order_items->product_name . ' ' . $rende_order_items->color_name }}
-                                                                    @if (!empty($rende_order_items->flash_sale_items_id))
+                                                                    class="link-primary">{{ $rende_order_items->product_name }}
+                                                                    @if ($rende_order_items->promotion_type == 'flash_sale')
                                                                         (*)
                                                                     @else
                                                                     @endif
@@ -100,11 +100,11 @@
                                                                 {{ number_format($data_order->total_amount) }}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>Giảm giá :@if($data_order->voucher_type_discount_snapshot == 'percent')
-                                                                {{number_format($data_order->voucher_value_snapshot) ."%"}}
-                                                            @endif <br>
+                                                            <td>Giảm giá :@if ($data_order->voucher_type_discount_snapshot == 'percent')
+                                                                    {{ number_format($data_order->voucher_value_snapshot) . '%' }}
+                                                                @endif <br>
                                                                 <b><a rel="noopener noreferrer" target="_blank"
-                                                                        href="{{ url("dashboard/voucher/s/$data_order->voucher_id") }}">{{ $data_order->code ?? $data_order->voucher_code_snapshot}}</a></b>
+                                                                        href="{{ url("dashboard/voucher/s/$data_order->voucher_id") }}">{{ $data_order->code ?? $data_order->voucher_code_snapshot }}</a></b>
                                                             </td>
 
                                                             <td class="text-end">
@@ -136,10 +136,10 @@
                             </div>
                         </div>
                     </div>
-                    @if (!empty($rende_order_items->flash_sale_items_id))
-                   <p class="text-info">* sản phẩm này thuộc 1 chương trình flash sale</p>
-                    @else
+                    @if ($data_order_items->contains(fn($item) => !empty($item->promotion_type) && $item->promotion_type == 'flash_sale'))
+                        <p class="text-info">* sản phẩm trong thuộc chương trình flash sale</p>
                     @endif
+
                     <!--end card-->
                     <div class="card">
                         <div class="card-header">

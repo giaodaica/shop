@@ -39,10 +39,12 @@ use App\Http\Controllers\FlashSaleItemsController;
 use App\Http\Controllers\web\Flash_Sale;
 use App\Models\FlashSale;
 
+
 Route::get('dashboard/users/lock-history', [UserController::class, 'lockHistory'])
     ->name('users.lock-history')->middleware('dashboard.auth', 'permission:Mở khóa tài khoản');
 
 Route::get('/contact', [ContactController::class, 'hello'])->name('contact');
+Route::get('/verify', [ContactController::class, 'verify'])->name('verify');
 Route::post('contact-send', [ContactController::class, 'send'])->name('contact-send');
 Route::get('/wards', [OrderController::class, 'getWards']);
 
@@ -213,7 +215,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
         Route::post('voucher/disable/{id}', [VouchersController::class, 'disable'])->middleware('permission:Vô hiệu hóa voucher');
         Route::post('voucher/active/{id}', [VouchersController::class, 'active'])->middleware('permission:Kích hoạt voucher');
         Route::post('voucher/delete{id}', [VouchersController::class, 'delete'])->name('delete')->middleware('permission:Xóa voucher');
-
+        Route::post('voucher/restore/{id}', [VouchersController::class, 'restore'])->name('restore');
         // Product Management
         Route::resource('products', ProductsController::class)->middleware('permission:Quản lý Sản phẩm');
         Route::get('/products/variant-partial', [ProductsController::class, 'renderVariantPartial'])

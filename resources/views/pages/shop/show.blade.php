@@ -10,9 +10,15 @@
     }
 
     $stockMap = [];
-    foreach ($variants as $variant) {
-        $stockMap[$variant->color_id . '-' . $variant->size_id] = $variant->stock;
-    }
+foreach ($variants as $variant) {
+    $key = $variant->color_id . '-' . $variant->size_id;
+    $stockMap[$key] = [
+        'stock'   => $variant->stock,
+        'is_show' => $variant->is_show
+    ];
+}
+
+
 
     $priceMap = [];
     foreach ($variants as $variant) {
@@ -157,7 +163,7 @@
 
                     <form action="{{ url('add-to-cart', $product->id) }}" method="post">
                         @csrf
-                        @if ($isFlashSale)`
+                        @if ($isFlashSale)
                             <div class="alert alert-danger">🔥 Sản phẩm đang trong Flash Sale!</div>
                             <div class="mb-20px">
                                 <div class="d-flex align-items-center">
@@ -169,10 +175,10 @@
 
                                     <li>
                                         <input class="d-none" type="radio" id="color-{{ $flashSaleItem->color_id }}"
-                                            name="color" value="{{ $flashSaleItem->id }}"
-                                            data-color-name="{{ $flashSaleItem->color->color_name }}"
-                                            {{ old('color') == $flashSaleItem->id ? 'checked' : '' }}>
-                                        <label for="color-{{ $flashSaleItem->id }}"><span
+                                            name="color" value="{{ $flashSaleItem->color_id }}"
+                                            flash-color-name="{{ $flashSaleItem->color->color_name }}"
+                                            {{ old('color') == $flashSaleItem->color_id ? 'checked' : '' }}>
+                                        <label for="color-{{ $flashSaleItem->color_id }}"><span
                                                 style="background-color: {{ $flashSaleItem->color->color_code ?? '#000' }}"></span></label>
                                     </li>
 
@@ -189,7 +195,7 @@
                                     <li>
                                         <input class="d-none" type="radio" id="size-{{ $flashSaleItem->size_id }}"
                                             name="size" value="{{ $flashSaleItem->size_id }}"
-                                            data-size-name="{{ $flashSaleItem->size->size_name }}"
+                                            flash-size-name="{{ $flashSaleItem->size->size_name }}"
                                             {{ old('size') == $flashSaleItem->size_id ? 'checked' : '' }}>
                                         <label
                                             for="size-{{ $flashSaleItem->size_id }}"><span>{{ $flashSaleItem->size->size_name }}</span></label>
@@ -287,7 +293,7 @@
                         </span>
                     </div>
 
-                    <div class="mb-20px h-1px w-100 bg-extra-medium-gray d-block"></div>
+                    {{-- <div class="mb-20px h-1px w-100 bg-extra-medium-gray d-block"></div>
                     <div class="row mb-15px">
                         <div class="col-12 icon-with-text-style-08">
                             <div class="feature-box feature-box-left-icon d-inline-flex align-middle">
@@ -313,7 +319,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div>
                         {{-- <div class="w-100 d-block"><span class="text-dark-gray alt-font fw-500">Danh mục:</span> <a
@@ -334,8 +340,8 @@
                         <li class="nav-item"><a data-bs-toggle="tab" href="#tab_five1" class="nav-link active">Mô
                                 tả<span class="tab-border bg-dark-gray"></span></a></li>
 
-                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab_five3">Vận chuyển và
-                                trả lại<span class="tab-border bg-dark-gray"></span></a></li>
+                        {{-- <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab_five3">Vận chuyển và
+                                trả lại<span class="tab-border bg-dark-gray"></span></a></li> --}}
                         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab_five4"
                                 data-tab="review-tab">Đánh giá ({{ $totalReviews }})<span
                                     class="tab-border bg-dark-gray"></span></a></li>
@@ -350,7 +356,7 @@
                         </div>
                         <!-- end tab content -->
                         <!-- start tab content -->
-                        <div class="tab-pane fade in" id="tab_five3">
+                        {{-- <div class="tab-pane fade in" id="tab_five3">
                             <div class="row">
                                 <div class="col-12 col-md-6 last-paragraph-no-margin sm-mb-30px">
                                     <div class="alt-font fs-22 text-dark-gray mb-15px fw-500">Shipping information</div>
@@ -372,7 +378,7 @@
                                     </p>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <!-- end tab content -->
                         <!-- start tab review -->
                         <div class="tab-pane fade in" id="tab_five4">
@@ -654,7 +660,7 @@
 
         .btn-danger:hover {
             background-color: #dc3545 !important;
-           
+
             color: #fff !important;
         }
 
@@ -671,7 +677,7 @@
         .rating-stars label:hover i,
         .rating-stars label:hover~label i {
             color: #ffb60f;
-            
+
         } */
 
         /* Cải thiện hiệu ứng transition cho ảnh sản phẩm */
@@ -747,6 +753,11 @@
         window.variantStock = @json($stockMap ?? []);
         window.colorImageMap = @json($colorImageMap);
         window.variantPriceMap = @json($priceMap);
+       @if($flashSaleItem)
+       window.flashSaleStock = {
+    '{{ $flashSaleItem->color_id }}-{{ $flashSaleItem->size_id }}': {{ $flashSaleItem->max_quantity }}
+};
+@endif
     </script>
 @endpush
 <script>
@@ -795,7 +806,7 @@
                 }
             });
         }
-  
+
 </script>
 
 

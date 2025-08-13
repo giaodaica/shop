@@ -219,6 +219,13 @@
     </div>
 </div>
 
+        {{-- Biểu đồ Top sản phẩm bán ế --}}
+        <div class="card mb-4 border-danger">
+            <div class="card-header bg-danger text-white fw-bold">Top sản phẩm bán ế</div>
+            <div class="card-body">
+                <canvas id="leastSoldProductsChart" height="120"></canvas>
+            </div>
+        </div>
 
     </div>
 </div>
@@ -338,6 +345,43 @@ new Chart(document.getElementById('topUsersChart'), {
                 callbacks: {
                     label: function(context) {
                         return context.raw.toLocaleString('vi-VN') + ' đ';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Biểu đồ Top sản phẩm bán ế
+new Chart(document.getElementById('leastSoldProductsChart'), {
+    type: 'bar',
+    data: {
+        labels: @json($least_sold_variants->pluck('variant_name')),
+        datasets: [{
+            label: 'Tỷ lệ bán ra (%)',
+            data: @json($least_sold_variants->pluck('sold_percentage')),
+            backgroundColor: '#dc3545'
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + ' %';
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.raw + ' %';
                     }
                 }
             }

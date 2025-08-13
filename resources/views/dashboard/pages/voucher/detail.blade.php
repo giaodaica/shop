@@ -90,7 +90,10 @@
                                             hành</span>
                                     </td>
                                 @break
-
+                                @case('save')
+                                    <td class="status"><span class="badge bg-muted-subtle text-black text-uppercase">Lưu trữ</span>
+                                    </td>
+                                @break
                                 @default
                             @endswitch
                         </tr>
@@ -144,6 +147,10 @@
                         <form action="{{route('delete',$data_voucher->id)}}" method="post">
                             @csrf
                             <button class="btn btn-danger mt-3">Xóa</button>
+                        </form>
+                        <form action="{{route('restore',$data_voucher->id)}}" method="post">
+                            @csrf
+                            <button class="btn btn-warning mt-3">Phát hành lại</button>
                         </form>
                 </div>
                 {{-- modal --}}

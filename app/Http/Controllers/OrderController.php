@@ -31,7 +31,7 @@ class OrderController extends Controller
 {
     public function index()
     {
-         DB::beginTransaction();
+       
         // Kiểm tra nếu có callback từ VNPAY
         if (request()->has('vnp_ResponseCode')) {
             return $this->handleVnpayCallback(request());
