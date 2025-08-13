@@ -53,8 +53,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request('status') == 'finished' ? 'active' : '' }}"
-                            href="{{ route('flash-sale', ['status' => 'finished']) }}">
+                        <a class="nav-link {{ request('status') == 'ended' ? 'active' : '' }}"
+                            href="{{ route('flash-sale', ['status' => 'ended']) }}">
                             <i class="ri-checkbox-circle-line"></i> Kết thúc
                         </a>
                     </li>
