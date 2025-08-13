@@ -225,7 +225,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (color && size) {
             var key = color.value + '-' + size.value;
-            var stock = window.variantStock[key] !== undefined ? window.variantStock[key] : 0;
+    
+            // Nếu là Flash Sale → lấy từ flashSaleStock, ngược lại lấy variantStock
+            var isFlashSale = typeof window.flashSaleStock !== 'undefined';
+            var stock = isFlashSale 
+                ? (window.flashSaleStock[key] ?? 0) 
+                : (window.variantStock[key] ?? 0);
             
             if (stock > 0) {
                 if (stock <= 5) {
@@ -250,6 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
             stockIcon.style.display = 'none';
         }
     }
+    
 
     document.querySelectorAll('input[name="color"], input[name="size"]').forEach(function(input) {
         input.addEventListener('change', function() {
