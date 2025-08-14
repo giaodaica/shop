@@ -373,7 +373,7 @@ public function processCheckout(Request $request)
                 'flash_sale_items_id' => $item->flash_sale_items_id ?? null,
 
                 'product_id' => $item->productVariant->product_id,
-                'product_name' => $item->productVariant->product->name,
+                'product_name' => $item->product_name,
                 'product_image_url' => $item->productVariant->variant_image_url
                     ?? $item->productVariant->product->image_url
                     ?? '',
