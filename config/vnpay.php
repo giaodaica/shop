@@ -28,7 +28,6 @@ return [
 
     // Sử dụng môi trường nào (test hoặc production)
     'environment' => env('VNPAY_ENVIRONMENT', 'test'),
-
     // Các thông số khác
     'version' => env('VNPAY_VERSION', '2.1.0'),
     'currency' => env('VNPAY_CURRENCY', 'VND'),
