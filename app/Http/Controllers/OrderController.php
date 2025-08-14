@@ -131,11 +131,58 @@ class OrderController extends Controller
             $isUrbanDistrict = false;
             if ($isHanoi) {
                 $urbanList = [
-    'ba đình','ngọc hà','giảng võ','hoàn kiếm','cửa nam','phú thượng','hồng hà','tây hồ','bồ đề','việt hưng','phúc lợi','long biên','nghĩa đô','cầu giấy','yên hòa','ô chợ dừa',
-    'láng','văn miếu - quốc tử giám','kim liên','đống đa','hai bà trưng','vĩnh tuy','bạch mai','vĩnh hưng','định công','tương mai','lĩnh nam','hoàng mai','hoàng liệt','yên sở','phương liệt','khương đình',
-    'thanh xuân','từ liêm','thượng cát','đông ngạc','xuân đỉnh','tây tựu','phú diễn','xuân phương','tây mỗ','đại mỗ','thanh liệt','kiến hưng','hà đông','yên nghĩa','phú lương','sơn tây','tùng thiện',
-    'dương nội','chương mỹ'
-];
+                    'ba đình',
+                    'ngọc hà',
+                    'giảng võ',
+                    'hoàn kiếm',
+                    'cửa nam',
+                    'phú thượng',
+                    'hồng hà',
+                    'tây hồ',
+                    'bồ đề',
+                    'việt hưng',
+                    'phúc lợi',
+                    'long biên',
+                    'nghĩa đô',
+                    'cầu giấy',
+                    'yên hòa',
+                    'ô chợ dừa',
+                    'láng',
+                    'văn miếu - quốc tử giám',
+                    'kim liên',
+                    'đống đa',
+                    'hai bà trưng',
+                    'vĩnh tuy',
+                    'bạch mai',
+                    'vĩnh hưng',
+                    'định công',
+                    'tương mai',
+                    'lĩnh nam',
+                    'hoàng mai',
+                    'hoàng liệt',
+                    'yên sở',
+                    'phương liệt',
+                    'khương đình',
+                    'thanh xuân',
+                    'từ liêm',
+                    'thượng cát',
+                    'đông ngạc',
+                    'xuân đỉnh',
+                    'tây tựu',
+                    'phú diễn',
+                    'xuân phương',
+                    'tây mỗ',
+                    'đại mỗ',
+                    'thanh liệt',
+                    'kiến hưng',
+                    'hà đông',
+                    'yên nghĩa',
+                    'phú lương',
+                    'sơn tây',
+                    'tùng thiện',
+                    'dương nội',
+                    'chương mỹ'
+                ];
                 foreach ($urbanList as $q) {
                     if (str_contains($districtName, $q)) {
                         $isUrbanDistrict = true;
@@ -213,9 +260,9 @@ class OrderController extends Controller
                 'productVariant.size',
                 'productVariant.product'
             ])
-            ->where('user_id', $userId)
-            ->whereIn('id', $selectedIds)
-            ->get();
+                ->where('user_id', $userId)
+                ->whereIn('id', $selectedIds)
+                ->get();
 
             if ($cartItems->isEmpty()) {
                 return redirect()->route('home.cart')->with('error', 'Giỏ hàng trống!');
@@ -457,7 +504,7 @@ class OrderController extends Controller
                         'flash_sale_items_id' => $item->flash_sale_items_id ?? null
                     ];
                 }
-                
+
                 // Lấy thông tin voucher trước khi xóa session
                 $voucherInfo = null;
                 if ($voucherCode && $voucherData) {
@@ -467,7 +514,7 @@ class OrderController extends Controller
                         'discount' => $voucherDiscount
                     ];
                 }
-                
+
                 session([
                     'cancelled_order_data' => [
                         'cart_items' => $cartItemsData,
@@ -489,7 +536,6 @@ class OrderController extends Controller
             } else {
                 return redirect()->route('home.done')->with('success', 'Đặt hàng thành công! Mã đơn hàng: ' . $orderCode);
             }
-
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with('error', 'Có lỗi xảy ra khi đặt hàng: ' . $e->getMessage());
@@ -575,15 +621,27 @@ class OrderController extends Controller
     {
         $items = OrderItem::where('order_id', $id)->get();
 
+        // Hoàn lại stock cho sản phẩm thường
         $items->whereNull('flash_sale_items_id')->each(function ($item) {
-            $item->productVariant->increment('stock', $item->quantity);
+            $variant = Product_variants::withTrashed()->find($item->product_variant_id);
+
+            if ($variant) { // tồn tại cả soft delete
+                $variant->increment('stock', $item->quantity);
+            }
         });
 
+        // Hoàn lại số lượng cho sản phẩm flash sale
         $items->whereNotNull('flash_sale_items_id')->each(function ($item) {
-            FlashSaleItems::where('product_variant_id', $item->product_variant_id)
+            $flashSaleItem = FlashSaleItems::withTrashed()
+                ->where('product_variant_id', $item->product_variant_id)
                 ->where('id', $item->flash_sale_items_id)
-                ->increment('max_quantity', $item->quantity);
+                ->first();
+
+            if ($flashSaleItem) {
+                $flashSaleItem->increment('max_quantity', $item->quantity);
+            }
         });
+
         $voucher = Vouchers::find($present->voucher_id);
         if ($present->voucher_id && $voucher->end_date < now()) {
             VouchersUsers::updateOrCreate(
@@ -643,6 +701,11 @@ class OrderController extends Controller
             }
             $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
             Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type, $final_amount));
+        }
+        if ($present->status_pay == 'cod_paid' && $present->pay_method == 'COD') {
+            $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
+
+            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type, null));
         }
     }
     public function db_order_change(Request $request, $id)
@@ -905,7 +968,7 @@ class OrderController extends Controller
             // Tìm đơn hàng theo TxnRef
             $order = Order::where('code_order', $txnRef)->first();
             if (!$order) {
-              
+
                 return redirect()->route('home.done')->with('error', 'Không tìm thấy đơn hàng! Mã đơn hàng: ' . $txnRef);
             }
 
@@ -919,10 +982,10 @@ class OrderController extends Controller
 
             // Kiểm tra trạng thái giao dịch
             if ($responseCode === '00' && $transactionStatus === '00') {
-                // Thanh toán thành công          
+                // Thanh toán thành công
                 // Xóa session data vì thanh toán đã thành công
                 session()->forget('cancelled_order_data');
-                
+
                 $order->update([
                     'status_pay' => 'paid',
                     'status' => 'confirmed',
@@ -940,24 +1003,24 @@ class OrderController extends Controller
 
                 return redirect()->route('home.done')->with('success', 'Thanh toán thành công! Mã đơn hàng: ' . $txnRef);
             } else {
-                // Thanh toán thất bại - khôi phục sản phẩm về giỏ hàng                
+                // Thanh toán thất bại - khôi phục sản phẩm về giỏ hàng
                 // Lưu thông tin voucher trước khi xóa đơn hàng
                 $voucherToRestore = null;
                 if ($order->voucher_id) {
                     $voucherToRestore = Vouchers::find($order->voucher_id);
                 }
-                
+
                 // Khôi phục sản phẩm từ session
 
                 $this->restoreProductsFromSession();
 
-                
+
                 // Xóa đơn hàng thất bại
 
                 OrderItem::where('order_id', $order->id)->delete();
                 $order->delete();
-                
-                
+
+
                 // Tạo thông báo lỗi chi tiết
                 $errorMsg = 'Thanh toán thất bại! Các sản phẩm đã được khôi phục về giỏ hàng.';
 
@@ -1020,28 +1083,26 @@ class OrderController extends Controller
                     $cancelledOrderData = session('cancelled_order_data', []);
                     $totalAmount = 0;
                     if (isset($cancelledOrderData['cart_items'])) {
-                        $totalAmount = collect($cancelledOrderData['cart_items'])->sum(function($item) {
+                        $totalAmount = collect($cancelledOrderData['cart_items'])->sum(function ($item) {
                             return $item['quantity'] * $item['price_at_time'];
                         });
                     }
-                    
-                    
-                    
+
+
+
                     // Sử dụng thông tin voucher từ session nếu có
                     if (isset($cancelledOrderData['voucher_code']) && isset($cancelledOrderData['voucher_discount'])) {
                         session([
                             'voucher_code' => $cancelledOrderData['voucher_code'],
                             'voucher_discount' => $cancelledOrderData['voucher_discount']
                         ]);
-                        
-                        
                     } else {
                         // Fallback: tính toán lại discount
                         session([
                             'voucher_code' => $voucherToRestore->code,
                             'voucher_discount' => $this->calculateVoucherDiscount($voucherToRestore, $totalAmount)
                         ]);
-                        
+
                         Log::info('Restored voucher session with recalculated discount', [
                             'voucher_code' => $voucherToRestore->code,
                             'voucher_discount' => session('voucher_discount'),
@@ -1057,10 +1118,9 @@ class OrderController extends Controller
                 session()->forget('cancelled_order_data');
 
                 return redirect()->route('home.checkout')->with('success', $errorMsg);
-                
             }
         } catch (\Exception $e) {
-            
+
             return redirect()->route('home.done')->with('error', 'Có lỗi xảy ra khi xử lý thanh toán! Vui lòng liên hệ hỗ trợ.');
         }
     }
@@ -1073,7 +1133,7 @@ class OrderController extends Controller
         try {
             $userId = Auth::id();
             $cancelledOrderData = session('cancelled_order_data', []);
-            
+
             if (empty($cancelledOrderData)) {
                 return;
             }
@@ -1083,7 +1143,7 @@ class OrderController extends Controller
             // Khôi phục sản phẩm về giỏ hàng
             if (isset($cancelledOrderData['cart_items'])) {
                 $restoredCartIds = [];
-                
+
                 foreach ($cancelledOrderData['cart_items'] as $item) {
                     $existingCartItem = Cart::where('user_id', $userId)
                         ->where('product_variants_id', $item['product_variant_id'])
@@ -1119,7 +1179,7 @@ class OrderController extends Controller
                         }
                     }
                 }
-                
+
                 // Khôi phục session cart_selected_ids để có thể thanh toán lại
                 session(['cart_selected_ids' => $restoredCartIds]);
             }
@@ -1148,10 +1208,10 @@ class OrderController extends Controller
                     // Fallback: tính toán lại discount
                     $voucher = Vouchers::find($cancelledOrderData['voucher_id']);
                     if ($voucher) {
-                        $totalAmount = collect($cancelledOrderData['cart_items'])->sum(function($item) {
+                        $totalAmount = collect($cancelledOrderData['cart_items'])->sum(function ($item) {
                             return $item['quantity'] * $item['price_at_time'];
                         });
-                        
+
                         session([
                             'voucher_code' => $voucher->code,
                             'voucher_discount' => $this->calculateVoucherDiscount($voucher, $totalAmount)
