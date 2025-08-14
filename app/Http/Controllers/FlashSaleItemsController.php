@@ -43,6 +43,9 @@ class FlashSaleItemsController extends Controller
         if(!$flashsale){
             return redirect()->back()->with('error','Bạn chỉ được thay đổi khi chương trình này chưa khởi động');
         }
+        if(!$flash_sale){
+            return redirect()->back()->with('error','chưa có sản phẩm');
+        }
         foreach ($flash_sale as $product_id => $data) {
          if (($checkAll == 1 || isset($data['selected']) || !isset($checkAll)) && isset($data['quantity']) && $data['quantity'] > 0) {
                 $quantity = $data['quantity'];
