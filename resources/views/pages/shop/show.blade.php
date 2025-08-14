@@ -750,10 +750,10 @@ foreach ($variants as $variant) {
 @push('scripts')
     <script src="{{ asset('assets/js/shop/show.js') }}"></script>
     <script>
-        window.variantStock = @json($stockMap ?? []);
         window.colorImageMap = @json($colorImageMap);
         window.variantPriceMap = @json($priceMap);
-       @if($flashSaleItem)
+        window.variantStock = @json($stockMap ?? []);
+        @if($flashSaleItem)
        window.flashSaleStock = {
     '{{ $flashSaleItem->color_id }}-{{ $flashSaleItem->size_id }}': {{ $flashSaleItem->max_quantity }}
 };
