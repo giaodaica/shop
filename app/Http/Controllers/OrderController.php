@@ -80,8 +80,6 @@ if ($deletedItems->isNotEmpty()) {
     return redirect()->route('home.cart')
         ->with('error', 'Có sản phẩm đã bị xóa hoặc ngừng kinh doanh, vui lòng bỏ chọn.');
 }
-
-
         // Tính toán giá
         $subtotal = $cartItems->sum(fn($item) => $item->quantity * $item->price_at_time);
         $voucherDiscount = session('voucher_discount', 0);
@@ -124,7 +122,7 @@ if ($deletedItems->isNotEmpty()) {
             $districtName = mb_strtolower(trim(optional($address->ward)->name ?? ''), 'UTF-8');
             // Nếu subtotal ≥ 200.000đ: cơ bản = 0đ; nhanh +20k.
             // Nếu Hà Nội:
-            // Quận nội thành (ví dụ: Ba Đình, Hoàn Kiếm, Đống Đa, Hai Bà Trưng, Tây Hồ, Cầu Giấy, Thanh Xuân, Hoàng Mai, Long Biên, Nam Từ Liêm, Bắc Từ Liêm, Hà Đông): cơ bản = 20k.
+            // Quận nội thành: cơ bản = 20k.
             // Huyện ngoại thành: cơ bản = 25k.
             // Tỉnh khác: cơ bản = 30k.
             // Nhanh: +30k nếu subtotal < 200k; +20k nếu subtotal ≥ 200k.
@@ -132,7 +130,11 @@ if ($deletedItems->isNotEmpty()) {
             $isHanoi = str_contains($provinceName, 'hà nội') || str_contains($provinceName, 'ha noi');
             $isUrbanDistrict = false;
             if ($isHanoi) {
-                $urbanList = ['ba đình', 'hoàn kiếm', 'đống đa', 'hai bà trưng', 'tây hồ', 'cầu giấy', 'thanh xuân', 'hoàng mai', 'long biên', 'nam từ liêm', 'bắc từ liêm', 'hà đông'];
+                $urbanList = [
+    'ba đình','ngọc hà','giảng võ','hoàn kiếm','cửa nam','phú thượng','hồng hà','tây hồ','bồ đề','việt hưng','phúc lợi','long biên','nghĩa đô','cầu giấy','yên hòa','ô chợ dừa',
+    'láng','văn miếu - quốc tử giám','kim liên','đống đa','hai bà trưng','vĩnh tuy','bạch mai','vĩnh hưng','định công','tương mai','lĩnh nam','hoàng mai','hoàng liệt','yên sở','phương liệt','khương đình',
+    'thanh xuân','từ liêm','thượng cát','đông ngạc','xuân đỉnh','tây tựu','phú diễn','xuân phương','tây mỗ','đại mỗ','thanh liệt','kiến hưng','hà đông','yên nghĩa','phú lương','sơn tây','tùng thiện',
+    'dương nội','chương mỹ'];
                 foreach ($urbanList as $q) {
                     if (str_contains($districtName, $q)) {
                         $isUrbanDistrict = true;
