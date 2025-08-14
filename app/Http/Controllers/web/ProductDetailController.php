@@ -40,7 +40,7 @@ class ProductDetailController extends Controller
         }
 
         //  dd($flashSaleItem);
-        if(!$flashSaleItem && $flashItemId){
+        if (!$flashSaleItem && $flashItemId) {
             return redirect()->route('home')->with('error', 'Sản phẩm không tồn tại hoặc đã bị xóa.');
         }
 
@@ -56,7 +56,7 @@ class ProductDetailController extends Controller
             ->where('product_id', '=', $product->id)
             ->where('is_show', 1)->get();
         // dd($variants);
-        if($variants->isEmpty() && !$flashItemId){
+        if ($variants->isEmpty() && !$flashItemId) {
             return redirect()->route('home')->with('error', 'Sản phẩm không tồn tại hoặc đã bị xóa.');
         }
         // dd($variants);
@@ -92,9 +92,13 @@ class ProductDetailController extends Controller
         // Giả sử biến $product là sản phẩm hiện tại
         $relatedProducts = Products::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
+            ->whereHas('variants', function ($query) {
+                $query->where('is_show', 1); // hoặc các điều kiện khác cho biến thể
+            })
             ->latest() // hoặc ->inRandomOrder() nếu muốn ngẫu nhiên
             ->take(4)
             ->get();
+
 
 
         return view('pages.shop.show', compact(

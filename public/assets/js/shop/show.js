@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Nếu có hash trên URL, active tab tương ứng
     if (window.location.hash) {
         let hash = window.location.hash;
@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Khi click vào tab, cập nhật hash trên URL
-    document.querySelectorAll('.nav-tabs .nav-link').forEach(function(tabLink) {
-        tabLink.addEventListener('shown.bs.tab', function(e) {
+    document.querySelectorAll('.nav-tabs .nav-link').forEach(function (tabLink) {
+        tabLink.addEventListener('shown.bs.tab', function (e) {
             history.replaceState(null, null, e.target.getAttribute('href'));
         });
     });
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (showMoreBtnA) {
-        showMoreBtnA.addEventListener('click', function(e) {
+        showMoreBtnA.addEventListener('click', function (e) {
             e.preventDefault();
             if (!expanded) {
                 expandReviews();
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Toast notification for all messages
-    document.querySelectorAll('.toast-message').forEach(function(el) {
+    document.querySelectorAll('.toast-message').forEach(function (el) {
         const msg = el.getAttribute('data-message');
         const type = el.getAttribute('data-type') || 'info';
         if (msg) showToast(msg, type);
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Preload ảnh mới trước khi hiển thị
                 const preloadImage = new Image();
-                preloadImage.onload = function() {
+                preloadImage.onload = function () {
                     // Thêm hiệu ứng fade out cho ảnh hiện tại
                     allImages.forEach((img, index) => {
                         // Thêm transition CSS nếu chưa có
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 350); // Đợi fade effect hoàn thành
                 };
 
-                preloadImage.onerror = function() {
+                preloadImage.onerror = function () {
                     // Fallback: cập nhật ảnh trực tiếp nếu preload thất bại
                     allImages.forEach((img, index) => {
                         img.src = newImageUrl;
@@ -177,14 +177,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Thêm tính năng click để bỏ chọn radio button
-    document.querySelectorAll('input[name="color"], input[name="size"]').forEach(function(input) {
+    document.querySelectorAll('input[name="color"], input[name="size"]').forEach(function (input) {
         let wasChecked = false;
 
-        input.addEventListener('mousedown', function(e) {
+        input.addEventListener('mousedown', function (e) {
             wasChecked = this.checked;
         });
 
-        input.addEventListener('click', function(e) {
+        input.addEventListener('click', function (e) {
             // Nếu radio button này đã được chọn trước khi click, bỏ chọn nó
             if (wasChecked) {
                 e.preventDefault();
@@ -223,55 +223,65 @@ document.addEventListener('DOMContentLoaded', function() {
         var stockIcon = document.getElementById('stock-icon');
         var stockText = document.getElementById('stock-text');
         var addToCartBtn = document.querySelector('.btn-cart');
-
-        if (color && size) {
-            var key = color.value + '-' + size.value;
-
-            var isFlashSale = typeof window.flashSaleStock !== 'undefined';
-            var variantData = isFlashSale
-                ? (window.flashSaleStock[key] ?? { stock: 0, is_show: 0 })
-                : (window.variantStock[key] ?? { stock: 0, is_show: 0 });
-
-            var stock = variantData.stock;
-            var isShow = variantData.is_show;
-
-            // Nếu không show hoặc hết hàng → disable nút
-            if (!isShow || stock <= 0) {
-                addToCartBtn.disabled = true;
-            } else {
-                addToCartBtn.disabled = false;
-            }
-
-            if (stock > 0 && isShow) {
-                if (stock <= 5) {
-                    stockText.textContent = 'Tồn kho: ' + stock + ' (Sắp hết hàng!)';
-                    stockInfo.className = 'text-danger fw-bold d-flex align-items-center';
-                    stockIcon.className = 'bi bi-exclamation-triangle-fill me-2';
-                    stockIcon.style.display = 'inline-block';
-                } else {
-                    stockText.textContent = 'Tồn kho: ' + stock;
-                    stockInfo.className = 'text-success d-flex align-items-center';
-                    stockIcon.className = 'bi bi-check-circle-fill me-2';
-                    stockIcon.style.display = 'inline-block';
-                }
-            } else {
-                stockText.textContent = isShow ? 'Hết hàng' : '';
-                stockInfo.className = 'text-danger fw-bold d-flex align-items-center';
-                stockIcon.className = isShow ? 'bi bi-x-circle-fill me-2': '';
-                stockIcon.style.display = 'inline-block';
-            }
-        } else {
+    
+        if (!color || !size) {
             stockText.textContent = '';
             stockIcon.style.display = 'none';
             addToCartBtn.disabled = true;
-            //13/8/2025
+            return;
+        }
+    
+        var key = color.value + '-' + size.value;
+    
+        // Kiểm tra flash sale
+        var isFlashSale = typeof window.flashSaleStock !== 'undefined' && window.flashSaleStock[key] !== undefined;
+    
+        if (isFlashSale) {
+            var stock = window.flashSaleStock[key] ?? 0;
+            addToCartBtn.disabled = stock <= 0;
+    
+            if (stock > 0) {
+                stockText.textContent = stock <= 5 ? `Tồn kho: ${stock} (Sắp hết hàng!)` : `Tồn kho: ${stock}`;
+                stockInfo.className = stock <= 5 ? 'text-danger fw-bold d-flex align-items-center' : 'text-success d-flex align-items-center';
+                stockIcon.className = stock <= 5 ? 'bi bi-exclamation-triangle-fill me-2' : 'bi bi-check-circle-fill me-2';
+
+            } else {
+                stockText.textContent = 'Hết hàng';
+                stockInfo.className = 'text-danger fw-bold d-flex align-items-center';
+                stockIcon.className = 'bi bi-x-circle-fill me-2';
+            }
+
+            stockIcon.style.display = 'inline-block';
+    
+        } else {
+            // Variant bình thường
+            var variantData = window.variantStock[key] ?? { stock: 0, is_show: 0 };
+            var stock = variantData.stock;
+            var isShow = variantData.is_show;
+    
+            addToCartBtn.disabled = !isShow || stock <= 0;
+    
+
+            if (stock > 0 && isShow) {
+                stockText.textContent = stock <= 5 ? `Tồn kho: ${stock} (Sắp hết hàng!)` : `Tồn kho: ${stock}`;
+                stockInfo.className = stock <= 5 ? 'text-danger fw-bold d-flex align-items-center' : 'text-success d-flex align-items-center';
+                stockIcon.className = stock <= 5 ? 'bi bi-exclamation-triangle-fill me-2' : 'bi bi-check-circle-fill me-2';
+            } else {
+                stockText.textContent = isShow ? 'Hết hàng' : '';
+                stockInfo.className = 'text-danger fw-bold d-flex align-items-center';
+                stockIcon.className = isShow ? 'bi bi-x-circle-fill me-2' : '';
+            }
+
+            stockIcon.style.display = 'inline-block';
         }
     }
+    
 
 
 
-    document.querySelectorAll('input[name="color"], input[name="size"]').forEach(function(input) {
-        input.addEventListener('change', function() {
+
+    document.querySelectorAll('input[name="color"], input[name="size"]').forEach(function (input) {
+        input.addEventListener('change', function () {
             updateStockInfo();
 
             // Nếu là color input, cập nhật ảnh sản phẩm
@@ -291,8 +301,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Thêm event listener cho các ảnh thumbnail để khôi phục slide
-    document.querySelectorAll('.product-image-thumb .swiper-slide img').forEach(function(thumbImg) {
-        thumbImg.addEventListener('click', function() {
+    document.querySelectorAll('.product-image-thumb .swiper-slide img').forEach(function (thumbImg) {
+        thumbImg.addEventListener('click', function () {
             // Khi click vào thumbnail, khôi phục lại ảnh chính từ thumbnail đó
             const mainSlider = document.querySelector('.product-image-slider .swiper-wrapper');
             const mainImage = mainSlider.querySelector('.swiper-slide:first-child img');
@@ -318,84 +328,84 @@ $('.qty-plus').click(function () {
     var th = $(this).closest('.quantity').find('.qty-text');
     th.val(+th.val() + 1);
     updateCartTotals(); // Cập nhật tổng giá sau khi tăng
-    });
+});
 
-    $('.qty-minus').click(function () {
+$('.qty-minus').click(function () {
     var th = $(this).closest('.quantity').find('.qty-text');
     if (th.val() > 1)
         th.val(+th.val() - 1);
     updateCartTotals(); // Cập nhật tổng giá sau khi giảm
-    });
+});
 
-    $('.qty-text').on('input', function () {
+$('.qty-text').on('input', function () {
     updateCartTotals();
-    });
+});
 
 
-    function updateProductPrice() {
-        // Nếu đang ở Flash Sale thì không đụng vào giá
-        if (document.querySelector('.alert.alert-danger')) {
-            // Nếu muốn vẫn update giá flash khi đổi biến thể:
-            const flashPriceEl = document.getElementById('product-sale-price');
-            const color = document.querySelector('input[name="color"]:checked')?.value;
-            const size = document.querySelector('input[name="size"]:checked')?.value;
-            if (flashPriceEl && color && size) {
-                const flashPrice = document.querySelector(`input[name="color"]:checked`)?.dataset.flashPrice;
-                if (flashPrice) {
-                    flashPriceEl.textContent = Number(flashPrice).toLocaleString() + 'đ';
-                }
-            }
-            return;
-        }
-
-        // Trường hợp bình thường
+function updateProductPrice() {
+    // Nếu đang ở Flash Sale thì không đụng vào giá
+    if (document.querySelector('.alert.alert-danger')) {
+        // Nếu muốn vẫn update giá flash khi đổi biến thể:
+        const flashPriceEl = document.getElementById('product-sale-price');
         const color = document.querySelector('input[name="color"]:checked')?.value;
         const size = document.querySelector('input[name="size"]:checked')?.value;
-        if (!color || !size) return;
-
-        const key = color + '-' + size;
-        const priceData = window.variantPriceMap[key];
-        if (!priceData) return;
-
-        const salePriceEl = document.getElementById('product-sale-price');
-        if (salePriceEl) {
-            salePriceEl.textContent = Number(priceData.sale_price).toLocaleString() + 'đ';
-        }
-
-        const listedPriceEl = document.getElementById('product-listed-price');
-        if (listedPriceEl) {
-            if (priceData.listed_price != priceData.sale_price) {
-                listedPriceEl.textContent = Number(priceData.listed_price).toLocaleString() + 'đ';
-                listedPriceEl.style.display = '';
-            } else {
-                listedPriceEl.style.display = 'none';
+        if (flashPriceEl && color && size) {
+            const flashPrice = document.querySelector(`input[name="color"]:checked`)?.dataset.flashPrice;
+            if (flashPrice) {
+                flashPriceEl.textContent = Number(flashPrice).toLocaleString() + 'đ';
             }
         }
+        return;
     }
 
+    // Trường hợp bình thường
+    const color = document.querySelector('input[name="color"]:checked')?.value;
+    const size = document.querySelector('input[name="size"]:checked')?.value;
+    if (!color || !size) return;
 
-    // Lắng nghe sự kiện thay đổi
-    document.querySelectorAll('input[name="color"], input[name="size"]').forEach(el => {
-        el.addEventListener('change', updateProductPrice);
-    });
+    const key = color + '-' + size;
+    const priceData = window.variantPriceMap[key];
+    if (!priceData) return;
 
-    // Gọi lần đầu khi trang load
-    updateProductPrice();
-     function updateColorName() {
-            const checked = document.querySelector('input[name="color"]:checked');
-            const nameSpan = document.getElementById('selected-color-name');
-            nameSpan.textContent = checked ? checked.getAttribute('data-color-name') : '';
+    const salePriceEl = document.getElementById('product-sale-price');
+    if (salePriceEl) {
+        salePriceEl.textContent = Number(priceData.sale_price).toLocaleString() + 'đ';
+    }
+
+    const listedPriceEl = document.getElementById('product-listed-price');
+    if (listedPriceEl) {
+        if (priceData.listed_price != priceData.sale_price) {
+            listedPriceEl.textContent = Number(priceData.listed_price).toLocaleString() + 'đ';
+            listedPriceEl.style.display = '';
+        } else {
+            listedPriceEl.style.display = 'none';
         }
-        function updateSizeName() {
-            const checked = document.querySelector('input[name="size"]:checked');
-            const nameSpan = document.getElementById('selected-size-name');
-            nameSpan.textContent = checked ? checked.getAttribute('data-size-name') : '';
-        }
-        document.querySelectorAll('input[name="color"]').forEach(input => {
-            input.addEventListener('change', updateColorName);
-        });
-        document.querySelectorAll('input[name="size"]').forEach(input => {
-            input.addEventListener('change', updateSizeName);
-        });
-        updateColorName();
-        updateSizeName();
+    }
+}
+
+
+// Lắng nghe sự kiện thay đổi
+document.querySelectorAll('input[name="color"], input[name="size"]').forEach(el => {
+    el.addEventListener('change', updateProductPrice);
+});
+
+// Gọi lần đầu khi trang load
+updateProductPrice();
+function updateColorName() {
+    const checked = document.querySelector('input[name="color"]:checked');
+    const nameSpan = document.getElementById('selected-color-name');
+    nameSpan.textContent = checked ? checked.getAttribute('data-color-name') : '';
+}
+function updateSizeName() {
+    const checked = document.querySelector('input[name="size"]:checked');
+    const nameSpan = document.getElementById('selected-size-name');
+    nameSpan.textContent = checked ? checked.getAttribute('data-size-name') : '';
+}
+document.querySelectorAll('input[name="color"]').forEach(input => {
+    input.addEventListener('change', updateColorName);
+});
+document.querySelectorAll('input[name="size"]').forEach(input => {
+    input.addEventListener('change', updateSizeName);
+});
+updateColorName();
+updateSizeName();
