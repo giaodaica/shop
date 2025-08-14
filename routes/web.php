@@ -268,8 +268,12 @@ Route::middleware([CheckUserStatus::class])->group(function () {
 
         // Color & Size Management
         Route::resource('colors', ColorController::class)->middleware('permission:Quản lý Màu sắc');
-        Route::resource('sizes', SizeController::class)->middleware('permission:Quản lý Kích thước');
+        Route::delete('/dashboard/colors/delete-multiple', [ColorController::class, 'deleteMultiple'])
+            ->name('colors.deleteMultiple');
 
+        Route::resource('sizes', SizeController::class)->middleware('permission:Quản lý Kích thước');
+        Route::delete('/dashboard/sizes/delete-multiple', [SizeController::class, 'deleteMultiple'])
+            ->name('sizes.deleteMultiple');
         // Product Variant Management
         Route::get('variants', [ProductVariantsController::class, 'index'])->name('variants.index')->middleware('permission:Xem trang biến thể');
         Route::get('variants/create', [ProductVariantsController::class, 'create'])->name('variants.create')->middleware('permission:Tạo biến thể');

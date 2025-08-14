@@ -89,4 +89,22 @@ class ColorController extends Controller
 
         return redirect()->route('colors.index')->with('success', 'Xóa màu thành công!');
     }
+    public function deleteMultiple(Request $request)
+    {
+        $ids = $request->ids;
+
+        if (empty($ids) || !is_array($ids)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Không có màu nào được chọn.'
+            ], 400);
+        }
+
+        Color::whereIn('id', $ids)->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Đã xóa ' . count($ids) . ' màu.'
+        ]);
+    }
 }
