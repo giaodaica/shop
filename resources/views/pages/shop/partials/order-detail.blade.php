@@ -82,7 +82,7 @@
                                     </h6>
                                     <p class="mb-1"><strong>Người nhận:</strong> {{ $order->name }}</p>
                                     <p class="mb-1"><strong>Địa chỉ:</strong> {{ $order->address }}</p>
-                                    <p class="mb-1">{{ $order->ward_name }}, {{ $order->district_name }},
+                                    <p class="mb-1">{{ $order->ward_name }},
                                         {{ $order->province_name }}</p>
                                     <p class="mb-0"><strong>Điện thoại:</strong> {{ $order->phone }}</p>
                                 </div>
