@@ -39,7 +39,10 @@ class CategoriesController extends Controller
     {
         $category = Categories::onlyTrashed()->findOrFail($id);
         $category->restore();
-
+        if (!$category->trashed()) {
+            return redirect()->route('categories.index')
+                ->with('warning', 'Danh mục chưa bị xóa nên không cần khôi phục.');
+        }
         return redirect()->route('categories.index', ['status' => 'active'])
             ->with('success', 'Khôi phục danh mục thành công.');
     }
@@ -173,7 +176,79 @@ class CategoriesController extends Controller
     public function destroy($id)
     {
         $category = Categories::findOrFail($id);
+        if ($category->trashed()) {
+            return redirect()->route('categories.index')
+                ->with('warning', 'Danh mục đã bị xóa mềm.');
+        }
         $category->delete();
+
         return redirect()->route('categories.index')->with('success', 'Xóa danh mục thành công!');
+    }
+    public function forceDelete($id)
+    {
+        $category = Categories::onlyTrashed()->findOrFail($id);
+        $category->forceDelete();
+
+        return redirect()->route('categories.index', ['status' => 'trashed'])
+            ->with('success', 'Danh mục đã được xóa vĩnh viễn.');
+    }
+    public function deleteMultiple(Request $request)
+    {
+        $ids = $request->ids;
+
+        if (empty($ids) || !is_array($ids)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Không có danh mục nào được chọn.'
+            ], 400);
+        }
+
+        // Lấy các danh mục đã bị xóa mềm
+        $alreadyDeleted = Categories::onlyTrashed()->whereIn('id', $ids)->pluck('id')->toArray();
+
+        if (!empty($alreadyDeleted)) {
+            return response()->json([
+                'status' => 'warning',
+                'message' => 'Một số danh mục đã bị xóa mềm' 
+            ], 400);
+        }
+
+        // Soft delete các category chưa bị xóa
+        Categories::whereIn('id', $ids)->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Đã xóa ' . count($ids) . ' danh mục vào thùng rác.'
+        ]);
+    }
+
+    public function restoreMultiple(Request $request)
+    {
+        $ids = $request->ids;
+
+        if (empty($ids) || !is_array($ids)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Không có mục nào được chọn.'
+            ], 400);
+        }
+
+        // Lấy các danh mục chưa bị xóa mềm
+        $notDeleted = Categories::whereIn('id', $ids)->pluck('id')->toArray();
+
+        if (!empty($notDeleted)) {
+            return response()->json([
+                'status' => 'warning',
+                'message' => 'Một số danh mục chưa bị xóa nên không cần khôi phục' 
+            ], 400);
+        }
+
+        // Khôi phục các mục đã xóa mềm
+        Categories::onlyTrashed()->whereIn('id', $ids)->restore();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Khôi phục thành công ' . count($ids) . ' danh mục.'
+        ]);
     }
 }
