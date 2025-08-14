@@ -230,6 +230,12 @@ Route::middleware([CheckUserStatus::class])->group(function () {
         // Category Management
         Route::resource('categories', CategoriesController::class)->middleware('permission:Quản lý Danh mục');
         Route::post('/categories/{id}/restore', [CategoriesController::class, 'restore'])->name('categories.restore')->middleware('permission:Khôi phục danh mục');
+        Route::post('/dashboard/categories/restore-multiple', [CategoriesController::class, 'restoreMultiple'])
+            ->name('categories.restoreMultiple');
+        Route::delete('/categories/{id}/force-delete', [CategoriesController::class, 'forceDelete'])
+            ->name('categories.forceDelete');
+        Route::delete('/dashboard/categories/delete-multiple', [CategoriesController::class, 'deleteMultiple'])
+            ->name('categories.deleteMultiple');
 
         // Order Management
         Route::get('order', [OrderController::class, 'db_order'])->name('dashboard.order')->middleware('permission:Xem trang đơn hàng');
@@ -262,8 +268,12 @@ Route::middleware([CheckUserStatus::class])->group(function () {
 
         // Color & Size Management
         Route::resource('colors', ColorController::class)->middleware('permission:Quản lý Màu sắc');
-        Route::resource('sizes', SizeController::class)->middleware('permission:Quản lý Kích thước');
+        Route::delete('/dashboard/colors/delete-multiple', [ColorController::class, 'deleteMultiple'])
+            ->name('colors.deleteMultiple');
 
+        Route::resource('sizes', SizeController::class)->middleware('permission:Quản lý Kích thước');
+        Route::delete('/dashboard/sizes/delete-multiple', [SizeController::class, 'deleteMultiple'])
+            ->name('sizes.deleteMultiple');
         // Product Variant Management
         Route::get('variants', [ProductVariantsController::class, 'index'])->name('variants.index')->middleware('permission:Xem trang biến thể');
         Route::get('variants/create', [ProductVariantsController::class, 'create'])->name('variants.create')->middleware('permission:Tạo biến thể');

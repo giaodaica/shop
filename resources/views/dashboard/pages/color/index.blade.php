@@ -36,7 +36,10 @@
                                         <a href="{{ route('colors.create') }}" class="btn btn-success" id="addCategory-btn">
                                             <i class="ri-add-line align-bottom me-1"></i> Thêm màu
                                         </a>
-                                  
+                                        <button type="button" id="delete-selected" class="btn btn-danger">
+                                            <i class="ri-delete-bin-5-fill align-bottom me-1"></i> Xóa đã chọn
+                                        </button>
+
                                         {{-- Nút xóa nhiều chưa có logic --}}
                                     </div>
                                 </div>
@@ -67,8 +70,9 @@
                                             <tr>
                                                 <th scope="row">
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" name="checkAll"
+                                                        <input class="form-check-input color-checkbox" type="checkbox"
                                                             value="{{ $color->id }}">
+
                                                     </div>
                                                 </th>
                                                 <td class="id">
@@ -183,6 +187,60 @@
                             form.submit(); // Chấp nhận xóa
                         }
                     });
+                });
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkAll = document.getElementById('checkAll');
+            const checkboxes = document.querySelectorAll('.color-checkbox');
+            const deleteSelectedBtn = document.getElementById('delete-selected');
+
+            // Chọn tất cả
+            checkAll.addEventListener('change', function() {
+                checkboxes.forEach(cb => cb.checked = checkAll.checked);
+            });
+
+            // Xóa nhiều
+            deleteSelectedBtn.addEventListener('click', function() {
+                const selectedIds = Array.from(checkboxes)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value);
+
+                if (selectedIds.length === 0) {
+                    Swal.fire('Chưa chọn mục nào', 'Vui lòng chọn ít nhất một màu để xóa.', 'warning');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Bạn có chắc chắn?',
+                    text: "Hành động này sẽ không thể hoàn tác!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('{{ route('colors.deleteMultiple') }}', {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    ids: selectedIds
+                                })
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    location.reload();
+                                } else {
+                                    Swal.fire('Lỗi', 'Không thể xóa các màu đã chọn.', 'error');
+                                }
+                            })
+                            .catch(() => Swal.fire('Lỗi', 'Có lỗi xảy ra khi xóa.', 'error'));
+                    }
                 });
             });
         });
