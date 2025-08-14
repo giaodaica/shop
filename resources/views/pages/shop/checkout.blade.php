@@ -373,7 +373,10 @@
             const wardName = (addressCard?.getAttribute('data-ward-name') || '').toLowerCase();
 
             const isHanoi = provinceName.includes('hà nội') || provinceName.includes('ha noi');
-            const urbanDistricts = ['ba đình','hoàn kiếm','đống đa','hai bà trưng','tây hồ','cầu giấy','thanh xuân','hoàng mai','long biên','nam từ liêm','bắc từ liêm','hà đông'];
+            const urbanDistricts = ['ba đình','ngọc hà','giảng võ','hoàn kiếm','cửa nam','phú thượng','hồng hà','tây hồ','bồ đề','việt hưng','phúc lợi','long biên','nghĩa đô','cầu giấy','yên hòa','ô chợ dừa',
+    'láng','văn miếu - quốc tử giám','kim liên','đống đa','hai bà trưng','vĩnh tuy','bạch mai','vĩnh hưng','định công','tương mai','lĩnh nam','hoàng mai','hoàng liệt','yên sở','phương liệt','khương đình',
+    'thanh xuân','từ liêm','thượng cát','đông ngạc','xuân đỉnh','tây tựu','phú diễn','xuân phương','tây mỗ','đại mỗ','thanh liệt','kiến hưng','hà đông','yên nghĩa','phú lương','sơn tây','tùng thiện',
+    'dương nội','chương mỹ'];
             const isUrban = urbanDistricts.some(d => wardName.includes(d));
 
             const expressRadio = document.querySelector('input[name="shipping_type"][value="express"]');
