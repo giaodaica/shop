@@ -35,18 +35,21 @@
                             <!-- card-header -->
                             <div class="card-header border-0">
                                 <div class="row g-4">
-                                
+
                                     <div class="col-sm">
                                         <form method="GET" action="{{ route('variants.index') }}" class="row g-2">
                                             <input type="hidden" name="status" value="{{ request('status') }}">
                                             <div class="col">
-                                                <input type="text" name="keyword" class="form-control" placeholder="Tìm tên biến thể..." value="{{ request('keyword') }}">
+                                                <input type="text" name="keyword" class="form-control"
+                                                    placeholder="Tìm tên biến thể..." value="{{ request('keyword') }}">
                                             </div>
                                             <div class="col">
                                                 <select name="color_id" class="form-select">
                                                     <option value="">-- Màu sắc --</option>
                                                     @foreach ($colors as $color)
-                                                        <option value="{{ $color->id }}" {{ request('color_id') == $color->id ? 'selected' : '' }}>{{ $color->color_name }}</option>
+                                                        <option value="{{ $color->id }}"
+                                                            {{ request('color_id') == $color->id ? 'selected' : '' }}>
+                                                            {{ $color->color_name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -54,7 +57,9 @@
                                                 <select name="size_id" class="form-select">
                                                     <option value="">-- Size --</option>
                                                     @foreach ($sizes as $size)
-                                                        <option value="{{ $size->id }}" {{ request('size_id') == $size->id ? 'selected' : '' }}>{{ $size->size_name }}</option>
+                                                        <option value="{{ $size->id }}"
+                                                            {{ request('size_id') == $size->id ? 'selected' : '' }}>
+                                                            {{ $size->size_name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -79,7 +84,8 @@
                                             </li>
                                             <li class="nav-item">
                                                 <a class="nav-link {{ request('status') === 'deleted' ? 'active fw-semibold' : '' }}"
-                                                    href="{{ route('variants.index', ['status' => 'deleted']) }}">Đã xóa</a>
+                                                    href="{{ route('variants.index', ['status' => 'deleted']) }}">Đã
+                                                    xóa</a>
                                             </li>
                                             <li class="nav-item">
                                                 <a class="nav-link {{ request('status') === 'all' ? 'active fw-semibold' : '' }}"
@@ -121,14 +127,16 @@
                                             @foreach ($variants as $index => $variant)
                                                 <tr>
                                                     <td>{{ $index + 1 }}</td>
-                                                    <td class="fw-semibold text-break" style="max-width: 150px; word-break: break-all; overflow-wrap: break-word;">
+                                                    <td class="fw-semibold text-break"
+                                                        style="max-width: 150px; word-break: break-all; overflow-wrap: break-word;">
                                                         {{ $variant->name }}
                                                     </td>
                                                     <td>
                                                         <div class="avatar-sm bg-light rounded p-1 mb-3">
                                                             <img src="{{ $variant->variant_image_url ? asset($variant->variant_image_url) : asset('storage/no-image.png') }}"
-                                                                alt="{{ $variant->name }}" class="img-fluid d-block rounded"
-                                                                width="50" height="50">
+                                                                alt="{{ $variant->name }}"
+                                                                class="img-fluid d-block rounded" width="50"
+                                                                height="50">
                                                         </div>
                                                     </td>
                                                     <td class="text-break" style="max-width: 120px; word-break: break-all;">
@@ -146,43 +154,71 @@
                                                     <td class="text-break" style="max-width: 150px; word-break: break-all;">
                                                         {{ $variant->product->name ?? 'Chưa có' }}
                                                     </td>
-                                                    <td class="text-break" style="max-width: 100px; word-break: break-all;">
+                                                    <td class="text-break"
+                                                        style="max-width: 100px; word-break: break-all;">
                                                         {{ $variant->size->size_name ?? '-' }}
                                                     </td>
-                                                    <td class="text-break" style="max-width: 100px; word-break: break-all;">
+                                                    <td class="text-break"
+                                                        style="max-width: 100px; word-break: break-all;">
                                                         {{ $variant->color->color_name ?? '-' }}
                                                     </td>
                                                     <td>
                                                         @if (request('status') == 'deleted')
-                                                            <form action="{{ route('variants.restore', $variant->id) }}" method="POST" class="restore-form">
+                                                            <form action="{{ route('variants.restore', $variant->id) }}"
+                                                                method="POST" class="restore-form">
                                                                 @csrf
                                                                 <button type="submit" class="dropdown-item text-success">
-                                                                    <i class="ri-arrow-go-back-line align-bottom me-2 text-muted"></i>Khôi phục
+                                                                    <i
+                                                                        class="ri-arrow-go-back-line align-bottom me-2 text-muted"></i>Khôi
+                                                                    phục
+                                                                </button>
+                                                            </form>
+                                                            <form
+                                                                action="{{ route('variants.forceDelete', $variant->id) }}"
+                                                                method="POST" class="force-delete-form d-inline">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item text-danger">
+                                                                    <i
+                                                                        class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>Xóa
+                                                                    vĩnh viễn
                                                                 </button>
                                                             </form>
                                                         @else
                                                             <div class="dropdown">
-                                                                <button class="btn btn-soft-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                                                <button class="btn btn-soft-secondary btn-sm"
+                                                                    type="button" data-bs-toggle="dropdown">
                                                                     <i class="ri-more-fill"></i>
                                                                 </button>
                                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                                     <li>
-                                                                        <a class="dropdown-item" href="{{ route('variants.show', $variant->id) }}">
-                                                                            <i class="ri-eye-fill align-bottom me-2 text-muted"></i> Xem
+                                                                        <a class="dropdown-item"
+                                                                            href="{{ route('variants.show', $variant->id) }}">
+                                                                            <i
+                                                                                class="ri-eye-fill align-bottom me-2 text-muted"></i>
+                                                                            Xem
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a class="dropdown-item" href="{{ route('variants.edit', $variant->id) }}">
-                                                                            <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Sửa
+                                                                        <a class="dropdown-item"
+                                                                            href="{{ route('variants.edit', $variant->id) }}">
+                                                                            <i
+                                                                                class="ri-pencil-fill align-bottom me-2 text-muted"></i>
+                                                                            Sửa
                                                                         </a>
                                                                     </li>
                                                                     <li class="dropdown-divider"></li>
                                                                     <li>
-                                                                        <form action="{{ route('variants.destroy', $variant->id) }}" method="POST" class="delete-form">
+                                                                        <form
+                                                                            action="{{ route('variants.destroy', $variant->id) }}"
+                                                                            method="POST" class="delete-form">
                                                                             @csrf
                                                                             @method('DELETE')
-                                                                            <button type="submit" class="dropdown-item text-danger">
-                                                                                <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Xóa
+                                                                            <button type="submit"
+                                                                                class="dropdown-item text-danger">
+                                                                                <i
+                                                                                    class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
+                                                                                Xóa
                                                                             </button>
                                                                         </form>
                                                                     </li>
@@ -244,6 +280,51 @@
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
                         confirmButtonText: 'Xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Xóa mềm
+            const deleteForms = document.querySelectorAll('.delete-form');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Bạn có chắc chắn?',
+                        text: "Hành động này sẽ không thể hoàn tác!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+
+            // Xóa vĩnh viễn
+            const forceDeleteForms = document.querySelectorAll('.force-delete-form');
+            forceDeleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Xóa vĩnh viễn?',
+                        text: "Dữ liệu sẽ bị mất hoàn toàn và không thể khôi phục!",
+                        icon: 'error',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Xóa vĩnh viễn',
                         cancelButtonText: 'Hủy'
                     }).then((result) => {
                         if (result.isConfirmed) {

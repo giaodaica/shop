@@ -319,4 +319,15 @@ class ProductVariantsController extends Controller
 
         return redirect()->route('variants.index')->with('success', 'Khôi phục sản phẩm thành công!');
     }
+    public function forceDelete($id)
+    {
+        try {
+            $variant = Product_variants::onlyTrashed()->findOrFail($id);
+            $variant->forceDelete();
+
+            return redirect()->back()->with('success', 'Biến thể đã được xóa vĩnh viễn.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
+    }
 }

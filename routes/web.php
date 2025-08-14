@@ -288,6 +288,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
         Route::delete('variants/{id}', [ProductVariantsController::class, 'destroy'])->name('variants.destroy')->middleware('permission:Xóa biến thể');
         Route::get('products/{product}/variants', [ProductVariantsController::class, 'showVariants'])->name('products.variants')->middleware('permission:Xem trang biến thể');
         Route::post('variants/{id}/restore', [ProductVariantsController::class, 'restore'])->name('variants.restore')->middleware('permission:Khôi phục biến thể');
+        Route::delete('/variants/{id}/force-delete', [ProductVariantsController::class, 'forceDelete'])->name('variants.forceDelete');
 
         // User Management
         Route::post('users/lock', [UserController::class, 'lock'])->name('users.lock')->middleware('permission:Khóa tài khoản');
