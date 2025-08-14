@@ -92,16 +92,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateProductImage(colorId) {
         if (window.colorImageMap && window.colorImageMap[colorId]) {
             const images = window.colorImageMap[colorId];
-            
+
             // Lấy ảnh đầu tiên từ mảng ảnh của màu này
             const newImageUrl = Array.isArray(images) ? images[0] : images;
-            
+
             const productSlider = document.querySelector('.product-image-slider .swiper-wrapper');
-            
+
             if (productSlider) {
                 // Tìm tất cả ảnh trong slider
                 const allImages = productSlider.querySelectorAll('.swiper-slide img');
-                
+
                 // Preload ảnh mới trước khi hiển thị
                 const preloadImage = new Image();
                 preloadImage.onload = function() {
@@ -111,22 +111,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (!img.style.transition) {
                             img.style.transition = 'opacity 0.3s ease-in-out';
                         }
-                        
+
                         // Fade out
                         img.style.opacity = '0';
-                        
+
                         // Sau khi fade out, cập nhật ảnh và fade in
                         setTimeout(() => {
                             img.src = newImageUrl;
                             if (img.parentElement && img.parentElement.tagName === 'A') {
                                 img.parentElement.href = newImageUrl;
                             }
-                            
+
                             // Fade in
                             img.style.opacity = '1';
                         }, 300);
                     });
-                    
+
                     // Tìm Swiper instance nếu chưa có
                     if (!window.productImageSwiper) {
                         const swiperElement = document.querySelector('.product-image-slider');
@@ -142,13 +142,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             });
                         }
                     }
-                    
+
                     // Dừng auto-play khi chọn màu
                     if (window.productImageSwiper) {
                         window.productImageSwiper.autoplay.stop();
                         isAutoPlayPaused = true;
                     }
-                    
+
                     // Reinitialize swiper và force update sau khi ảnh đã load
                     setTimeout(() => {
                         if (window.productImageSwiper) {
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }, 350); // Đợi fade effect hoàn thành
                 };
-                
+
                 preloadImage.onerror = function() {
                     // Fallback: cập nhật ảnh trực tiếp nếu preload thất bại
                     allImages.forEach((img, index) => {
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                 };
-                
+
                 // Bắt đầu preload
                 preloadImage.src = newImageUrl;
             }
@@ -179,37 +179,37 @@ document.addEventListener('DOMContentLoaded', function() {
     // Thêm tính năng click để bỏ chọn radio button
     document.querySelectorAll('input[name="color"], input[name="size"]').forEach(function(input) {
         let wasChecked = false;
-        
+
         input.addEventListener('mousedown', function(e) {
             wasChecked = this.checked;
         });
-        
+
         input.addEventListener('click', function(e) {
             // Nếu radio button này đã được chọn trước khi click, bỏ chọn nó
             if (wasChecked) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 // Tạo một radio button ẩn để bỏ chọn tất cả
                 let hiddenRadio = document.createElement('input');
                 hiddenRadio.type = 'radio';
                 hiddenRadio.name = this.name;
                 hiddenRadio.style.display = 'none';
                 hiddenRadio.checked = false;
-                
+
                 // Thêm vào DOM tạm thời
                 this.parentNode.appendChild(hiddenRadio);
-                
+
                 // Bỏ chọn radio button hiện tại
                 this.checked = false;
-                
+
                 // Xóa radio button ẩn
                 setTimeout(() => {
                     if (hiddenRadio.parentNode) {
                         hiddenRadio.parentNode.removeChild(hiddenRadio);
                     }
                 }, 100);
-                
+
                 updateStockInfo();
                 return false;
             }
@@ -223,25 +223,25 @@ document.addEventListener('DOMContentLoaded', function() {
         var stockIcon = document.getElementById('stock-icon');
         var stockText = document.getElementById('stock-text');
         var addToCartBtn = document.querySelector('.btn-cart');
-    
+
         if (color && size) {
             var key = color.value + '-' + size.value;
-    
+
             var isFlashSale = typeof window.flashSaleStock !== 'undefined';
-            var variantData = isFlashSale 
-                ? (window.flashSaleStock[key] ?? { stock: 0, is_show: 0 }) 
+            var variantData = isFlashSale
+                ? (window.flashSaleStock[key] ?? { stock: 0, is_show: 0 })
                 : (window.variantStock[key] ?? { stock: 0, is_show: 0 });
-    
+
             var stock = variantData.stock;
             var isShow = variantData.is_show;
-    
+
             // Nếu không show hoặc hết hàng → disable nút
             if (!isShow || stock <= 0) {
                 addToCartBtn.disabled = true;
             } else {
                 addToCartBtn.disabled = false;
             }
-    
+
             if (stock > 0 && isShow) {
                 if (stock <= 5) {
                     stockText.textContent = 'Tồn kho: ' + stock + ' (Sắp hết hàng!)';
@@ -264,15 +264,16 @@ document.addEventListener('DOMContentLoaded', function() {
             stockText.textContent = '';
             stockIcon.style.display = 'none';
             addToCartBtn.disabled = true;
+            //13/8/2025
         }
     }
-    
-    
+
+
 
     document.querySelectorAll('input[name="color"], input[name="size"]').forEach(function(input) {
         input.addEventListener('change', function() {
             updateStockInfo();
-            
+
             // Nếu là color input, cập nhật ảnh sản phẩm
             if (this.name === 'color' && this.checked) {
                 updateProductImage(this.value);
@@ -282,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Gọi lần đầu nếu có sẵn lựa chọn
     updateStockInfo();
-    
+
     // Cập nhật ảnh ban đầu nếu có màu được chọn sẵn
     const initialColor = document.querySelector('input[name="color"]:checked');
     if (initialColor) {
@@ -299,13 +300,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 mainImage.src = this.src;
                 mainImage.parentElement.href = this.src;
             }
-            
+
             // Khôi phục auto-play khi click vào thumbnail
             if (window.productImageSwiper && isAutoPlayPaused) {
                 window.productImageSwiper.autoplay.start();
                 isAutoPlayPaused = false;
             }
-            
+
             // Cập nhật swiper
             if (window.productImageSwiper) {
                 window.productImageSwiper.update();
@@ -318,19 +319,19 @@ $('.qty-plus').click(function () {
     th.val(+th.val() + 1);
     updateCartTotals(); // Cập nhật tổng giá sau khi tăng
     });
-    
+
     $('.qty-minus').click(function () {
     var th = $(this).closest('.quantity').find('.qty-text');
     if (th.val() > 1)
         th.val(+th.val() - 1);
     updateCartTotals(); // Cập nhật tổng giá sau khi giảm
     });
-    
+
     $('.qty-text').on('input', function () {
     updateCartTotals();
     });
-    
-    
+
+
     function updateProductPrice() {
         // Nếu đang ở Flash Sale thì không đụng vào giá
         if (document.querySelector('.alert.alert-danger')) {
@@ -346,21 +347,21 @@ $('.qty-plus').click(function () {
             }
             return;
         }
-    
+
         // Trường hợp bình thường
         const color = document.querySelector('input[name="color"]:checked')?.value;
         const size = document.querySelector('input[name="size"]:checked')?.value;
         if (!color || !size) return;
-    
+
         const key = color + '-' + size;
         const priceData = window.variantPriceMap[key];
         if (!priceData) return;
-    
+
         const salePriceEl = document.getElementById('product-sale-price');
         if (salePriceEl) {
             salePriceEl.textContent = Number(priceData.sale_price).toLocaleString() + 'đ';
         }
-    
+
         const listedPriceEl = document.getElementById('product-listed-price');
         if (listedPriceEl) {
             if (priceData.listed_price != priceData.sale_price) {
@@ -371,13 +372,13 @@ $('.qty-plus').click(function () {
             }
         }
     }
-    
-    
+
+
     // Lắng nghe sự kiện thay đổi
     document.querySelectorAll('input[name="color"], input[name="size"]').forEach(el => {
         el.addEventListener('change', updateProductPrice);
     });
-    
+
     // Gọi lần đầu khi trang load
     updateProductPrice();
      function updateColorName() {
