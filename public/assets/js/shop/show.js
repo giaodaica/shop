@@ -244,11 +244,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 stockText.textContent = stock <= 5 ? `Tồn kho: ${stock} (Sắp hết hàng!)` : `Tồn kho: ${stock}`;
                 stockInfo.className = stock <= 5 ? 'text-danger fw-bold d-flex align-items-center' : 'text-success d-flex align-items-center';
                 stockIcon.className = stock <= 5 ? 'bi bi-exclamation-triangle-fill me-2' : 'bi bi-check-circle-fill me-2';
+
             } else {
                 stockText.textContent = 'Hết hàng';
                 stockInfo.className = 'text-danger fw-bold d-flex align-items-center';
                 stockIcon.className = 'bi bi-x-circle-fill me-2';
             }
+
             stockIcon.style.display = 'inline-block';
     
         } else {
@@ -259,6 +261,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
             addToCartBtn.disabled = !isShow || stock <= 0;
     
+
             if (stock > 0 && isShow) {
                 stockText.textContent = stock <= 5 ? `Tồn kho: ${stock} (Sắp hết hàng!)` : `Tồn kho: ${stock}`;
                 stockInfo.className = stock <= 5 ? 'text-danger fw-bold d-flex align-items-center' : 'text-success d-flex align-items-center';
@@ -268,6 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 stockInfo.className = 'text-danger fw-bold d-flex align-items-center';
                 stockIcon.className = isShow ? 'bi bi-x-circle-fill me-2' : '';
             }
+
             stockIcon.style.display = 'inline-block';
         }
     }
