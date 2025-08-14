@@ -75,7 +75,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
     Route::post('/order/{id}/cancel', [InfoController::class, 'cancel'])->name('order.cancel');
     Route::get('info', [InfoController::class, 'account'])->name('home.info')->middleware('auth', 'cache');
     Route::get('show/{id}', [InfoController::class, 'orderDetail'])->name('home.orderDetail')->middleware('auth', 'cache');
-    Route::get('aonam/{slug}', [ProductDetailController::class, 'index'])->name('home.show');
+    Route::get('aonam/{slug}', [ProductDetailController::class, 'index'])->name('home.show')->middleware('cache');
     Route::get('cart', action: [CartController::class, 'index'])->name('home.cart');
     Route::delete('/cart/delete-selected', [CartController::class, 'deleteSelected'])->name('cart.deleteSelected');
     Route::post('/cart/update-quantity', [CartController::class, 'updateQuantity'])->name('cart.updateQuantity');
