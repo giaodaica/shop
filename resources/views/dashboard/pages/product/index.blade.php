@@ -286,63 +286,39 @@
     </footer>
 @endsection
 @section('js-content')
-    <!-- nouisliderribute js -->
-    <script src="{{ asset('admin/libs/nouislider/nouislider.min.js') }}"></script>
-    <script src="{{ asset('admin/libs/wnumb/wNumb.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- gridjs js -->
-    <script src="{{ asset('admin/libs/gridjs/gridjs.umd.js') }}"></script>
-    <script src="https://unpkg.com/gridjs/plugins/selection/dist/selection.umd.js"></script>
+<script src="{{ asset('admin/libs/nouislider/nouislider.min.js') }}"></script>
+<script src="{{ asset('admin/libs/wnumb/wNumb.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('admin/libs/gridjs/gridjs.umd.js') }}"></script>
+<script src="https://unpkg.com/gridjs/plugins/selection/dist/selection.umd.js"></script>
 
-    <script>
-        setTimeout(function() {
-            let alert = document.querySelector('.alert');
-            if (alert) {
-                alert.classList.remove('show');
-                alert.classList.add('hide');
-            }
-        }, 3000);
+<script>
+    // Ẩn alert sau 3 giây
+    setTimeout(function () {
+        let alert = document.querySelector('.alert');
+        if (alert) {
+            alert.classList.remove('show');
+            alert.classList.add('hide');
+        }
+    }, 3000);
 
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteForms = document.querySelectorAll('.delete-form');
-            deleteForms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault(); // Chặn submit form ngay lập tức
-
-                    Swal.fire({
-                        title: 'Bạn có chắc chắn?',
-                        text: "Hành động này sẽ không thể hoàn tác!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Xóa!',
-                        cancelButtonText: 'Hủy'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit(); // Nếu xác nhận thì submit form
-                        }
-                    });
-                });
-            });
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-            // Xác nhận xóa
-            const deleteForms = document.querySelectorAll('.delete-form');
-            deleteForms.forEach(form => {
-                form.querySelector('.btn-delete').addEventListener('click', function(e) {
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hàm xử lý confirm SweetAlert
+        function handleConfirm(selector, options) {
+            document.querySelectorAll(selector).forEach(button => {
+                button.addEventListener('click', function (e) {
                     e.preventDefault();
+                    const form = button.closest('form');
 
                     Swal.fire({
-                        title: 'Bạn có chắc chắn muốn xóa?',
-                        text: "Hành động này không thể hoàn tác!",
-                        icon: 'warning',
+                        title: options.title,
+                        text: options.text,
+                        icon: options.icon,
                         showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Xóa',
-                        cancelButtonText: 'Hủy'
+                        confirmButtonText: options.confirmButtonText,
+                        cancelButtonText: 'Hủy',
+                        confirmButtonColor: options.confirmButtonColor || '#3085d6',
+                        cancelButtonColor: '#d33'
                     }).then((result) => {
                         if (result.isConfirmed) {
                             form.submit();
@@ -350,50 +326,34 @@
                     });
                 });
             });
+        }
 
-            // Xác nhận khôi phục
-            const restoreForms = document.querySelectorAll('.restore-form');
-            restoreForms.forEach(form => {
-                form.querySelector('.btn-restore').addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    Swal.fire({
-                        title: 'Bạn có chắc chắn muốn khôi phục?',
-                        text: "Sản phẩm sẽ được khôi phục!",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Khôi phục',
-                        cancelButtonText: 'Hủy'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
+        // Xóa mềm
+        handleConfirm('.btn-soft-delete', {
+            title: 'Xác nhận xóa',
+            text: 'Bạn có chắc muốn xóa sản phẩm này?',
+            icon: 'warning',
+            confirmButtonText: 'Xóa',
+            confirmButtonColor: '#d33'
         });
-        const forceDeleteForms = document.querySelectorAll('.force-delete-form');
-        forceDeleteForms.forEach(form => {
-            form.querySelector('.btn-force-delete').addEventListener('click', function(e) {
-                e.preventDefault();
 
-                Swal.fire({
-                    title: 'Bạn có chắc chắn muốn xóa vĩnh viễn?',
-                    text: "Sản phẩm sẽ bị xóa hoàn toàn khỏi hệ thống!",
-                    icon: 'error',
-                    showCancelButton: true,
-                    confirmButtonColor: '#e3342f',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Xóa vĩnh viễn',
-                    cancelButtonText: 'Hủy'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            });
+        // Khôi phục
+        handleConfirm('.btn-restore', {
+            title: 'Xác nhận khôi phục',
+            text: 'Bạn có chắc muốn khôi phục sản phẩm này?',
+            icon: 'question',
+            confirmButtonText: 'Khôi phục',
+            confirmButtonColor: '#3085d6'
         });
-    </script>
+
+        // Xóa vĩnh viễn
+        handleConfirm('.btn-force-delete', {
+            title: 'Xác nhận xóa vĩnh viễn',
+            text: 'Hành động này không thể hoàn tác!',
+            icon: 'error',
+            confirmButtonText: 'Xóa vĩnh viễn',
+            confirmButtonColor: '#d33'
+        });
+    });
+</script>
 @endsection
