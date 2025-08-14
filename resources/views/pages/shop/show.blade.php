@@ -250,7 +250,7 @@ foreach ($variants as $variant) {
                             </div>
 
                            @if (!empty($isFlashSale) && $isFlashSale)
-                                @if ($flashSaleItem->max_quantity - $flashSaleItem->sold_quantity > 0)
+                                @if ($flashSaleItem->max_quantity > 0)
                                     <button type="submit" name="flash_sale" value="1"
                                         class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-danger left-icon btn-round-edge border-0 me-15px xs-me-0 order-3 order-sm-2">
                                         <span>

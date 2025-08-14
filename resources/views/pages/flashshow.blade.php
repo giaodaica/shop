@@ -26,7 +26,7 @@
                             ⚡ Còn {{ $item->max_quantity }}/{{ $item->stock_quantity }} suất
                         </div>
 
-                        @if ($item->max_quantity - $item->sold_quantity > 0)
+                        @if ($item->max_quantity > 0)
                             {{-- <form action="{{ route('cart.add', ['id' => $item->id]) }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $item->id }}">
@@ -44,7 +44,7 @@
         @empty
             <div class="col-12 text-center">Không có flash sale đang diễn ra.</div>
         @endforelse
-        
+
         {{-- {{dd($sale)  }} --}}
     </div>
 </div>

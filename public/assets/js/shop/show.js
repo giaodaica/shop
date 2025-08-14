@@ -160,7 +160,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     }, 350); // Đợi fade effect hoàn thành
                 };
 
+
                 preloadImage.onerror = function () {
+
                     // Fallback: cập nhật ảnh trực tiếp nếu preload thất bại
                     allImages.forEach((img, index) => {
                         img.src = newImageUrl;
@@ -180,11 +182,13 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('input[name="color"], input[name="size"]').forEach(function (input) {
         let wasChecked = false;
 
+
         input.addEventListener('mousedown', function (e) {
             wasChecked = this.checked;
         });
 
         input.addEventListener('click', function (e) {
+
             // Nếu radio button này đã được chọn trước khi click, bỏ chọn nó
             if (wasChecked) {
                 e.preventDefault();
@@ -223,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var stockIcon = document.getElementById('stock-icon');
         var stockText = document.getElementById('stock-text');
         var addToCartBtn = document.querySelector('.btn-cart');
+
     
         if (!color || !size) {
             stockText.textContent = '';
@@ -244,11 +249,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 stockText.textContent = stock <= 5 ? `Tồn kho: ${stock} (Sắp hết hàng!)` : `Tồn kho: ${stock}`;
                 stockInfo.className = stock <= 5 ? 'text-danger fw-bold d-flex align-items-center' : 'text-success d-flex align-items-center';
                 stockIcon.className = stock <= 5 ? 'bi bi-exclamation-triangle-fill me-2' : 'bi bi-check-circle-fill me-2';
+
             } else {
                 stockText.textContent = 'Hết hàng';
                 stockInfo.className = 'text-danger fw-bold d-flex align-items-center';
                 stockIcon.className = 'bi bi-x-circle-fill me-2';
             }
+
             stockIcon.style.display = 'inline-block';
     
         } else {
@@ -259,6 +266,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
             addToCartBtn.disabled = !isShow || stock <= 0;
     
+
             if (stock > 0 && isShow) {
                 stockText.textContent = stock <= 5 ? `Tồn kho: ${stock} (Sắp hết hàng!)` : `Tồn kho: ${stock}`;
                 stockInfo.className = stock <= 5 ? 'text-danger fw-bold d-flex align-items-center' : 'text-success d-flex align-items-center';
@@ -268,10 +276,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 stockInfo.className = 'text-danger fw-bold d-flex align-items-center';
                 stockIcon.className = isShow ? 'bi bi-x-circle-fill me-2' : '';
             }
+
             stockIcon.style.display = 'inline-block';
         }
     }
     
+
 
 
 
@@ -324,13 +334,16 @@ $('.qty-plus').click(function () {
     var th = $(this).closest('.quantity').find('.qty-text');
     th.val(+th.val() + 1);
     updateCartTotals(); // Cập nhật tổng giá sau khi tăng
+
 });
 
 $('.qty-minus').click(function () {
+
     var th = $(this).closest('.quantity').find('.qty-text');
     if (th.val() > 1)
         th.val(+th.val() - 1);
     updateCartTotals(); // Cập nhật tổng giá sau khi giảm
+
 });
 
 $('.qty-text').on('input', function () {
@@ -349,6 +362,7 @@ function updateProductPrice() {
             const flashPrice = document.querySelector(`input[name="color"]:checked`)?.dataset.flashPrice;
             if (flashPrice) {
                 flashPriceEl.textContent = Number(flashPrice).toLocaleString() + 'đ';
+
             }
         }
         return;
@@ -405,3 +419,4 @@ document.querySelectorAll('input[name="size"]').forEach(input => {
 });
 updateColorName();
 updateSizeName();
+
