@@ -14,6 +14,7 @@ class ManageFlashSales extends Command
 
     public function handle(): void
     {
+         $this->checkDeletedProducts();
         $now = Carbon::now();
 
         // 1) Kích hoạt flash sale nếu đã đến giờ
@@ -89,5 +90,63 @@ class ManageFlashSales extends Command
             'hidden_variants' => $activeVariantIds,
             'shown_variants' => $outOfStockVariantIds
         ]);
+    }
+    /**
+     * Kiểm tra sản phẩm trong flash sale bị soft/hard delete
+     */
+    private function checkDeletedProducts()
+    {
+        $flashSales = FlashSale::whereIn('status', ['active', 'upcoming'])
+            ->with([
+                'items',
+                'items.productVariant' => function ($query) {
+                    $query->withTrashed(); // để lấy cả soft delete
+                }
+            ])
+            ->get();
+
+        foreach ($flashSales as $flashSale) {
+            $allItemsDeleted = true;
+
+            foreach ($flashSale->items as $item) {
+                $variant = $item->productVariant;
+
+                if (!$variant || $variant->trashed()) {
+                    // Nếu variant còn trong DB (soft delete) → trả kho + cộng sold_quantity
+                    if ($variant) {
+                        Product_variants::withTrashed()
+                            ->where('id', $item->product_variant_id)
+                            ->increment('stock', $item->max_quantity);
+
+                        if ($item->sold_quantity > 0) {
+                            Product_variants::withTrashed()
+                                ->where('id', $item->product_variant_id)
+                                ->increment('sold_quantity', $item->sold_quantity);
+                        }
+                    }
+
+                    // Xóa khỏi flash sale items
+                    $item->delete();
+
+                    \Log::warning('FlashSale item removed due to deleted variant', [
+                        'flash_sale_id' => $flashSale->id,
+                        'variant_id'    => $item->product_variant_id,
+                        'deleted_type'  => $variant ? 'soft_delete' : 'hard_delete'
+                    ]);
+                } else {
+                    $allItemsDeleted = false;
+                }
+            }
+
+            // Nếu toàn bộ sản phẩm trong flash sale bị xóa → kết thúc flash sale
+            if ($allItemsDeleted) {
+                $flashSale->status = 'ended';
+                $flashSale->save();
+
+                \Log::info('FlashSale ended because all items deleted', [
+                    'flash_sale_id' => $flashSale->id
+                ]);
+            }
+        }
     }
 }
