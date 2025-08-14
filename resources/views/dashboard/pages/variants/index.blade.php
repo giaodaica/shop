@@ -163,7 +163,7 @@
                                                         {{ $variant->color->color_name ?? '-' }}
                                                     </td>
                                                     <td>
-                                                        @if (request('status') == 'deleted')
+                                                        @if (request('status') == 'deleted' || (request('status') == 'all' && $variant->trashed()))
                                                             <form action="{{ route('variants.restore', $variant->id) }}"
                                                                 method="POST" class="restore-form">
                                                                 @csrf
