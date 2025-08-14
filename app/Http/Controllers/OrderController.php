@@ -31,7 +31,7 @@ class OrderController extends Controller
 {
     public function index()
     {
-       
+
         // Kiểm tra nếu có callback từ VNPAY
         if (request()->has('vnp_ResponseCode')) {
             return $this->handleVnpayCallback(request());
@@ -47,7 +47,7 @@ class OrderController extends Controller
         // Lấy các sản phẩm được chọn từ giỏ hàng
         $selectedIds = session('cart_selected_ids', []);
 
- 
+
 if (empty($selectedIds)) {
     return redirect()->route('home.cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán!');
 }
@@ -228,7 +228,7 @@ public function processCheckout(Request $request)
         DB::beginTransaction();
 
         // 5.1) KHÓA & TRỪ TỒN KHO NGAY LÚC ĐẶT HÀNG
-      
+
         $subtotal = 0;
 
         foreach ($cartItems as $item) {
@@ -516,19 +516,29 @@ public function processCheckout(Request $request)
         ]);
     }
 
-    public function refund($present, $id)
+     public function refund($present, $id)
     {
         $items = OrderItem::where('order_id', $id)->get();
 
+        // Xử lý sản phẩm bình thường
         $items->whereNull('flash_sale_items_id')->each(function ($item) {
             $item->productVariant->increment('stock', $item->quantity);
         });
 
+        // Xử lý sản phẩm flash sale
         $items->whereNotNull('flash_sale_items_id')->each(function ($item) {
-            FlashSaleItems::where('product_variant_id', $item->product_variant_id)
+            $flashItem = FlashSaleItems::where('product_variant_id', $item->product_variant_id)
                 ->where('id', $item->flash_sale_items_id)
-                ->increment('max_quantity', $item->quantity);
+                ->first();
+
+            if ($flashItem) {
+                $flashItem->increment('max_quantity', $item->quantity); // tăng max_quantity
+                $flashItem->sold_quantity = 0; // reset sold_quantity
+                $flashItem->save();
+            }
         });
+
+        // dd('đang ở đyâ');
         $voucher = Vouchers::find($present->voucher_id);
         if ($present->voucher_id && $voucher->end_date < now()) {
             VouchersUsers::updateOrCreate(
@@ -540,7 +550,7 @@ public function processCheckout(Request $request)
                     'is_used'    => 'unused',
                     'status' => 'available',
                     'start_date' => now(),
-                    'end_date'   => now()->addDays(7),
+                    'end_date'   => now()->addDays(3),
                 ]
             );
             VouchersLog::create([
@@ -573,6 +583,8 @@ public function processCheckout(Request $request)
             $final_amount = $present->final_amount;
         }
         if ($present->status_pay == 'paid' && $present->pay_method == 'VNPAY' || $present->pay_method == 'QR') {
+            // dd($final_amount);
+
             RefundMoney::create([
                 'user_id' => $present->user_id,
                 'order_id' => $id,
@@ -585,7 +597,7 @@ public function processCheckout(Request $request)
                 $voucher = null;
             }
             $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
-            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type));
+            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type, $final_amount));
         }
     }
     public function db_order_change(Request $request, $id)
