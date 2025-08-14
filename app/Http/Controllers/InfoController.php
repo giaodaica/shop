@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\OrderCancelledMail;
 use App\Models\AddressBook;
+use App\Models\FlashSaleItems;
 use App\Models\Product_variants;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -138,14 +139,30 @@ class InfoController extends Controller
         }
         $order->status = 'cancelled';
         if ($order->status == 'cancelled') {
-            OrderItem::where('order_id', $id)->get()->each(function ($item) {
-                $variant = Product_variants::withTrashed()
-                    ->find($item->product_variant_id);
+              // Lấy toàn bộ item của đơn
+        $items = OrderItem::where('order_id', $id)->get();
 
-                if ($variant) { // Chỉ tăng stock nếu thực sự tồn tại
-                    $variant->increment('stock', $item->quantity);
-                }
-            });
+        // Hoàn lại stock cho sản phẩm thường
+        $items->whereNull('flash_sale_items_id')->each(function ($item) {
+            $variant = Product_variants::withTrashed()->find($item->product_variant_id);
+            if ($variant) {
+                $variant->increment('stock', $item->quantity);
+                $variant->decrement('sold_quantity', $item->quantity);
+            }
+        });
+
+        // Hoàn lại số lượng cho sản phẩm flash sale
+        $items->whereNotNull('flash_sale_items_id')->each(function ($item) {
+            $flashSaleItem = FlashSaleItems::where('product_variant_id', $item->product_variant_id)
+                ->where('id', $item->flash_sale_items_id)
+                ->first();
+
+            if ($flashSaleItem) {
+                $flashSaleItem->increment('max_quantity', $item->quantity);
+                $flashSaleItem->decrement('sold_quantity', $item->quantity);
+            }
+        });
+
             $voucher = Vouchers::find($order->voucher_id);
             if ($order->voucher_id && $voucher->end_date < now()) {
                 VouchersUsers::updateOrCreate(
