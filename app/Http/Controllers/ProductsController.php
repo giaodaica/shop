@@ -283,9 +283,13 @@ class ProductsController extends Controller
     public function restore($id)
     {
         $product = Products::withTrashed()->findOrFail($id);
-        $product->restore();
 
-        return redirect()->route('products.index')->with('success', 'Khôi phục sản phẩm thành công!');
+        if ($product->trashed()) {
+            $product->restore();
+            return back()->with('success', 'Khôi phục sản phẩm thành công.');
+        }
+
+        return back()->with('error', 'Sản phẩm này chưa bị xóa mềm.');
     }
 
 
@@ -293,17 +297,6 @@ class ProductsController extends Controller
 
 
     public function update(Request $request, $id)
-{
-    $product = Products::with('variants')->findOrFail($id);
-
-    $request->validate([
-        'name' => 'required|string|max:255|unique:products,name,' . $id,
-        'slug' => 'nullable|unique:products,slug,' . $id,
-        'category_id' => 'required|exists:categories,id',
-        'description' => 'nullable|string',
-        'temp_image_url' => $request->filled('temp_image_url') ? 'required|string' : 'nullable|string',
-
-        'variants' => 'required|array|min:1',
     {
         $product = Products::with('variants')->findOrFail($id);
 
