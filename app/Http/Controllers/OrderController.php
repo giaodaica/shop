@@ -619,28 +619,28 @@ class OrderController extends Controller
 
     public function refund($present, $id)
     {
-        $items = OrderItem::where('order_id', $id)->get();
+      $items = OrderItem::where('order_id', $id)->get();
 
-        // Hoàn lại stock cho sản phẩm thường
-        $items->whereNull('flash_sale_items_id')->each(function ($item) {
-            $variant = Product_variants::withTrashed()->find($item->product_variant_id);
+// Hoàn lại stock cho sản phẩm thường
+$items->whereNull('flash_sale_items_id')->each(function ($item) {
+    $variant = Product_variants::withTrashed()->find($item->product_variant_id);
 
-            if ($variant) { // tồn tại cả soft delete
-                $variant->increment('stock', $item->quantity);
-            }
-        });
+    if ($variant) { // tồn tại cả soft delete
+        $variant->increment('stock', $item->quantity);
+    }
+});
 
-        // Hoàn lại số lượng cho sản phẩm flash sale
-        $items->whereNotNull('flash_sale_items_id')->each(function ($item) {
-            $flashSaleItem = FlashSaleItems::withTrashed()
-                ->where('product_variant_id', $item->product_variant_id)
-                ->where('id', $item->flash_sale_items_id)
-                ->first();
+// Hoàn lại số lượng cho sản phẩm flash sale
+$items->whereNotNull('flash_sale_items_id')->each(function ($item) {
+    $flashSaleItem = FlashSaleItems::where('product_variant_id', $item->product_variant_id)
+        ->where('id', $item->flash_sale_items_id)
+        ->first();
 
-            if ($flashSaleItem) {
-                $flashSaleItem->increment('max_quantity', $item->quantity);
-            }
-        });
+    if ($flashSaleItem) {
+        $flashSaleItem->increment('max_quantity', $item->quantity);
+    }
+});
+
 
         $voucher = Vouchers::find($present->voucher_id);
         if ($present->voucher_id && $voucher->end_date < now()) {
