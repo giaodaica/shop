@@ -187,8 +187,12 @@ class CategoriesController extends Controller
     public function forceDelete($id)
     {
         $category = Categories::onlyTrashed()->findOrFail($id);
-        $category->forceDelete();
 
+        if ($category->products()->exists()) {
+            return redirect()->route('categories.index', ['status' => 'trashed'])
+                ->with('error', 'Danh mục đã có sản phẩm, không thể xóa vĩnh viễn!');
+        }
+        $category->forceDelete();
         return redirect()->route('categories.index', ['status' => 'trashed'])
             ->with('success', 'Danh mục đã được xóa vĩnh viễn.');
     }
@@ -209,7 +213,7 @@ class CategoriesController extends Controller
         if (!empty($alreadyDeleted)) {
             return response()->json([
                 'status' => 'warning',
-                'message' => 'Một số danh mục đã bị xóa mềm' 
+                'message' => 'Một số danh mục đã bị xóa mềm'
             ], 400);
         }
 
@@ -239,7 +243,7 @@ class CategoriesController extends Controller
         if (!empty($notDeleted)) {
             return response()->json([
                 'status' => 'warning',
-                'message' => 'Một số danh mục chưa bị xóa nên không cần khôi phục' 
+                'message' => 'Một số danh mục chưa bị xóa nên không cần khôi phục'
             ], 400);
         }
 

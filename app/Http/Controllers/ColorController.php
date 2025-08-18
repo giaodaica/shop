@@ -85,6 +85,9 @@ class ColorController extends Controller
     public function destroy($id)
     {
         $color = Color::findOrFail($id);
+        if ($color->productVariants()->exists()) {
+            return redirect()->route('colors.index')->with('error', 'Không thể xóa màu vì đang được sử dụng trong sản phẩm.');
+        }
         $color->delete();
 
         return redirect()->route('colors.index')->with('success', 'Xóa màu thành công!');
