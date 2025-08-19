@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Mail\OrderCancelledMail;
 use App\Models\AddressBook;
+use App\Models\FlashSaleItems;
+use App\Models\Product_variants;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -137,9 +139,30 @@ class InfoController extends Controller
         }
         $order->status = 'cancelled';
         if ($order->status == 'cancelled') {
-            OrderItem::where('order_id', $id)->get()->each(function ($item) {
-                $item->productVariant->increment('stock', $item->quantity);
-            });
+              // Lấy toàn bộ item của đơn
+        $items = OrderItem::where('order_id', $id)->get();
+
+        // Hoàn lại stock cho sản phẩm thường
+        $items->whereNull('flash_sale_items_id')->each(function ($item) {
+            $variant = Product_variants::withTrashed()->find($item->product_variant_id);
+            if ($variant) {
+                $variant->increment('stock', $item->quantity);
+                $variant->decrement('sold_quantity', $item->quantity);
+            }
+        });
+
+        // Hoàn lại số lượng cho sản phẩm flash sale
+        $items->whereNotNull('flash_sale_items_id')->each(function ($item) {
+            $flashSaleItem = FlashSaleItems::where('product_variant_id', $item->product_variant_id)
+                ->where('id', $item->flash_sale_items_id)
+                ->first();
+
+            if ($flashSaleItem) {
+                $flashSaleItem->increment('max_quantity', $item->quantity);
+                $flashSaleItem->decrement('sold_quantity', $item->quantity);
+            }
+        });
+
             $voucher = Vouchers::find($order->voucher_id);
             if ($order->voucher_id && $voucher->end_date < now()) {
                 VouchersUsers::updateOrCreate(
@@ -181,8 +204,8 @@ class InfoController extends Controller
 
 
         $order->save();
-         // Lưu lịch sử hủy đơn nếu cần
-         OrderHistories::create([
+        // Lưu lịch sử hủy đơn nếu cần
+        OrderHistories::create([
             'users' => Auth::id(),
             'order_id' => $order->id,
             'from_status' => 'pending',
@@ -209,10 +232,10 @@ class InfoController extends Controller
             if (!$voucher) {
                 $voucher = null;
             }
-       
-        $type = VouchersLog::where('voucher_id', $order->voucher_id)->first();
-        Mail::to($order->user->email)->send(new OrderCancelledMail($order, $voucher, $type,$final_amount));
-    }
+
+            $type = VouchersLog::where('voucher_id', $order->voucher_id)->first();
+            Mail::to($order->user->email)->send(new OrderCancelledMail($order, $voucher, $type, $final_amount));
+        }
         return redirect()->back()->with('success', 'Đã hủy đơn hàng thành công!');
     }
 

@@ -89,6 +89,7 @@
                                                 </a>
                                             </li>
                                         </ul>
+
                                     </div>
                                     <div class="col-auto">
                                         <div id="selection-element">
@@ -114,13 +115,28 @@
                             @else
                                 <!-- end card header -->
                                 <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0">Danh sách sản phẩm</h6>
+                                        <div class="d-flex gap-2">
+                                            <button id="delete-selected" class="btn btn-danger btn-sm">
+                                                <i class="ri-delete-bin-line me-1"></i> Xóa đã chọn
+                                            </button>
+                                            @if (in_array($status, ['trashed', 'all']))
+                                                <button id="restore-all" class="btn btn-success btn-sm">
+                                                    <i class="ri-refresh-line me-1"></i> Khôi phục tất cả
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+
                                     <table class="table align-middle table-nowrap mb-0">
                                         <thead class="table-light">
                                             <tr>
+                                                <th scope="col">
+                                                    <input type="checkbox" id="select-all">
+                                                </th>
                                                 <th scope="col">#</th>
-
                                                 <th scope="col">Tên sản phẩm</th>
-
                                                 <th scope="col">Slug</th>
                                                 <th scope="col">Danh mục</th>
                                                 <th scope="col">Hành động</th>
@@ -129,8 +145,11 @@
                                         <tbody>
                                             @foreach ($products as $index => $product)
                                                 <tr>
+                                                    <td>
+                                                        <input type="checkbox" class="select-item"
+                                                            value="{{ $product->id }}">
+                                                    </td>
                                                     <td>{{ $products->firstItem() + $index }}</td>
-
                                                     <td>
                                                         <div class="d-flex align-items-center">
                                                             <div class="flex-shrink-0 me-3">
@@ -286,74 +305,8 @@
     </footer>
 @endsection
 @section('js-content')
-<script src="{{ asset('admin/libs/nouislider/nouislider.min.js') }}"></script>
-<script src="{{ asset('admin/libs/wnumb/wNumb.min.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ asset('admin/libs/gridjs/gridjs.umd.js') }}"></script>
-<script src="https://unpkg.com/gridjs/plugins/selection/dist/selection.umd.js"></script>
 
-<script>
-    // Ẩn alert sau 3 giây
-    setTimeout(function () {
-        let alert = document.querySelector('.alert');
-        if (alert) {
-            alert.classList.remove('show');
-            alert.classList.add('hide');
-        }
-    }, 3000);
-
-    document.addEventListener('DOMContentLoaded', function () {
-        // Hàm xử lý confirm SweetAlert
-        function handleConfirm(selector, options) {
-            document.querySelectorAll(selector).forEach(button => {
-                button.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const form = button.closest('form');
-
-                    Swal.fire({
-                        title: options.title,
-                        text: options.text,
-                        icon: options.icon,
-                        showCancelButton: true,
-                        confirmButtonText: options.confirmButtonText,
-                        cancelButtonText: 'Hủy',
-                        confirmButtonColor: options.confirmButtonColor || '#3085d6',
-                        cancelButtonColor: '#d33'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
             });
         }
 
-        // Xóa mềm
-        handleConfirm('.btn-soft-delete', {
-            title: 'Xác nhận xóa',
-            text: 'Bạn có chắc muốn xóa sản phẩm này?',
-            icon: 'warning',
-            confirmButtonText: 'Xóa',
-            confirmButtonColor: '#d33'
-        });
 
-        // Khôi phục
-        handleConfirm('.btn-restore', {
-            title: 'Xác nhận khôi phục',
-            text: 'Bạn có chắc muốn khôi phục sản phẩm này?',
-            icon: 'question',
-            confirmButtonText: 'Khôi phục',
-            confirmButtonColor: '#3085d6'
-        });
-
-        // Xóa vĩnh viễn
-        handleConfirm('.btn-force-delete', {
-            title: 'Xác nhận xóa vĩnh viễn',
-            text: 'Hành động này không thể hoàn tác!',
-            icon: 'error',
-            confirmButtonText: 'Xóa vĩnh viễn',
-            confirmButtonColor: '#d33'
-        });
-    });
-</script>
-@endsection

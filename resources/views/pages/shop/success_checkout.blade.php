@@ -39,7 +39,15 @@
                                         @endphp
                                     @endif
                                 </p>
-                                <p class="mb-2"><strong>Trạng thái:</strong> <span class="badge bg-warning">Chờ xác nhận</span></p>
+                                <p class="mb-2"><strong>Trạng thái:</strong>
+                                    @if(session('payment_method') == 'COD')
+                                        <span class="badge bg-warning">Chờ xác nhận</span>
+                                    @elseif(session('payment_method') == 'VNPAY')
+                                        <span class="badge bg-success">Đã xác nhận</span>
+                                    @else
+                                        <span class="badge bg-secondary">Không xác định</span>
+                                    @endif
+                                    </p>
                                 <p class="mb-2"><strong>Phương thức thanh toán:</strong> 
                                     @if(session('payment_method') == 'COD')
                                         <span class="badge bg-info">Thanh toán khi nhận hàng</span>

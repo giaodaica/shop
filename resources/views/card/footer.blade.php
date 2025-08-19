@@ -48,7 +48,7 @@
             <!-- end footer column -->
             <!-- start footer column -->
             <div class="col-6 col-lg-2 col-sm-4 xs-mb-30px order-sm-3 order-lg-2">
-                <span class="fw-500 d-block text-white mb-5px fs-17">Hỗ trợ dự án tốt nghiệp</span>
+                <span class="fw-500 d-block text-white mb-5px fs-17">Hỗ trợ</span>
                 <ul>
                     <li><a href="#">Vấn đề</a></li>
                     <li><a href="#">Giải pháp</a></li>

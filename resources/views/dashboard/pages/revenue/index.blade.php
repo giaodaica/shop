@@ -268,14 +268,28 @@ new Chart(document.getElementById('revenueChart'), {
         responsive: true,
         plugins: {
             legend: { display: false },
-            tooltip: { callbacks: {
-                label: function (context) {
-                    let value = context.raw;
-                    return value.toLocaleString('vi-VN') + ' đ';
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        // Nếu là cột số tiền thì format, nếu là số lượng thì giữ nguyên
+                        if (context.dataIndex === 0 || context.dataIndex === 2 || context.dataIndex === 3 || context.dataIndex === 4) {
+                            return context.dataset.label + ': ' + context.raw.toLocaleString('vi-VN') + ' đ';
+                        }
+                        return context.dataset.label + ': ' + context.raw.toLocaleString('vi-VN');
+                    }
                 }
-            }}
+            }
         },
-        scales: { y: { beginAtZero: true } }
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value, index) {
+                        return value.toLocaleString('vi-VN');
+                    }
+                }
+            }
+        }
     }
 });
 
@@ -296,9 +310,8 @@ new Chart(document.getElementById('topProductsChart'), {
             y: {
                 beginAtZero: true,
                 ticks: {
-                    // Format số lượng đơn giản (nếu cần)
                     callback: function(value) {
-                        return value;
+                        return value.toLocaleString('vi-VN');
                     }
                 }
             }
@@ -308,7 +321,7 @@ new Chart(document.getElementById('topProductsChart'), {
             tooltip: {
                 callbacks: {
                     label: function(context) {
-                        return context.raw; // hoặc format nếu cần
+                        return context.dataset.label + ': ' + context.raw.toLocaleString('vi-VN');
                     }
                 }
             }
@@ -344,7 +357,7 @@ new Chart(document.getElementById('topUsersChart'), {
             tooltip: {
                 callbacks: {
                     label: function(context) {
-                        return context.raw.toLocaleString('vi-VN') + ' đ';
+                        return context.dataset.label + ': ' + context.raw.toLocaleString('vi-VN') + ' đ';
                     }
                 }
             }
@@ -381,13 +394,12 @@ new Chart(document.getElementById('leastSoldProductsChart'), {
             tooltip: {
                 callbacks: {
                     label: function(context) {
-                        return context.raw + ' %';
+                        return context.dataset.label + ': ' + context.raw + ' %';
                     }
                 }
             }
         }
     }
 });
-
 </script>
 @endsection
