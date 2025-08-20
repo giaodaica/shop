@@ -53,9 +53,10 @@
                                             'pending' => ['color' => 'warning', 'label' => 'Chờ xác nhận'],
                                             'confirmed' => ['color' => 'info', 'label' => 'Đã xác nhận'],
                                             'shipping' => ['color' => 'primary', 'label' => 'Đang giao'],
-                                            'success' => ['color' => 'success', 'label' => 'Thành công'],
+                                            'success' => ['color' => 'success', 'label' => 'Đã giao hàng'],
                                             'failed' => ['color' => 'danger', 'label' => 'Thất bại'],
                                             'cancelled' => ['color' => 'secondary', 'label' => 'Đã hủy'],
+                                            'delivered' => ['color' => 'secondary', 'label' => 'Giao hàng thành công'],
                                         ];
                                         $status = $order->status;
                                         $statusColor = $statusMap[$status]['color'] ?? 'secondary';
