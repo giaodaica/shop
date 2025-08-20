@@ -14,7 +14,7 @@ class ManageFlashSales extends Command
 
     public function handle(): void
     {
-         $this->checkDeletedProducts();
+        $this->checkDeletedProducts();
         $now = Carbon::now();
 
         // 1) Kích hoạt flash sale nếu đã đến giờ
@@ -139,7 +139,7 @@ class ManageFlashSales extends Command
             }
 
             // Nếu toàn bộ sản phẩm trong flash sale bị xóa → kết thúc flash sale
-            if ($allItemsDeleted) {
+            if ($flashSale->items->count() > 0 && $allItemsDeleted) {
                 $flashSale->status = 'ended';
                 $flashSale->save();
 
