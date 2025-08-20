@@ -547,6 +547,43 @@ class OrderController extends Controller
         return view('pages.shop.success_checkout');
     }
 
+    /**
+     * Hủy thanh toán online đang chờ (VNPAY) và khôi phục giỏ hàng/voucher.
+     * Dùng khi người dùng back/đóng tab trang thanh toán mà không có callback.
+     */
+    public function cancelPendingPayment(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $cancelledOrderData = session('cancelled_order_data');
+        if (empty($cancelledOrderData) || empty($cancelledOrderData['order_id'])) {
+            return response()->json(['success' => true, 'message' => 'No pending payment to cancel']);
+        }
+
+        try {
+            // Khôi phục cart/voucher/stock từ session
+            $this->restoreProductsFromSession();
+
+            // Xóa order pending tương ứng
+            $orderId = (int) $cancelledOrderData['order_id'];
+            DB::beginTransaction();
+            OrderItem::where('order_id', $orderId)->delete();
+            Order::where('id', $orderId)->delete();
+            DB::commit();
+
+            // Xóa session lưu tạm dữ liệu khôi phục
+            session()->forget('cancelled_order_data');
+
+            return response()->json(['success' => true]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('cancelPendingPayment error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Internal error'], 500);
+        }
+    }
+
     public function db_order(Request $request)
     {
         // Validate input filter
