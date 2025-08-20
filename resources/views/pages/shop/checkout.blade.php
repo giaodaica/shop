@@ -265,7 +265,7 @@
                                 <label>
                                     <input type="checkbox" name="terms_condition" value="1"
                                         class="check-box align-middle" required>
-                                    <span class="box fs-14 lh-28">Tôi đồng ý với <a href="#"
+                                    <span class="box fs-14 lh-28">Tôi đồng ý với <a href="{{route('verify')}}"
                                             class="text-decoration-line-bottom text-dark-gray fw-500">điều khoản và điều
                                             kiện</a> của website.</span>
                                 </label>
@@ -368,7 +368,7 @@
             if (!checkedRadio) return;
 
             const addressCard = checkedRadio.parentElement.querySelector('.address-card');
-            
+
             const provinceName = (addressCard?.getAttribute('data-province-name') || '').toLowerCase();
             const wardName = (addressCard?.getAttribute('data-ward-name') || '').toLowerCase();
 
