@@ -157,7 +157,9 @@
                                 <tr>
                                     <th>STT</th>
                                     <th>Chi tiết sản phẩm</th>
+                                    <th>Số lượng</th>
                                     <th>Giá</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -175,8 +177,8 @@
                                                 <div style="font-size: 13px; color: #555;">
                                                     {{ $item->productVariant->color->color_name ?? $item->color_name }},
                                                     {{ $item->productVariant->size->size_name ?? $item->size_name }}
-                                                    <br>
-                                                    x{{ $item->quantity }}
+                                                    {{-- <br> --}}
+                                                    
                                                 </div>
                                                 @php
                                                     $orderStatus = $order->status ?? null;
@@ -202,6 +204,7 @@
                                                 @endif
                                             </div>
                                         </td>
+                                        <td>{{ $item->quantity }}</td>
                                         <td>{{ number_format($item->sale_price) }}đ</td>
                                     </tr>
                                     <div class="modal fade" id="reviewModal-{{ $item->id }}" tabindex="-1"
