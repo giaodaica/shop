@@ -298,6 +298,7 @@ class InfoController extends Controller
                     'image_user' => 'uploads/orders/' . $filename,
                     'user_comment' => $request->user_comment,
                     'user_confirm' => true,
+                    'status' => 'delivered'
                 ]);
 
                 // Tạo lịch sử đơn hàng
@@ -305,7 +306,7 @@ class InfoController extends Controller
                     'users' => Auth::id(),
                     'order_id' => $order->id,
                     'from_status' => $order->status,
-                    'to_status' => $order->status,
+                    'to_status' => 'delivered',
                     'note' => 'Khách hàng đã xác nhận nhận hàng',
                     'content' => '',
                 ]);

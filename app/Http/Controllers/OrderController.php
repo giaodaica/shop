@@ -570,7 +570,7 @@ class OrderController extends Controller
         }
 
         // Xử lý status
-        $valid_status = ['pending', 'success', 'failed', 'shipping', 'cancelled', 'confirmed'];
+        $valid_status = ['pending', 'success', 'failed', 'shipping', 'cancelled', 'confirmed', 'delivered'];
         // Nếu có filter status và khác 'all'
         if (!empty($request->status) && $request->status !== 'all' && in_array($request->status, $valid_status)) {
             $query->where('status', $request->status);
@@ -589,7 +589,7 @@ class OrderController extends Controller
         }
 
         // Xử lý param type từ query string, ưu tiên hơn filter status (nếu có)
-        $action = ['pending', 'confirmed', 'shipping', 'success', 'cancelled', 'failed'];
+        $action = ['pending', 'confirmed', 'shipping', 'success', 'cancelled', 'failed', 'delivered'];
         $type = $request->query('type');
 
         if ($type && !in_array($type, $action)) {
@@ -617,7 +617,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function refund($present, $id)
+    public function refund($present, $id, $refund)
     {
         $items = OrderItem::where('order_id', $id)->get();
 
@@ -682,10 +682,12 @@ class OrderController extends Controller
                 'content' => 'Voucher đã được đánh dấu là chưa sử dụng do đơn hàng bị hủy',
             ]);
         }
-        if ($present->status != 'confirmed') {
-            $final_amount = $present->final_amount - $present->shipping_fee;
-        } else {
+        // dd($refund);
+        $data_product = OrderItem::where('order_id', $id)->get();
+        if ($present->status == 'confirmed' || (isset($refund) && $refund == 1)) {
             $final_amount = $present->final_amount;
+        } else {
+            $final_amount = $present->final_amount - $present->shipping_fee;
         }
         if ($present->status_pay == 'paid' && $present->pay_method == 'VNPAY' || $present->pay_method == 'QR') {
             // dd($final_amount);
@@ -702,16 +704,17 @@ class OrderController extends Controller
                 $voucher = null;
             }
             $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
-            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type, $final_amount));
+            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type, $final_amount, $data_product));
         }
         if ($present->status_pay == 'cod_paid' && $present->pay_method == 'COD') {
             $type = VouchersLog::where('voucher_id', $present->voucher_id)->first();
 
-            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type, null));
+            Mail::to($present->user->email)->send(new OrderCancelledMail($present, $voucher, $type, null, $data_product));
         }
     }
     public function db_order_change(Request $request, $id)
     {
+        // dd($_POST);
         $before = $request->change;
 
         $request->validate(
@@ -732,6 +735,7 @@ class OrderController extends Controller
             ]
         );
         if (!$request->input('content')) {
+            $refund = 1;
             $content = $request->input('content1');
         }
         $data_change = ['pending', 'confirmed', 'shipping', 'cancelled', 'failed', 'return'];
@@ -753,6 +757,7 @@ class OrderController extends Controller
                     return abort(403, "Bạn không thể đổi sang trạng thái đã xác nhận khi đơn hàng không ở trạng thái chưa xác nhận ");
                 } else {
                     $present->status = 'confirmed';
+                    $present->updated_at = now();
                     $note = 'Đơn hàng đã được xác nhận';
                 }
                 break;
@@ -761,6 +766,7 @@ class OrderController extends Controller
                     return abort(403, 'Bạn không thể đổi sang trạng thái giao hàng khi đơn hàng không ở trạng thái đã xác nhận ');
                 } else {
                     $present->status = 'shipping';
+                    $present->updated_at = now();
                     $note = 'Đơn vị vận chuyển đã lấy hàng, chuẩn bị giao hàng';
                 }
                 break;
@@ -768,10 +774,11 @@ class OrderController extends Controller
                 if ($present->status != 'shipping') {
                     return abort(403, 'Bạn không thể đổi sang trạng thái đã giao hàng khi đơn hàng không ở trạng thái đang giao hàng ');
                 } else {
-                    if ($present->pay_method = 'COD') {
+                    if ($present->pay_method == 'COD') {
                         $present->status_pay = 'paid';
                     }
                     $present->status = 'success';
+                    $present->updated_at = now();
                     $note = $request->notes ?? 'Đơn hàng đã được giao thành công';
                     if ($request->hasFile('image_ship')) {
                         $image = $request->file('image_ship');
@@ -789,6 +796,7 @@ class OrderController extends Controller
                     return abort(403, 'Bạn không thể đổi sang trạng thái giao hàng thất bại khi đơn hàng không ở trạng thái đang giao hàng ');
                 } else {
                     $present->status = 'failed';
+                    $present->updated_at = now();
                     $note = 'Giao hàng thất bại';
                 }
                 break;
@@ -797,12 +805,14 @@ class OrderController extends Controller
                     return abort(403, 'Bạn không thể đổi sang trạng thái giao lại khi đơn hàng không ở trạng thái giao hàng thất bại ');
                 } else {
                     $present->status = 'shipping';
+                    $present->updated_at = now();
                     $note = 'Đơn vị vận chuyển đã lấy hàng , chuẩn bị giao hàng';
                 }
                 break;
             case 'cancelled':
                 if ($present->status == 'failed' || $present->status == 'pending' || $present->status == 'confirmed' || $count == 2) {
                     $present->status = 'cancelled';
+                    $present->updated_at = now();
                     $note = 'Đơn hàng đã được hủy theo yêu cầu của khách hàng';
                 } else {
                     return abort(403, 'Đơn chỉ được hủy khi ở trạng thái chưa xác nhận , đã xác nhận hoặc đơn giao thất bại');
@@ -812,7 +822,7 @@ class OrderController extends Controller
         // dd($present);
         if ($present->status == 'cancelled') {
 
-            $this->refund($present, $id);
+            $this->refund($present, $id, $refund);
             // dd($present);
 
         }
@@ -824,10 +834,11 @@ class OrderController extends Controller
             'from_status' => $old_status->status,
             'to_status' => $present->status,
             'note' => $note,
-            'content' => $request->input('content', ''),
+            'content' => $content ?? $request->input('content', ''),
         ]);
 
         if ($count >= 2 && $present->status == 'failed') {
+            $refund = 0;
             $present->status = 'cancelled';
             $present->save();
             OrderHistories::create([
@@ -838,7 +849,7 @@ class OrderController extends Controller
                 'note' => 'Đơn hàng đã tự động hủy do giao thất bại 3 lần',
                 'content' => "",
             ]);
-            $this->refund($present, $id);
+            $this->refund($present, $id, $refund);
         }
 
 

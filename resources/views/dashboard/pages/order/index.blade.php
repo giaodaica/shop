@@ -62,7 +62,8 @@
                                             <option value="pending">Chờ xác nhận</option>
                                             <option value="confirmed">Đã xác nhận</option>
                                             <option value="shipping">Đang giao hàng</option>
-                                            <option value="success">Giao hàng thành công</option>
+                                            <option value="success">Đã giao hàng</option>
+                                            <option value="delivered">Giao hàng thành công</option>
                                             <option value="failed">Giao hàng thất bại</option>
                                             <option value="cancelled">Đã hủy</option>
                                         </select>
@@ -138,7 +139,7 @@
                                         <a class="nav-link py-3 Success" data-bs-toggle="" id="Success"
                                             href="{{ route('dashboard.order', ['type' => 'success']) }}" role="tab"
                                             aria-selected="false">
-                                            <i class="ri-arrow-left-right-fill me-1 align-bottom"></i> Giao hàng thành công
+                                            <i class="ri-arrow-left-right-fill me-1 align-bottom"></i> Đã giao hàng
                                         </a>
                                     </li>
                                     <li class="nav-item">
@@ -153,6 +154,14 @@
                                             href="{{ route('dashboard.order', ['type' => 'cancelled']) }}" role="tab"
                                             aria-selected="false">
                                             <i class="ri-close-circle-line me-1 align-bottom"></i> Đã Hủy
+                                        </a>
+                                    </li>
+                                    {{-- khách đã nhận hàng --}}
+                                    <li class="nav-item">
+                                        <a class="nav-link py-3 Delivered" data-bs-toggle="" id="Delivered"
+                                            href="{{ route('dashboard.order', ['type' => 'delivered']) }}" role="tab"
+                                            aria-selected="false">
+                                            <i class="ri-check-double-line me-1 align-bottom"></i> Giao hàng thành công
                                         </a>
                                     </li>
                                 </ul>
@@ -252,8 +261,7 @@
 
                                                                 @case('success')
                                                                     <span
-                                                                        class="badge bg-success-subtle text-success text-uppercase">Giao
-                                                                        hàng thành công</span>
+                                                                        class="badge bg-success-subtle text-success text-uppercase">Đã giao hàng</span>
                                                                 @break
 
                                                                 @case('failed')
@@ -267,7 +275,10 @@
                                                                         class="badge bg-danger-subtle text-danger text-uppercase">Đã
                                                                         hủy</span>
                                                                 @break
-
+                                                                @case('delivered')
+                                                                    <span
+                                                                        class="badge bg-success-subtle text-success text-uppercase">Giao
+                                                                        hàng thành công</span>
                                                                 @default
                                                             @endswitch
                                                         </td>

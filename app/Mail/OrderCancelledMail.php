@@ -17,15 +17,18 @@ class OrderCancelledMail extends Mailable
     public $voucher;
     public $type;
     public $final_amount;
+    public $data_product;
+
     /**
      * Create a new message instance.
      */
-    public function __construct($present ,$voucher,$type,$final_amount)
+    public function __construct($present ,$voucher,$type,$final_amount, $data_product)
     {
         $this->present = $present;
         $this->voucher = $voucher;
         $this->type = $type;
         $this->final_amount= $final_amount;
+        $this->data_product = $data_product;
 
     }
 
