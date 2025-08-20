@@ -93,7 +93,7 @@
                                     <span class="bg-hover bg-base-color"></span>
                                 </a>
                             </li>
-                            @if(Auth::user() && Auth::user()->hasPermissionTo('Xem trang dashboard'))
+                            @if (Auth::user() && Auth::user()->hasPermissionTo('Xem trang dashboard'))
                                 <li class="nav-item">
                                     <a href="{{ route('dashboard.index') }}" class="nav-link text-danger">
                                         <span>
@@ -238,7 +238,7 @@
                                                 class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-4">
                                                 <h6 class="text-primary text-uppercase fs-5 mb-0">Địa
                                                     chỉ giao hàng</h6>
-                                                <a href="{{ route('addresses.store',['from' => 'info']) }}">
+                                                <a href="{{ route('addresses.store', ['from' => 'info']) }}">
                                                     <span class="badge bg-light text-primary fw-normal"><i
                                                             class="bi bi-geo-alt-fill me-1"></i>Chỉnh sửa
                                                     </span></a>
@@ -250,8 +250,13 @@
                                                         <div class="card border-0 shadow-sm h-100">
                                                             <div class="card-body position-relative">
                                                                 <h6 class="fw-bold mb-1">{{ $addr->name }}</h6>
-                                                                <p class="text-muted mb-1"><i class="bi bi-geo-alt-fill me-1"></i>{{ $addr->address }}, {{ $addr->ward->name ?? '' }}, {{ $addr->province->name ?? '' }}</p>
-                                                                <p class="text-muted mb-0"><i class="bi bi-telephone-fill me-1"></i>{{ $addr->phone }}</p>
+                                                                <p class="text-muted mb-1"><i
+                                                                        class="bi bi-geo-alt-fill me-1"></i>{{ $addr->address }},
+                                                                    {{ $addr->ward->name ?? '' }},
+                                                                    {{ $addr->province->name ?? '' }}</p>
+                                                                <p class="text-muted mb-0"><i
+                                                                        class="bi bi-telephone-fill me-1"></i>{{ $addr->phone }}
+                                                                </p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -277,7 +282,8 @@
                                             class="nav justify-content-center text-center fw-500 border-color-light-medium-gray mb-7 gap-2">
                                             <li class="nav-item-date">
                                                 Chọn khoảng thời gian
-                                                <input type="text" name="daterange" id="daterange" style="margin-left: -10px; min-width:220px; max-width:300px; width:260px;" />
+                                                <input type="text" name="daterange" id="daterange"
+                                                    style="margin-left: -10px; min-width:220px; max-width:300px; width:260px;" />
                                             </li>
                                         </ul>
                                         <ul
@@ -300,28 +306,47 @@
                                             <li class="nav-item"><a class="nav-link border text-black rounded"
                                                     data-bs-toggle="tab" href="#tab_third6">Đã hủy</a>
                                             </li>
-                                            
+                                            <li class="nav-item"><a class="nav-link border text-black rounded"
+                                                    data-bs-toggle="tab" href="#tab_third7">Giao hàng thành công</a></li>
+
                                         </ul>
                                         <div class="tab-content">
                                             {{-- <pre>{{ print_r($orders, true) }}</pre> --}}
                                             <!-- start tab content -->
                                             <div class="tab-pane fade active" id="tab_third1">
-                                                @include('pages.shop.partials.order-list', ['orders' => $orders])
+                                                @include('pages.shop.partials.order-list', [
+                                                    'orders' => $orders,
+                                                ])
                                             </div>
                                             <div class="tab-pane fade" id="tab_third2">
-                                                @include('pages.shop.partials.order-list', ['orders' => $pendingOrders])
+                                                @include('pages.shop.partials.order-list', [
+                                                    'orders' => $pendingOrders,
+                                                ])
                                             </div>
                                             <div class="tab-pane fade" id="tab_third3">
-                                                @include('pages.shop.partials.order-list', ['orders' => $confirmedOrders])
+                                                @include('pages.shop.partials.order-list', [
+                                                    'orders' => $confirmedOrders,
+                                                ])
                                             </div>
                                             <div class="tab-pane fade" id="tab_third4">
-                                                @include('pages.shop.partials.order-list', ['orders' => $shippingOrders])
+                                                @include('pages.shop.partials.order-list', [
+                                                    'orders' => $shippingOrders,
+                                                ])
                                             </div>
                                             <div class="tab-pane fade" id="tab_third5">
-                                                @include('pages.shop.partials.order-list', ['orders' => $successOrders])
+                                                @include('pages.shop.partials.order-list', [
+                                                    'orders' => $successOrders,
+                                                ])
                                             </div>
                                             <div class="tab-pane fade" id="tab_third6">
-                                                @include('pages.shop.partials.order-list', ['orders' => $cancelledOrders])
+                                                @include('pages.shop.partials.order-list', [
+                                                    'orders' => $cancelledOrders,
+                                                ])
+                                            </div>
+                                            <div class="tab-pane fade" id="tab_third7">
+                                                @include('pages.shop.partials.order-list', [
+                                                    'orders' => $deliveredOrders,
+                                                ])
                                             </div>
                                             <!-- end tab content -->
 
@@ -340,7 +365,7 @@
                                             <h5 class="fs-5 text-primary text-uppercase mb-4 border-bottom pb-2">
                                                 Danh sách Voucher của bạn
                                             </h5>
-                                            @if($vouchers->isEmpty())
+                                            @if ($vouchers->isEmpty())
                                                 <div class="alert alert-info mb-0">
                                                     <i class="bi bi-info-circle me-1 align-middle"></i>
                                                     Bạn chưa có voucher nào.
@@ -358,19 +383,21 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            @foreach($vouchers as $voucher)
+                                                            @foreach ($vouchers as $voucher)
                                                                 <tr>
                                                                     <td><strong>{{ $voucher['code'] }}</strong></td>
                                                                     <td>{{ $voucher['name'] }}</td>
-                                                                    <td>{{ $voucher['type'] === 'percent' ? 'Phần trăm' : 'Tiền mặt' }}</td>
+                                                                    <td>{{ $voucher['type'] === 'percent' ? 'Phần trăm' : 'Tiền mặt' }}
+                                                                    </td>
                                                                     <td>
-                                                                        @if($voucher['type'] === 'percent')
+                                                                        @if ($voucher['type'] === 'percent')
                                                                             {{ $voucher['value'] }}%
                                                                         @else
                                                                             {{ number_format($voucher['value'], 0, ',', '.') }}₫
                                                                         @endif
                                                                     </td>
-                                                                    <td>{{ \Carbon\Carbon::parse($voucher['end_date'])->format('d/m/Y') }}</td>
+                                                                    <td>{{ \Carbon\Carbon::parse($voucher['end_date'])->format('d/m/Y') }}
+                                                                    </td>
                                                                 </tr>
                                                             @endforeach
                                                         </tbody>
