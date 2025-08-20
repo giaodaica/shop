@@ -27,7 +27,6 @@
                         <h5 class="mt-4 mb-2 text-dark">1. Chính sách mua hàng</h5>
                         <ul>
                             <li>Khách hàng vui lòng kiểm tra kỹ thông tin sản phẩm trước khi đặt hàng.</li>
-                            <li>Đơn hàng sẽ được xác nhận qua email hoặc số điện thoại đã đăng ký.</li>
                             <li>Thời gian xử lý đơn hàng từ 1-2 ngày làm việc.</li>
                         </ul>
                         <h5 class="mt-4 mb-2 text-dark">2. Chính sách đổi trả</h5>
