@@ -2,7 +2,6 @@
 
 @section('main-content')
     <div class="page-content">
-
         <div class="container-fluid">
 
             {{-- Tiêu đề và breadcrumb --}}
@@ -19,26 +18,17 @@
                     </div>
                 </div>
             </div>
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
-                </div>
-            @endif
 
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
-                </div>
-            @endif
+            {{-- Thông báo --}}
+            @foreach (['error' => 'danger', 'success' => 'success', 'warning' => 'warning'] as $key => $type)
+                @if (session($key))
+                    <div class="alert alert-{{ $type }} alert-dismissible fade show" role="alert">
+                        {{ session($key) }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                    </div>
+                @endif
+            @endforeach
 
-            @if (session('warning'))
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    {{ session('warning') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
-                </div>
-            @endif
             {{-- Danh sách người dùng --}}
             <div class="row">
                 <div class="col-lg-12">
@@ -53,7 +43,7 @@
                                 </div>
                                 <div class="col-sm-auto ms-auto">
                                     <div class="hstack gap-2">
-                                        {{-- Nút xoá hàng loạt - ẩn ban đầu --}}
+                                        {{-- Nút xoá hàng loạt --}}
                                         <button class="btn btn-danger d-none" id="bulk-delete-button" data-bs-toggle="modal"
                                             data-bs-target="#deleteRecordModal">
                                             <i class="ri-delete-bin-2-line align-bottom me-1"></i> Xoá đã chọn
@@ -68,50 +58,35 @@
                             </div>
                         </div>
 
-                        {{-- Bảng danh sách --}}
+                        {{-- Bảng --}}
                         <div class="card-body">
                             <div class="table-responsive table-card">
                                 <table class="table align-middle" id="userTable">
                                     <thead class="table-light">
                                         <tr>
-                                            {{-- <th style="width: 50px;">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="checkAll">
-                                                </div>
-                                            </th> --}}
                                             <th>Họ tên</th>
                                             <th>Email</th>
                                             <th>Điện thoại</th>
-
                                             <th>Vai trò</th>
                                             <th>Hành động</th>
-
                                         </tr>
                                     </thead>
                                     <tbody class="list form-check-all">
                                         @foreach ($users as $user)
                                             <tr>
-                                                {{-- <td>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input user-checkbox" type="checkbox"
-                                                            value="{{ $user->id }}">
-                                                    </div>
-                                                </td> --}}
                                                 <td class="name">{{ $user->name }}</td>
                                                 <td class="email">{{ $user->email }}</td>
                                                 <td class="phone">{{ $user->default_phone ?? '-' }}</td>
-
                                                 <td class="role">
                                                     @if ($user->role === 'admin')
                                                         <span class="badge bg-primary">Quản trị</span>
                                                     @else
                                                         <span class="badge bg-secondary">Khách hàng</span>
                                                     @endif
-                                                    
-                                                    {{-- Hiển thị roles từ Spatie Permission --}}
-                                                    @if($user->roles->count() > 0)
+
+                                                    @if ($user->roles->count() > 0)
                                                         <div class="mt-1">
-                                                            @foreach($user->roles as $role)
+                                                            @foreach ($user->roles as $role)
                                                                 <span class="badge bg-info me-1">{{ $role->name }}</span>
                                                             @endforeach
                                                         </div>
@@ -121,7 +96,8 @@
                                                     <a href="{{ route('users.show', $user->id) }}" class="text-primary">Chi
                                                         tiết</a> |
                                                     <a href="{{ route('users.edit', $user->id) }}" class="text-info">Sửa</a>
-                                                    | @if ($user->status === 'active')
+                                                    |
+                                                    @if ($user->status === 'active')
                                                         <a href="javascript:void(0);" class="text-warning lock-user-link"
                                                             data-user-id="{{ $user->id }}" data-bs-toggle="modal"
                                                             data-bs-target="#lockUserModal">
@@ -140,18 +116,16 @@
                                                         </form>
                                                     @endif
                                                 </td>
-
                                             </tr>
                                         @endforeach
                                     </tbody>
-
-
                                 </table>
                             </div>
 
-                            {{-- Modal Thêm người dùng --}}
+                            {{-- Modal thêm người dùng --}}
                             @include('dashboard.pages.users.create')
-                            <!-- Modal Khóa người dùng -->
+
+                            {{-- Modal khóa người dùng --}}
                             <div class="modal fade" id="lockUserModal" tabindex="-1" aria-labelledby="lockUserLabel"
                                 aria-hidden="true">
                                 <div class="modal-dialog">
@@ -168,17 +142,27 @@
                                             <div class="modal-body">
                                                 <div class="mb-3">
                                                     <label class="form-label">Lý do khóa</label>
-                                                    <select class="form-select" name="lock_reason_id" required>
-                                                        <option value="">-- Chọn lý do --</option>
+                                                    <select
+                                                        class="form-select @error('lock_reason_id') is-invalid @enderror"
+                                                        name="lock_reason_id">
+                                                   
                                                         @foreach ($lockReasons as $reason)
-                                                            <option value="{{ $reason->id }}">{{ $reason->name }}
+                                                            <option value="{{ $reason->id }}"
+                                                                {{ old('lock_reason_id') == $reason->id ? 'selected' : '' }}>
+                                                                {{ $reason->name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
+                                                    @error('lock_reason_id')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label">Ghi chú thêm</label>
-                                                    <textarea class="form-control" name="note" rows="2"></textarea>
+                                                    <textarea class="form-control @error('note') is-invalid @enderror" name="note" rows="2">{{ old('note') }}</textarea>
+                                                    @error('note')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
@@ -191,15 +175,14 @@
                                 </div>
                             </div>
 
-
-                            {{-- Modal xác nhận xoá hàng loạt --}}
+                            {{-- Modal xoá hàng loạt --}}
                             <div class="modal fade zoomIn" id="deleteRecordModal" tabindex="-1"
                                 aria-labelledby="deleteRecordLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close" id="btn-close"></button>
+                                                aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body p-5 text-center">
                                             <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop"
@@ -208,7 +191,6 @@
                                             <div class="mt-4 text-center">
                                                 <h4 class="fs-semibold">Bạn có chắc chắn muốn xoá các người dùng đã chọn?
                                                 </h4>
-                                                {{-- <p class="text-muted fs-14 mb-4 pt-1">Dữ liệu sẽ không thể khôi phục.</p> --}}
                                                 <div class="hstack gap-2 justify-content-center remove">
                                                     <button
                                                         class="btn btn-link link-success fw-medium text-decoration-none"
@@ -237,32 +219,22 @@
 
 @section('js-content')
     <script>
-        const checkAll = document.getElementById('checkAll');
         const deleteButton = document.getElementById('bulk-delete-button');
-        let deleteIds = []; // Biến dùng chung cho cả xoá 1 và xoá nhiều
+        let deleteIds = [];
 
+        // Chọn user
         function updateDeleteButtonVisibility() {
             const checked = document.querySelectorAll('.user-checkbox:checked').length;
             deleteButton.classList.toggle('d-none', checked === 0);
         }
+
         document.querySelectorAll('.lock-user-link').forEach(link => {
             link.addEventListener('click', function() {
-                const userId = this.dataset.userId;
-                document.getElementById('lock-user-id').value = userId;
+                document.getElementById('lock-user-id').value = this.dataset.userId;
             });
         });
 
-
-        checkAll.addEventListener('change', function() {
-            document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = this.checked);
-            updateDeleteButtonVisibility();
-        });
-
-        document.querySelectorAll('.user-checkbox').forEach(cb => {
-            cb.addEventListener('change', updateDeleteButtonVisibility);
-        });
-
-        // === Xoá nhiều ===
+        // Xoá nhiều
         document.getElementById('delete-selected').addEventListener('click', function() {
             if (deleteIds.length === 0) return;
 
@@ -283,30 +255,26 @@
                 });
         });
 
-        // === Khi bấm nút xoá từng người dùng ===
-        document.querySelectorAll('.delete-single-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.closest('form').dataset.id;
-                deleteIds = [id]; // Gán id người dùng vào danh sách xoá
-                const modal = new bootstrap.Modal(document.getElementById('deleteRecordModal'));
-                modal.show();
-            });
-        });
-
-        // === Khi bấm nút xoá nhiều ===
+        // Khi xoá nhiều
         deleteButton.addEventListener('click', function() {
             deleteIds = Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
         });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const lockUserModal = document.getElementById('lockUserModal');
-            if (lockUserModal) {
-                lockUserModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
-                    const userId = button.getAttribute('data-user-id');
-                    document.getElementById('lock-user-id').value = userId;
-                });
-            }
-        });
     </script>
+
+    {{-- Mở lại modal khi có lỗi validate --}}
+    @if ($errors->has('lock_reason_id') || $errors->has('note'))
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                new bootstrap.Modal(document.getElementById('lockUserModal')).show();
+            });
+        </script>
+    @endif
+
+    @if ($errors->has('name') || $errors->has('email') || $errors->has('password'))
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                new bootstrap.Modal(document.getElementById('showModal')).show();
+            });
+        </script>
+    @endif
 @endsection
