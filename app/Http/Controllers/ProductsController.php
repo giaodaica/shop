@@ -525,6 +525,69 @@ class ProductsController extends Controller
 
         return redirect()->route('products.index', ['status' => 'trashed'])->with('success', 'Đã xóa vĩnh viễn sản phẩm.');
     }
+    public function deleteMultiple(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Không có sản phẩm nào được chọn.'
+            ], 400);
+        }
+
+        try {
+            // Lấy danh sách sản phẩm đã bị xóa mềm trong các ID được chọn
+            $alreadyDeleted = Products::onlyTrashed()->whereIn('id', $ids)->pluck('id')->toArray();
+
+            if (!empty($alreadyDeleted)) {
+                return response()->json([
+                    'status' => 'warning',
+                    'message' => 'Một số sản phẩm đã bị xóa mềm trước đó.',
+                    'already_deleted' => $alreadyDeleted
+                ], 400);
+            }
+
+            // Xóa mềm các sản phẩm chưa bị xóa
+            Products::whereIn('id', $ids)->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Đã xóa ' . count($ids) . ' sản phẩm.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restoreAll()
+    {
+        try {
+            $trashedCount = Products::onlyTrashed()->count();
+
+            if ($trashedCount === 0) {
+                return response()->json([
+                    'status' => 'info',
+                    'message' => 'Tất cả sản phẩm đã được khôi phục trước đó.'
+                ]);
+            }
+
+            Products::onlyTrashed()->restore();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => "Đã khôi phục {$trashedCount} sản phẩm."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     public function add_flash_sale($id)
     {
         $variant = Product_variants::findOrFail($id);

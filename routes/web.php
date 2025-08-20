@@ -75,7 +75,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
     Route::post('/order/{id}/cancel', [InfoController::class, 'cancel'])->name('order.cancel');
     Route::get('info', [InfoController::class, 'account'])->name('home.info')->middleware('auth', 'cache');
     Route::get('show/{id}', [InfoController::class, 'orderDetail'])->name('home.orderDetail')->middleware('auth', 'cache');
-    Route::get('aonam/{slug}', [ProductDetailController::class, 'index'])->name('home.show');
+    Route::get('aonam/{slug}', [ProductDetailController::class, 'index'])->name('home.show')->middleware('cache');
     Route::get('cart', action: [CartController::class, 'index'])->name('home.cart');
     Route::delete('/cart/delete-selected', [CartController::class, 'deleteSelected'])->name('cart.deleteSelected');
     Route::post('/cart/update-quantity', [CartController::class, 'updateQuantity'])->name('cart.updateQuantity');
@@ -221,15 +221,25 @@ Route::middleware([CheckUserStatus::class])->group(function () {
         Route::get('/products/variant-partial', [ProductsController::class, 'renderVariantPartial'])
             ->name('products.variant-partial')->middleware('permission:Xem trang sản phẩm');
         Route::post('/products/{id}/restore', [ProductsController::class, 'restore'])->name('products.restore')->middleware('permission:Khôi phục sản phẩm');
+        Route::post('/products/restore-all', [ProductsController::class, 'restoreAll'])
+            ->name('products.restoreAll');
         Route::post('/products/upload-temp-image', [ProductsController::class, 'uploadTempImage'])->name('products.uploadTempImage')->middleware('permission:Tải ảnh sản phẩm');
         Route::post('/products/upload-temp-variant-image', [ProductsController::class, 'uploadTempVariantImage'])->name('products.uploadTempVariantImage')->middleware('permission:Tải ảnh biến thể');
         Route::delete('/products/{id}/force-delete', [ProductsController::class, 'forceDelete'])->name('products.forceDelete');
+        Route::post('/products/delete-multiple', [ProductsController::class, 'deleteMultiple'])
+            ->name('products.deleteMultiple');
         Route::post('add-flash-sale/{id}', [ProductsController::class, 'add_flash_sale'])->name('addflashsale')->middleware('permission:Thêm sản phẩm vào flash sale');
         Route::get('remove-flash-sale/{id}', [ProductsController::class, 'remove_flashsale'])->middleware('permission:Xóa sản phẩm khỏi flash sale');
 
         // Category Management
         Route::resource('categories', CategoriesController::class)->middleware('permission:Quản lý Danh mục');
         Route::post('/categories/{id}/restore', [CategoriesController::class, 'restore'])->name('categories.restore')->middleware('permission:Khôi phục danh mục');
+        Route::post('/dashboard/categories/restore-multiple', [CategoriesController::class, 'restoreMultiple'])
+            ->name('categories.restoreMultiple');
+        Route::delete('/categories/{id}/force-delete', [CategoriesController::class, 'forceDelete'])
+            ->name('categories.forceDelete');
+        Route::delete('/dashboard/categories/delete-multiple', [CategoriesController::class, 'deleteMultiple'])
+            ->name('categories.deleteMultiple');
 
         // Order Management
         Route::get('order', [OrderController::class, 'db_order'])->name('dashboard.order')->middleware('permission:Xem trang đơn hàng');
@@ -262,8 +272,12 @@ Route::middleware([CheckUserStatus::class])->group(function () {
 
         // Color & Size Management
         Route::resource('colors', ColorController::class)->middleware('permission:Quản lý Màu sắc');
-        Route::resource('sizes', SizeController::class)->middleware('permission:Quản lý Kích thước');
+        Route::delete('/dashboard/colors/delete-multiple', [ColorController::class, 'deleteMultiple'])
+            ->name('colors.deleteMultiple');
 
+        Route::resource('sizes', SizeController::class)->middleware('permission:Quản lý Kích thước');
+        Route::delete('/dashboard/sizes/delete-multiple', [SizeController::class, 'deleteMultiple'])
+            ->name('sizes.deleteMultiple');
         // Product Variant Management
         Route::get('variants', [ProductVariantsController::class, 'index'])->name('variants.index')->middleware('permission:Xem trang biến thể');
         Route::get('variants/create', [ProductVariantsController::class, 'create'])->name('variants.create')->middleware('permission:Tạo biến thể');
@@ -274,6 +288,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
         Route::delete('variants/{id}', [ProductVariantsController::class, 'destroy'])->name('variants.destroy')->middleware('permission:Xóa biến thể');
         Route::get('products/{product}/variants', [ProductVariantsController::class, 'showVariants'])->name('products.variants')->middleware('permission:Xem trang biến thể');
         Route::post('variants/{id}/restore', [ProductVariantsController::class, 'restore'])->name('variants.restore')->middleware('permission:Khôi phục biến thể');
+        Route::delete('/variants/{id}/force-delete', [ProductVariantsController::class, 'forceDelete'])->name('variants.forceDelete');
 
         // User Management
         Route::post('users/lock', [UserController::class, 'lock'])->name('users.lock')->middleware('permission:Khóa tài khoản');
@@ -281,6 +296,11 @@ Route::middleware([CheckUserStatus::class])->group(function () {
         Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show')->middleware('permission:Xem trang tài khoản');
         Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete')->middleware('permission:Xóa hàng loạt tài khoản');
         Route::post('/users/{user}/unlock', [UserController::class, 'unlock'])->name('users.unlock')->middleware('permission:Mở khóa tài khoản');
+         // Contact Management
+        Route::get('contact', [ContactController::class, 'index'])->name('contact.index');
+        Route::get('contact/{id}', [ContactController::class, 'show'])->name('contact.show');
+        Route::post('contact/delete/{id}', [ContactController::class, 'delete'])->name('contact.destroy');
+        Route::post('contact/reply/{id}', [ContactController::class, 'reply'])->name('contact.reply');
     });
 
 

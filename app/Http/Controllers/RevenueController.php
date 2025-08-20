@@ -95,14 +95,14 @@ class RevenueController extends Controller
         COUNT(*) as sodonhang,
         SUM(final_amount) as doanhthu,
         SUM(discount_amount) as tong_giam_gia')
-            ->where('orders.status', 'success');
+            ->whereIn('orders.status', ['success', 'delivered']);
 
         // thống kê số lượng sản phẩm đã bán và loinhuan
         $revenue_loinhan = OrderItem::selectRaw('
         SUM(quantity) as tongsanpham,
         SUM((sale_price - import_price) * quantity) as loinhuan')
             ->join('orders', 'orders.id', 'order_items.order_id')
-            ->where('orders.status', 'success');
+            ->whereIn('orders.status', ['success', 'delivered']);
         // dd($revenue_loinhan->first());
 
         // thống kê sản phẩm bán chạy
@@ -111,7 +111,7 @@ class RevenueController extends Controller
             product_name as ten_san_pham,
             SUM((sale_price - import_price) * quantity) as doanhthu'
         )->join('orders', 'orders.id', 'order_items.order_id')
-            ->where('orders.status', 'success')
+            ->whereIn('orders.status', ['success', 'delivered'])
             ->groupBy('product_id', 'product_name')
             ->orderByDesc('soluong_ban')
             ->take(5);
@@ -127,14 +127,14 @@ class RevenueController extends Controller
             ->orderBy('sold_percentage', 'asc')
             ->take(5)
             ->get();
-            // dd($least_sold_variants);
+        // dd($least_sold_variants);
         $revenue_top_users = Order::selectRaw('
         SUM(final_amount) as tong_tien_mua,
         SUM(user_id) as so_don_hang,
         user_id as user_id,
         users.name as user_name
         ')->join('users', 'users.id', 'orders.user_id')
-            ->where('orders.status', 'success')
+            ->whereIn('orders.status', ['success', 'delivered'])
             ->groupBy('user_id', 'user_name')
             ->orderByDesc('tong_tien_mua')
             ->take(5);
