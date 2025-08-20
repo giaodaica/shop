@@ -19,9 +19,15 @@
                 </div>
             </div>
             <!-- Kết thúc tiêu đề -->
-     @if (session('success'))
+            @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+             @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
@@ -36,7 +42,10 @@
                                         <a href="{{ route('sizes.create') }}" class="btn btn-success" id="addCategory-btn">
                                             <i class="ri-add-line align-bottom me-1"></i> Thêm kích thước
                                         </a>
-                                    
+                                        <button id="delete-selected" class="btn btn-danger">
+                                            <i class="ri-delete-bin-line align-bottom me-1"></i> Xóa đã chọn
+                                        </button>
+
                                         {{-- Nút xóa nhiều chưa có logic --}}
                                     </div>
                                 </div>
@@ -89,9 +98,7 @@
                                                         <li class="list-inline-item" data-bs-toggle="tooltip"
                                                             data-bs-trigger="hover" data-bs-placement="top" title="Xóa">
                                                             <form action="{{ route('sizes.destroy', $size->id) }}"
-                                                                method="POST"
-                                                              class="delete-form"
-                                                                style="display:inline;">
+                                                                method="POST" class="delete-form" style="display:inline;">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit"
@@ -177,6 +184,96 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             form.submit(); // Chấp nhận xóa
+                        }
+                    });
+                });
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteForms = document.querySelectorAll('.delete-form');
+            const checkAll = document.getElementById('checkAll');
+            const checkboxes = document.querySelectorAll('input[name="checkAll"]');
+            const deleteSelectedBtn = document.getElementById('delete-selected');
+
+            // Chọn tất cả
+            if (checkAll) {
+                checkAll.addEventListener('change', function() {
+                    checkboxes.forEach(cb => cb.checked = checkAll.checked);
+                });
+            }
+
+            // Xóa nhiều
+            if (deleteSelectedBtn) {
+                deleteSelectedBtn.addEventListener('click', function() {
+                    let ids = [];
+                    checkboxes.forEach(cb => {
+                        if (cb.checked) {
+                            ids.push(cb.value);
+                        }
+                    });
+
+                    if (ids.length === 0) {
+                        Swal.fire('Thông báo', 'Vui lòng chọn ít nhất một size để xóa.', 'warning');
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Bạn có chắc chắn?',
+                        text: "Các size đã chọn sẽ bị xóa!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch('{{ route('sizes.deleteMultiple') }}', {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    },
+                                    body: JSON.stringify({
+                                        ids: ids
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.status === 'success') {
+                                        Swal.fire('Thành công', data.message, 'success').then(
+                                        () => {
+                                                location.reload();
+                                            });
+                                    } else {
+                                        Swal.fire('Lỗi', data.message, 'error');
+                                    }
+                                })
+                                .catch(() => {
+                                    Swal.fire('Lỗi', 'Không thể xóa các size đã chọn.',
+                                    'error');
+                                });
+                        }
+                    });
+                });
+            }
+
+            // Xác nhận khi xóa từng size
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Bạn có chắc chắn?',
+                        text: "Hành động này sẽ không thể hoàn tác!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
                         }
                     });
                 });

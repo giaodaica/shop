@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody>
-              
+
                 @forelse($orders as $order)
                 <tr>
                     <td class="d-flex align-items-center gap-2">
@@ -25,7 +25,7 @@
                             <div style="line-height:1.3;">
                                 <div class="product-name-truncate" style="font-weight: bold;">
                                     {{ \Illuminate\Support\Str::limit($firstItem->product_name, 25) }}
-                                    
+
                                 </div>
                             </div>
                         @endif
@@ -37,9 +37,10 @@
                                 'pending' => ['color' => 'warning', 'label' => 'Chờ xác nhận'],
                                 'confirmed' => ['color' => 'info', 'label' => 'Đã xác nhận'],
                                 'shipping' => ['color' => 'primary', 'label' => 'Đang giao'],
-                                'success' => ['color' => 'success', 'label' => 'Thành công'],
+                                'success' => ['color' => 'success', 'label' => 'Đã giao hàng'],
                                 'failed' => ['color' => 'danger', 'label' => 'Thất bại'],
                                 'cancelled' => ['color' => 'secondary', 'label' => 'Đã hủy'],
+                                'delivered' => ['color' => 'success', 'label' => 'Giao hàng thành công'],
                             ];
                             $status = $order->status;
                             $statusColor = $statusMap[$status]['color'] ?? 'secondary';
@@ -50,7 +51,7 @@
                         </span>
                     </td>
                     <td>
-                        <a href="{{ route('home.orderDetail',$order->id) }}" 
+                        <a href="{{ route('home.orderDetail',$order->id) }}"
                            class="btn btn-sm btn-soft-primary">
                             Xem chi tiết
                         </a>
@@ -61,7 +62,7 @@
                     <td colspan="5" class="text-center py-4">
                         <div class="text-muted">
                             <i class="bi bi-bag-x fs-1 text-muted mb-3"></i><br>
-                           
+
                             @if (!isset($emptyMessage))
                                 <p class="text-muted">Bạn chưa có đơn hàng nào. Hãy mua sắm ngay!</p>
                                 <a href="{{ route('home.shop') }}"  class="btn btn-sm btn-soft-primary">Mua sắm ngay</a>

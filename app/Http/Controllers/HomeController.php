@@ -47,16 +47,18 @@ class HomeController extends Controller
             ->orderBy('views_page', 'desc')
             ->paginate(10);
 
-        $featured = Products::with(['category', 'variants.color', 'variants.size'])
+            $featured = Products::with(['category', 'variants.color', 'variants.size']) // load quan hệ
             ->whereHas('category', function ($query) {
-                $query->where('status', '1');
+                $query->where('status', '1');   // chỉ lấy product có category đang active
             })
             ->whereHas('variants', function ($query) {
-                $query->where('is_show', 1)->whereNull('deleted_at');
+                $query->where('is_show', 1)     // chỉ lấy product có variant đang hiển thị
+                      ->whereNull('deleted_at'); // variant chưa bị xóa mềm
             })
-            ->whereNull('deleted_at')
-            ->orderBy('created_at', 'desc')
+            ->whereNull('deleted_at')            // product chưa bị xóa mềm
+            ->orderBy('created_at', 'desc')      // mới nhất trước
             ->paginate(5);
+        
 
         // Lấy thời gian hiện tại theo múi giờ Việt Nam (Asia/Ho_Chi_Minh)
         $now = now('Asia/Ho_Chi_Minh');
@@ -120,7 +122,7 @@ class HomeController extends Controller
         $sale = FlashSaleItems::query()
             ->join('product_variants', function ($join) {
                 $join->on('flash_sale_items.product_variant_id', '=', 'product_variants.id')
-                    ->whereNull('product_variants.deleted_at'); // chỉ lấy variant chưa bị soft delete
+                    ->whereNull('product_variants.deleted_at'); // chỉ lấy variant chưa bị soft deletefeatured
             })
             ->join('products', function ($join) {
                 $join->on('product_variants.product_id', '=', 'products.id')

@@ -525,10 +525,8 @@
                             <label for="reason-select-cancel" class="form-label">Lý do</label>
                             <select id="reason-select-cancel" name="content1" class="form-control">
                                 <option value="">-- Chọn lý do --</option>
-                                <option value="Khách không nhận hàng">Khách không nhận hàng
-                                </option>
-                                <option value="Không liên lạc được">Không liên lạc được</option>
-                                <option value="Địa chỉ không đúng">Địa chỉ không đúng</option>
+                                <option value="Sản phẩm không đúng">Sản phẩm không đúng</option>
+                                <option value="Hàng kém chất lượng">Hàng kém chất lượng</option>
                                 <option value="Lý do khác">Lý do khác</option>
                             </select>
                         </div>
@@ -696,6 +694,27 @@
     </div>
 @endsection
 @section('js-content')
+<script>
+$(document).ready(function() {
+    // Cho modal Hủy đơn
+    $('#reason-select-cancel').on('change', function() {
+        if ($(this).val() === 'Lý do khác') {
+            $('#other-reason-group-cancel').slideDown();
+        } else {
+            $('#other-reason-group-cancel').slideUp();
+        }
+    });
+
+    // Cho modal Giao hàng thất bại
+    $('#reason-select-failed').on('change', function() {
+        if ($(this).val() === 'Lý do khác') {
+            $('#other-reason-group-failed').slideDown();
+        } else {
+            $('#other-reason-group-failed').slideUp();
+        }
+    });
+});
+</script>
     <script>
         @if ($errors->any() && old('_form') === 'success')
             var myModal = new bootstrap.Modal(document.getElementById('showModalsuccess'));
