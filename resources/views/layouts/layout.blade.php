@@ -108,5 +108,35 @@
         @include('card.js')
         @stack('scripts')
 @yield('js-page-custom')
+        <script>
+        (function() {
+            function cancelPending() {
+                try {
+                    var tokenMeta = document.querySelector('meta[name="csrf-token"]');
+                    var csrf = tokenMeta ? tokenMeta.getAttribute('content') : '';
+                    fetch("{{ route('checkout.cancelPendingPayment') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrf,
+                            'Accept': 'application/json'
+                        },
+                        keepalive: true
+                    }).catch(function(){});
+                } catch (e) {}
+            }
+
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                cancelPending();
+            } else {
+                document.addEventListener('DOMContentLoaded', cancelPending);
+            }
+
+            window.addEventListener('pageshow', function(e) {
+                if (e && e.persisted) {
+                    cancelPending();
+                }
+            });
+        })();
+        </script>
     </body>
 </html>

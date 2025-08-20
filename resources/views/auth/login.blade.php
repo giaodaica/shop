@@ -43,7 +43,7 @@
                             <input id="email"
                                 class="mb-20px bg-very-light-gray form-control required @error('email') is-invalid @enderror"
                                 type="email" value="{{ old('email') }}" name="email" placeholder="Nhập email của bạn"
-                                required autocomplete="email" autofocus />
+                                 autocomplete="email" autofocus />
                             @error('email')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -56,7 +56,7 @@
                                     class="text-red">*</span></label>
                             <input id="password"
                                 class="mb-20px bg-very-light-gray form-control required @error('password') is-invalid @enderror"
-                                type="password" name="password" placeholder="Nhập mật khẩu của bạn" required
+                                type="password" name="password" placeholder="Nhập mật khẩu của bạn" 
                                 autocomplete="current-password" />
                             @error('password')
                                 <span class="invalid-feedback" role="alert">

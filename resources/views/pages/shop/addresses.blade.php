@@ -94,7 +94,7 @@
                             <h5 class="mb-0 fw-600" id="formTitle">Thêm địa chỉ mới</h5>
                         </div>
                         <div class="card-body">
-                            <form id="addressForm" action="{{ route('addresses.store') }}" method="POST">
+                            <form id="addressForm" action="{{ route('addresses.store') }}" method="POST" novalidate>
                                 @csrf
                                 <input type="hidden" id="addressId" name="address_id">
                                 <input type="hidden" id="isEdit" name="_method" value="POST">
@@ -102,35 +102,40 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="name" class="form-label">Tên người nhận <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="name" name="name" required>
+                                        <input type="text" class="form-control" id="name" name="name">
+                                        <div class="invalid-feedback">Vui lòng nhập tên người nhận.</div>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="phone" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="phone" name="phone" required>
+                                        <input type="text" class="form-control" id="phone" name="phone">
+                                        <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ.</div>
                                     </div>
                                 </div>
                                 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="province_code" class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
-                                        <select class="form-control" id="province_code" name="province_code" required>
+                                        <select class="form-control" id="province_code" name="province_code">
                                             <option value="">Chọn tỉnh/thành phố</option>
                                             @foreach($provinces as $province)
                                                 <option value="{{ $province->province_code }}">{{ $province->name }}</option>
                                             @endforeach
                                         </select>
+                                        <div class="invalid-feedback">Vui lòng chọn tỉnh/thành phố.</div>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="ward_code" class="form-label">Xã/Phường <span class="text-danger">*</span></label>
-                                        <select class="form-control" id="ward_code" name="ward_code" required disabled>
+                                        <select class="form-control" id="ward_code" name="ward_code" disabled>
                                             <option value="">Chọn xã/phường</option>
                                         </select>
+                                        <div class="invalid-feedback">Vui lòng chọn xã/phường.</div>
                                     </div>
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="address" class="form-label">Địa chỉ chi tiết (số nhà, đường,...) <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                                    <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                                    <div class="invalid-feedback">Vui lòng nhập địa chỉ chi tiết.</div>
                                 </div>
                                 
                                 <div class="d-flex gap-2">
@@ -234,6 +239,11 @@
             document.getElementById('addressForm').action = '{{ route("addresses.store") }}';
             document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus me-1"></i>Thêm địa chỉ';
             document.getElementById('cancelBtn').style.display = 'none';
+
+            // Clear validation states
+            document.querySelectorAll('#addressForm .is-invalid').forEach(function(el){
+                el.classList.remove('is-invalid');
+            });
         }
 
         function deleteAddress(id) {
@@ -253,5 +263,60 @@
                 });
             }
         }
+        // Client-side validation
+        (function(){
+            const form = document.getElementById('addressForm');
+            const nameInput = document.getElementById('name');
+            const phoneInput = document.getElementById('phone');
+            const provinceSelect = document.getElementById('province_code');
+            const wardSelect = document.getElementById('ward_code');
+            const addressInput = document.getElementById('address');
+
+            function setInvalid(el, condition){
+                if (condition) {
+                    el.classList.add('is-invalid');
+                } else {
+                    el.classList.remove('is-invalid');
+                }
+            }
+
+            function isPhoneValid(value){
+                return /^0\d{9,10}$/.test((value||'').trim());
+            }
+
+            form.addEventListener('submit', function(e){
+                let hasError = false;
+                const nameVal = nameInput.value.trim();
+                const phoneVal = phoneInput.value.trim();
+                const provinceVal = provinceSelect.value;
+                const wardVal = wardSelect.value;
+                const addressVal = addressInput.value.trim();
+
+                setInvalid(nameInput, nameVal === '');
+                hasError = hasError || (nameVal === '');
+
+                setInvalid(phoneInput, !isPhoneValid(phoneVal));
+                hasError = hasError || !isPhoneValid(phoneVal);
+
+                setInvalid(provinceSelect, provinceVal === '');
+                hasError = hasError || (provinceVal === '');
+
+                setInvalid(wardSelect, wardVal === '');
+                hasError = hasError || (wardVal === '');
+
+                setInvalid(addressInput, addressVal === '');
+                hasError = hasError || (addressVal === '');
+
+                if (hasError) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+
+            [nameInput, phoneInput, provinceSelect, wardSelect, addressInput].forEach(function(el){
+                el.addEventListener('input', function(){ setInvalid(el, false); });
+                el.addEventListener('change', function(){ setInvalid(el, false); });
+            });
+        })();
     </script>
 @endsection 

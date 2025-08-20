@@ -89,6 +89,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
         Route::get('checkout', [OrderController::class, 'index'])->name('home.checkout');
         Route::post('checkout', [OrderController::class, 'processCheckout'])->name('home.processCheckout');
         Route::post('checkout/update-shipping-type', [OrderController::class, 'updateShippingType'])->name('checkout.updateShippingType');
+        Route::post('checkout/cancel-pending', [OrderController::class, 'cancelPendingPayment'])->name('checkout.cancelPendingPayment');
         Route::get('done', [OrderController::class, 'done'])->name('home.done');
 
         // Address management
@@ -160,6 +161,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
         Route::get('checkout', [OrderController::class, 'index'])->name('home.checkout');
         Route::post('checkout', [OrderController::class, 'processCheckout'])->name('home.processCheckout');
         Route::post('checkout/update-shipping-type', [OrderController::class, 'updateShippingType'])->name('checkout.updateShippingType');
+        Route::post('checkout/cancel-pending', [OrderController::class, 'cancelPendingPayment'])->name('checkout.cancelPendingPayment');
         Route::get('done', [OrderController::class, 'done'])->name('home.done');
 
         // Address management
