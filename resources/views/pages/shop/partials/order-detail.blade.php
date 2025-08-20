@@ -65,6 +65,7 @@
                                     <span class="badge bg-{{ $statusColor }}-subtle text-{{ $statusColor }}">
                                         {{ $statusLabel }}
                                     </span>
+                                    {{-- {{ dd($statusLabel) }} --}}
                                 </div>
                                 <div class="col-lg-3 col-6">
                                     <p class="text-muted mb-2 text-uppercase fw-semibold fs-14">Tổng tiền</p>
@@ -363,7 +364,7 @@
                         Thời gian thanh toán: <strong>{{ $order->created_at }}</strong>
                     </div>
 
-                    @if ($order->user_confirm)
+                    @if ($order->user_image)
                         <div class="mb-3">
                             <div class="card border-success">
                                 <div class="card-header bg-success text-white">
@@ -416,7 +417,7 @@
                                 Xem ảnh giao hàng
                             </a>
                         @endif
-                        @if (!empty($order->image_ship) && !$order->user_confirm)
+                        @if ($order->status === 'success')
                             <a href="javascript:void(0)" class="btn btn-success no-hover" data-bs-toggle="modal"
                                 data-bs-target="#userConfirmationModal">Xác nhận nhận hàng</a>
                         @endif
@@ -502,7 +503,7 @@
                                     <label for="user_image" class="form-label">Ảnh xác nhận nhận hàng <span
                                             class="text-danger">*</span></label>
                                     <input type="file" class="form-control" id="user_image" name="user_image"
-                                        accept="image/*" required onchange="handleImageChange(event)"
+                                        accept="image/*"  onchange="handleImageChange(event)"
                                         style="cursor: pointer;">
                                     <div class="form-text">Vui lòng chụp ảnh sản phẩm đã nhận để xác nhận</div>
                                 </div>
