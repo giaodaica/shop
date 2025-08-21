@@ -37,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
                 // chạy command mỗi ngày lúc 00:00
                 $schedule->command('app:expire-vouchers')->everyMinute();
                 $schedule->command('app:manage-flashsales'::class)->everyMinute();
+                $schedule->command('orders:auto-delivered'::class)->everyMinute();
             });
         }
 
