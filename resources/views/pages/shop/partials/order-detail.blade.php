@@ -196,7 +196,7 @@
                                                     <span class="badge bg-success px-3 py-2">
                                                         <i class="bi bi-check-circle-fill me-1"></i> Đã đánh giá
                                                     </span>
-                                                @elseif ($orderStatus === 'success')
+                                                @elseif ($orderStatus === 'success' || $orderStatus === 'delivered')
                                                     <button type="button" class="btn btn-sm shadow-sm hover-scale"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#reviewModal-{{ $item->id }}">
