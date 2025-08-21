@@ -54,7 +54,7 @@
                                             'confirmed' => ['color' => 'info', 'label' => 'Đã xác nhận'],
                                             'shipping' => ['color' => 'primary', 'label' => 'Đang giao'],
                                             'success' => ['color' => 'success', 'label' => 'Đã giao hàng'],
-                                            'failed' => ['color' => 'danger', 'label' => 'Thất bại'],
+                                            'failed' => ['color' => 'danger', 'label' => 'Giao hàng thất bại'],
                                             'cancelled' => ['color' => 'secondary', 'label' => 'Đã hủy'],
                                             'delivered' => ['color' => 'secondary', 'label' => 'Giao hàng thành công'],
                                         ];
@@ -179,7 +179,7 @@
                                                     {{ $item->productVariant->color->color_name ?? $item->color_name }},
                                                     {{ $item->productVariant->size->size_name ?? $item->size_name }}
                                                     {{-- <br> --}}
-                                                    
+
                                                 </div>
                                                 @php
                                                     $orderStatus = $order->status ?? null;
