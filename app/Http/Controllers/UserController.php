@@ -20,7 +20,7 @@ class UserController extends Controller
         $this->middleware('permission:Tạo tài khoản')->only(['create', 'store']);
         $this->middleware('permission:Sửa tài khoản')->only(['edit', 'update']);
         $this->middleware('permission:Xóa tài khoản')->only(['destroy']);
-        $this->middleware('permission:Khóa tài khoản')->only(['lock']);   
+        $this->middleware('permission:Khóa tài khoản')->only(['lock']);
         $this->middleware('permission:Mở khóa tài khoản')->only(['unlock']);
         $this->middleware('permission:Xóa hàng loạt tài khoản')->only(['bulkDelete']);
     }
@@ -231,7 +231,9 @@ class UserController extends Controller
             'vouchers.cate_vouchers',
             'lockedByUser',
             'addressBooks.province',
-            'addressBooks.ward'
+            'addressBooks.ward',
+            'lockHistory.lockedByUser',
+            'lockHistory.reason'
         ])->findOrFail($id);
         // dd($user->lockedByUser);
         $activeTab = request('tab', 'overview');
@@ -284,10 +286,21 @@ class UserController extends Controller
         ]);
 
         $user = User::findOrFail($request->user_id);
+
+        // Nếu đã bị khóa >= 3 lần thì không cho mở nữa
+        $lockCount = $user->lockHistory()->count();
+        if ($lockCount >= 3) {
+            $user->status = 'inactive';
+            $user->save();
+
+            return back()->with('error', 'Người dùng này đã bị khóa 3 lần và đã bị khóa vĩnh viễn.');
+        }
+
         // Không cho tự khóa chính mình
         if ($user->id === auth()->id()) {
             return redirect()->back()->with('error', 'Bạn không thể khóa tài khoản chính mình.');
         }
+
         // Không khóa admin cuối cùng
         if ($user->role === 'admin') {
             $adminCount = User::where('role', 'admin')->where('status', 'active')->count();
@@ -321,8 +334,17 @@ class UserController extends Controller
 
 
 
+
     public function unlock(User $user)
     {
+        // Đếm số lần user đã bị khóa
+        $lockCount = $user->lockHistory()->count();
+
+        if ($lockCount >= 3) {
+            return back()->with('error', 'Tài khoản này đã bị khóa 3 lần và không thể mở lại.');
+        }
+
+        // Nếu chưa quá 3 lần => cho mở
         $user->update(['status' => 'active']);
         Mail::to($user->email)->send(new \App\Mail\UserUnLockedMail($user));
 
@@ -337,5 +359,17 @@ class UserController extends Controller
             ->paginate(15);
 
         return view('dashboard.pages.users.lock_history', compact('locks'));
+    }
+    public function personalLockHistory($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Lấy lịch sử khóa của user này
+        $locks = $user->lockHistory()
+            ->with(['lockedByUser', 'reason'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('dashboard.pages.users.personal_lock_history', compact('user', 'locks'));
     }
 }
