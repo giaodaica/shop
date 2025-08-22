@@ -774,6 +774,8 @@ class OrderController extends Controller
         if (!$request->input('content')) {
             $refund = 1;
             $content = $request->input('content1');
+        }else{
+            $refund = 0;
         }
         $data_change = ['pending', 'confirmed', 'shipping', 'cancelled', 'failed', 'return'];
         if ($before && !in_array($before, $data_change)) {
