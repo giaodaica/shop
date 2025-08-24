@@ -646,9 +646,14 @@ class OrderController extends Controller
         $count_failed = OrderHistories::where('from_status', 'failed')->count();
 
         // Trả về view, truyền dữ liệu
+        // Đếm số đơn theo từng trạng thái
+        $statusCounts = Order::select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status');
         return view('dashboard.pages.order.index', [
             'data_order' => $data_order,
             'count_failed' => $count_failed,
+            'statusCounts' => $statusCounts,
             // Nếu bạn cần truyền thêm filter đã chọn để view dễ hiển thị lại
             'filters' => $request->only(['everything', 'status', 'pay_method', 'status_pay', 'type']),
         ]);
@@ -774,7 +779,7 @@ class OrderController extends Controller
         if (!$request->input('content')) {
             $refund = 1;
             $content = $request->input('content1');
-        }else{
+        } else {
             $refund = 0;
         }
         $data_change = ['pending', 'confirmed', 'shipping', 'cancelled', 'failed', 'return'];

@@ -85,7 +85,7 @@ class RevenueController extends Controller
         $revenue_order = Order::selectRaw('
         COUNT(orders.id) as sodonhang,
         COUNT(CASE WHEN orders.status = "pending" THEN 1 END) as donhang_dangcho,
-        COUNT(CASE WHEN orders.status = "success" THEN 1 END) as donhang_thanhcong,
+       COUNT(CASE WHEN orders.status IN ("success", "delivered") THEN 1 END) as donhang_thanhcong,
         COUNT(CASE WHEN orders.status = "cancelled" THEN 1 END) as donhang_huy,
         COUNT(CASE WHEN orders.status = "failed" THEN 1 END) as donhang_thatbai,
         COUNT(CASE WHEN orders.status = "shipping" THEN 1 END) as donhang_dangvanchuyen');
@@ -183,17 +183,14 @@ class RevenueController extends Controller
         };
 
         $data_order = $revenue_order->where($timeFilter)->first();
-        // dd($data);
         $data_top_5 = $revenue_top_product->where($timeFilter)->get();
-        // dd($top5);
         $data_doanhthu = $revenue_doanhthu->where($timeFilter)->first();
-        // dd($data_doanhthu);
-        // dd($start, $end);
         $data_loinhan = $revenue_loinhan->where($timeFilter)->first();
         $data_top_5_users = $revenue_top_users->where($timeFilter)->get();
         $sodonhang = $data_order->sodonhang ?? 0;
         $doanhthu = $data_doanhthu->doanhthu ?? 0;
-        $dtb = $sodonhang > 0 ? $doanhthu / $sodonhang : 0;
+        $sodonhang_done = $revenue_doanhthu->first()->sodonhang ?? 0;
+        $dtb = $sodonhang > 0 ? $doanhthu / $sodonhang_done : 0;
 
         return view('dashboard.pages.revenue.index', compact('dtb', 'start', 'end', 'data_order', 'data_top_5', 'data_doanhthu', 'sodonhang', 'doanhthu', 'data_top_5_users', 'data_loinhan', 'least_sold_variants'));
     }

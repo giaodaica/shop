@@ -205,8 +205,16 @@
 
         {{-- Biểu đồ Top sản phẩm bán chạy --}}
         <div class="card mb-4 border-info">
-            <div class="card-header bg-info text-white fw-bold">Top sản phẩm bán chạy</div>
+            <div class="card-header bg-info text-white fw-bold">
+                Top sản phẩm bán chạy
+            </div>
             <div class="card-body" style="max-width:400px; margin:auto;">
+                <div class="mb-2 text-center" style="font-size:16px;">
+                    <span class="fw-bold">Tổng số sản phẩm bán được:</span>
+                    <span class="text-primary fw-bold">
+                        {{ number_format($data_loinhan->tongsanpham) }}
+                    </span>
+                </div>
                 <canvas id="topProductsChart" width="350" height="350" style="max-width:100%;"></canvas>
             </div>
         </div>
@@ -251,12 +259,11 @@ document.addEventListener('DOMContentLoaded', showFilterInput);
 new Chart(document.getElementById('revenueChart'), {
     type: 'bar',
     data: {
-        labels: ['Doanh thu', 'Số SP bán', 'Doanh thu TB/đơn', 'Tổng giảm giá'],
+        labels: ['Doanh thu', 'Doanh thu TB/đơn', 'Tổng giảm giá'],
         datasets: [{
             label: 'Giá trị',
             data: [
                 {{ $data_doanhthu->doanhthu }},
-                {{ $data_loinhan->tongsanpham }},
                 {{ $dtb }},
                 {{ $data_doanhthu->tong_giam_gia }},
                 {{ $data_loinhan->loinhuan }}
