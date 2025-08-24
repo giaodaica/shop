@@ -51,7 +51,7 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'],
-           'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/[a-z]/', 'regex:/[A-Z]/', 'regex:/[0-9]/'],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/[a-z]/', 'regex:/[A-Z]/', 'regex:/[0-9]/'],
 
         ],
         [
@@ -60,7 +60,7 @@ class RegisterController extends Controller
             'email.email' => 'Email không đúng định dạng.',
             'email.unique'=> 'Email đã được sử dụng',
             'password.required' => 'Vui lòng nhập mật khẩu.',
-            'password.min' => 'Mật khẩu ít nhất 6 ký tự.',
+            'password.min' => 'Mật khẩu ít nhất 8 ký tự.',
             'password.regex'=> 'Mật khẩu phải bao gồm 1 chữ cái in hoa, chữ cái in thường và số',
             'password.confirmed' => 'Mật khẩu nhập lại không khớp.',
         ]
