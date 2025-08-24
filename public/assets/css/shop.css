@@ -135,6 +135,26 @@
 .collapse-categories.visible {
     display: block !important;
 }
+
+/* Style cho nút Xem thêm và Thu gọn */
+.show-more-categories button,
+.collapse-categories button {
+    color: #007bff !important;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+.show-more-categories button:hover,
+.collapse-categories button:hover {
+    color: #0056b3 !important;
+    text-decoration: underline !important;
+}
+
+/* Đảm bảo các danh mục ẩn được ẩn hoàn toàn */
+.hidden-category {
+    display: none !important;
+}
 .product-price {
     color: #ff6b35;
     font-size: 17px;
