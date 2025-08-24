@@ -162,6 +162,9 @@
                 <a class="nav-link menu-link" href="{{ route('dashboard.roles.index') }}" role="button">
                     <i class="ri-layout-3-line"></i> <span>Vai trò người dùng</span>
                 </a>
+                 <a class="nav-link menu-link" href="{{ route('contact.index') }}" role="button">
+                    <i class="ri-layout-3-line"></i> <span>Liên hệ</span>
+                </a>
                 {{-- <a class="nav-link menu-link" href="{{ route('dashboard.permissions.index') }}" role="button">
                     <i class="ri-layout-3-line"></i> <span>Quyền truy cập</span>
                 </a> --}}
