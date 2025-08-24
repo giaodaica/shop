@@ -206,8 +206,8 @@
         {{-- Biểu đồ Top sản phẩm bán chạy --}}
         <div class="card mb-4 border-info">
             <div class="card-header bg-info text-white fw-bold">Top sản phẩm bán chạy</div>
-            <div class="card-body">
-                <canvas id="topProductsChart" height="120"></canvas>
+            <div class="card-body" style="max-width:400px; margin:auto;">
+                <canvas id="topProductsChart" width="350" height="350" style="max-width:100%;"></canvas>
             </div>
         </div>
 
@@ -293,35 +293,27 @@ new Chart(document.getElementById('revenueChart'), {
     }
 });
 
-// Biểu đồ Top sản phẩm bán chạy
+// Biểu đồ Top sản phẩm bán chạy (Pie chart)
 new Chart(document.getElementById('topProductsChart'), {
-    type: 'bar',
+    type: 'pie',
     data: {
         labels: @json($data_top_5->pluck('ten_san_pham')),
         datasets: [{
             label: 'Số lượng bán',
             data: @json($data_top_5->pluck('soluong_ban')),
-            backgroundColor: '#0dcaf0'
+            backgroundColor: [
+                '#0dcaf0', '#198754', '#ffc107', '#fd7e14', '#dc3545', '#0d6efd', '#6f42c1'
+            ]
         }]
     },
     options: {
         responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return value.toLocaleString('vi-VN');
-                    }
-                }
-            }
-        },
         plugins: {
-            legend: { display: false },
+            legend: { display: true, position: 'bottom' },
             tooltip: {
                 callbacks: {
                     label: function(context) {
-                        return context.dataset.label + ': ' + context.raw.toLocaleString('vi-VN');
+                        return context.label + ': ' + context.raw.toLocaleString('vi-VN');
                     }
                 }
             }
