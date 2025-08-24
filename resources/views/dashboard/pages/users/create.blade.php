@@ -64,33 +64,23 @@
                             @enderror
                         </div>
 
-                        {{-- Vai trò mặc định là admin --}}
-                        <input type="hidden" name="role" value="admin">
-
-                        {{-- Chọn Roles --}}
+                        {{-- Chọn Role --}}
                         @if (isset($roles) && $roles->count() > 0)
                             <div class="col-lg-12">
-                                <label class="form-label">Phân quyền</label>
-                                <div class="row">
+                                <label for="user-role" class="form-label">Vai trò</label>
+                                <select id="user-role" name="role_id" class="form-select @error('role_id') is-invalid @enderror">
+                                    <option value="">-- Chọn vai trò --</option>
                                     @foreach ($roles as $role)
-                                        <div class="col-lg-6">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="roles[]"
-                                                    value="{{ $role->id }}" id="role_{{ $role->id }}"
-                                                    {{ in_array($role->id, old('roles', [])) ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="role_{{ $role->id }}">
-                                                    {{ $role->name }}
-                                                    @if ($role->description)
-                                                        <small
-                                                            class="text-muted d-block">{{ $role->description }}</small>
-                                                    @endif
-                                                </label>
-                                            </div>
-                                        </div>
+                                        <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                                            {{ $role->name }}
+                                            @if ($role->description)
+                                                - {{ $role->description }}
+                                            @endif
+                                        </option>
                                     @endforeach
-                                </div>
-                                <small class="text-muted">Chọn các vai trò cho người dùng này</small>
-                                @error('roles')
+                                </select>
+                                <small class="text-muted">Chọn vai trò cho người dùng này</small>
+                                @error('role_id')
                                     <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
