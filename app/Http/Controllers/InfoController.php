@@ -115,13 +115,13 @@ class InfoController extends Controller
         ->where('user_id', Auth::user()->id)
         ->whereIn('status', ['pending', 'admin','approved']) // chỉ tính những request đang được xử lý
         ->first();
-    
+
     // if ($existingRefund) {
     //     return response()->json(['error' => 'Bạn đã gửi yêu cầu hoàn tiền trước đó']);
     // }
-    
-    
-    
+
+
+
 
         $provinces = Provinces::orderBy('name')->get();
         return view('pages.shop.partials.order-detail', compact(
@@ -293,7 +293,7 @@ class InfoController extends Controller
             'user_image.max' => 'Kích thước ảnh không được vượt quá 2MB',
             'user_comment.max' => 'Ghi chú không được vượt quá 500 ký tự',
         ]);
-        
+
 
         try {
             // Upload ảnh
@@ -302,17 +302,17 @@ class InfoController extends Controller
                 'user_confirm' => true,
                 'status' => 'delivered'
             ];
-            
+
             if ($request->hasFile('user_image')) {
                 $file = $request->file('user_image');
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/orders/'), $filename);
                 $dataUpdate['image_user'] = 'uploads/orders/' . $filename;
             }
-            
+
             // Cập nhật thông tin order
             $order->update($dataUpdate);
-            
+
             // Tạo lịch sử
             OrderHistories::create([
                 'users' => Auth::id(),
@@ -322,9 +322,9 @@ class InfoController extends Controller
                 'note' => 'Khách hàng đã xác nhận nhận hàng',
                 'content' => '',
             ]);
-            
+
             return redirect()->back()->with('success', 'Xác nhận nhận hàng thành công!');
-            
+
         } catch (\Exception $e) {
             Log::error('Error submitting user confirmation: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());

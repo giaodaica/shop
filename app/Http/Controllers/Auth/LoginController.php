@@ -50,7 +50,7 @@ class LoginController extends Controller
     {
         $this->validate($request, [
             $this->username() => 'required|email',  // Email không được bỏ trống và phải là định dạng email
-            'password' => 'required|string|min:8',  // Mật khẩu không được bỏ trống và phải có ít nhất 8 ký tự
+            'password' => 'required|string|min:8',  
         ], [
             'required' => ':attribute không được bỏ trống.',
             'email' => 'Email không hợp lệ.',

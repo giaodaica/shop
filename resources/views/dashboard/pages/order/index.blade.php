@@ -117,7 +117,8 @@
                                         <a class="nav-link py-3 Delivered" data-bs-toggle="" id="Delivered"
                                             href="{{ route('dashboard.order', ['type' => 'pending']) }}" role="tab"
                                             aria-selected="false">
-                                            <i class="ri-checkbox-circle-line me-1 align-bottom"></i> Chờ xác nhận
+                                            <i class="ri-checkbox-circle-line me-1 align-bottom"></i> Chờ xác nhận<span
+                                                class="badge bg-danger align-middle ms-1">{{ $statusCounts['pending'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
@@ -125,35 +126,39 @@
                                             href="{{ route('dashboard.order', ['type' => 'confirmed']) }}" role="tab"
                                             aria-selected="false">
                                             <i class="ri-truck-line me-1 align-bottom"></i> Đã xác nhận <span
-                                                class="badge bg-danger align-middle ms-1">2</span>
+                                                class="badge bg-danger align-middle ms-1">{{ $statusCounts['confirmed'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link py-3 Returns" data-bs-toggle="" id="Returns"
                                             href="{{ route('dashboard.order', ['type' => 'shipping']) }}" role="tab"
                                             aria-selected="false">
-                                            <i class="ri-arrow-left-right-fill me-1 align-bottom"></i> Đang vận chuyển
+                                            <i class="ri-arrow-left-right-fill me-1 align-bottom"></i> Đang vận chuyển<span
+                                                class="badge bg-danger align-middle ms-1">{{ $statusCounts['shipping'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link py-3 Success" data-bs-toggle="" id="Success"
                                             href="{{ route('dashboard.order', ['type' => 'success']) }}" role="tab"
                                             aria-selected="false">
-                                            <i class="ri-arrow-left-right-fill me-1 align-bottom"></i> Đã giao hàng
+                                            <i class="ri-arrow-left-right-fill me-1 align-bottom"></i> Đã giao hàng<span
+                                                class="badge bg-danger align-middle ms-1">{{ $statusCounts['success'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link py-3 Success" data-bs-toggle="" id="Success"
                                             href="{{ route('dashboard.order', ['type' => 'failed']) }}" role="tab"
                                             aria-selected="false">
-                                            <i class="ri-arrow-left-right-fill me-1 align-bottom"></i> Giao hàng thất bại
+                                            <i class="ri-arrow-left-right-fill me-1 align-bottom"></i> Giao hàng thất bại<span
+                                                class="badge bg-danger align-middle ms-1">{{ $statusCounts['failed'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link py-3 Cancelled" data-bs-toggle="" id="Cancelled"
                                             href="{{ route('dashboard.order', ['type' => 'cancelled']) }}" role="tab"
                                             aria-selected="false">
-                                            <i class="ri-close-circle-line me-1 align-bottom"></i> Đã Hủy
+                                            <i class="ri-close-circle-line me-1 align-bottom"></i> Đã Hủy<span
+                                                class="badge bg-danger align-middle ms-1">{{ $statusCounts['cancelled'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                     {{-- khách đã nhận hàng --}}
@@ -161,7 +166,8 @@
                                         <a class="nav-link py-3 Delivered" data-bs-toggle="" id="Delivered"
                                             href="{{ route('dashboard.order', ['type' => 'delivered']) }}" role="tab"
                                             aria-selected="false">
-                                            <i class="ri-check-double-line me-1 align-bottom"></i> Giao hàng thành công
+                                            <i class="ri-check-double-line me-1 align-bottom"></i> Giao hàng thành công<span
+                                                class="badge bg-danger align-middle ms-1">{{ $statusCounts['delivered'] ?? 0 }}</span>
                                         </a>
                                     </li>
                                 </ul>
