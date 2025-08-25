@@ -34,6 +34,77 @@
                                 <h5 class="mb-0">Danh sách bình luận</h5>
                             </div>
                             <div class="card-body">
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <div class="card shadow-sm border-0 bg-light text-center p-3">
+                                        <i class="ri-chat-3-line fs-2 text-primary"></i>
+                                        <h6 class="mt-2">Tổng số bình luận</h6>
+                                        <h4 class="fw-bold mb-0">{{ $stats['total'] }}</h4>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card shadow-sm border-0 bg-success text-white text-center p-3">
+                                        <i class="ri-eye-line fs-2"></i>
+                                        <h6 class="mt-2">Đang hiển thị</h6>
+                                        <h4 class="fw-bold mb-0">{{ $stats['visible'] }}</h4>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card shadow-sm border-0 bg-secondary text-white text-center p-3">
+                                        <i class="ri-eye-off-line fs-2"></i>
+                                        <h6 class="mt-2">Đã ẩn</h6>
+                                        <h4 class="fw-bold mb-0">{{ $stats['hidden'] }}</h4>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card shadow-sm border-0 bg-warning text-dark text-center p-3">
+                                        <i class="ri-question-answer-line fs-2"></i>
+                                        <h6 class="mt-2">Chưa trả lời</h6>
+                                        <h4 class="fw-bold mb-0">{{ $stats['unreplied'] }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                                <form method="GET" class="row mb-4 g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">Trạng thái</label>
+                                <select name="status" class="form-select">
+                                    <option value="">-- Tất cả --</option>
+                                    <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Hiển thị</option>
+                                    <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Đã ẩn</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">Trạng thái phản hồi</label>
+                                <select name="replied" class="form-select">
+                                    <option value="">-- Tất cả --</option>
+                                    <option value="yes" {{ request('replied') == 'yes' ? 'selected' : '' }}>Đã trả lời</option>
+                                    <option value="no" {{ request('replied') == 'no' ? 'selected' : '' }}>Chưa trả lời</option>
+                                </select>
+                            </div>
+   
+
+                            <div class="col-md-3">
+                                <label class="form-label">Sản phẩm</label>
+                                <select name="product_id" class="form-select">
+                                    <option value="">-- Tất cả --</option>
+                                    @foreach($products as $id => $name)
+                                        <option value="{{ $id }}" {{ request('product_id') == $id ? 'selected' : '' }}>
+                                            {{ $name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="ri-filter-2-line"></i> Lọc
+                                </button>
+                            </div>
+                        </form>
+
                                 <table class="table align-middle table-nowrap mb-0">
                                     <thead class="table-light">
                                         <tr>
@@ -52,11 +123,18 @@
                                         @forelse ($comments as $index => $comment)
                                             <tr>
                                                 <td>{{ $comments->firstItem() + $index }}</td>
-                                                <td>{{ $comment->product->name ?? 'Không có' }}</td>
+                                                <td>
+                                                        @if($comment->productVariant)
+                                                             {{ $comment->productVariant->name ?? '' }}
+                                                    @else
+                                                        Không có
+                                                    @endif
+                                                </td>
+
                                                 <td>{{ $comment->user->name ?? 'Ẩn danh' }}</td>
                                                 <td>
-                                                    @if($comment->product && $comment->product->image_url)
-                                                        <img src="{{ asset($comment->product->image_url) }}" alt="Ảnh sản phẩm" width="80" height="80" style="object-fit: cover;">
+                                                    @if($comment->productVariant && $comment->productVariant->variant_image_url)
+                                                        <img src="{{ asset($comment->productVariant->variant_image_url) }}" alt="Ảnh sản phẩm" width="80" height="80" style="object-fit: cover;">
                                                     @else
                                                         <span class="text-muted">Không có ảnh</span>
                                                     @endif
@@ -72,15 +150,37 @@
                                                     @endif
                                                 </td>
                                                  <td>
-                                                    @if ($comment->admin_reply)
-                                                        <div class="bg-light text-dark p-2 mt-2 rounded">
-                                                            <strong class="text-info">Admin đã phản hồi:</strong><br>
-                                                            {{ $comment->admin_reply }}
-                                                        </div>
-                                                    @else
-                                                    <span class="text-dark">Không có</span>
-                                                    @endif
-                                                </td>
+    @if ($comment->admin_reply)
+        <div class="bg-light text-dark p-2 mt-2 rounded">
+          <strong class="text-info">
+    {{ $comment->admin->name ?? 'Admin' }} đã phản hồi:
+</strong>
+
+            {{ $comment->admin_reply }}
+        </div>
+    @else
+        <span class="text-dark">Không có</span><br>
+        <button 
+            class="btn btn-sm btn-primary mt-2"
+            onclick="openReplyBox({{ $comment->id }})"
+        >
+            Trả lời
+        </button>
+
+        <div id="reply-box-{{ $comment->id }}" class="reply-box d-none mt-2">
+        <form action="{{ route('reviews.update', $comment->id) }}" method="POST">
+    @csrf
+    @method('PUT')
+    
+    <textarea name="admin_reply" class="form-control mb-2" rows="3"></textarea>
+    <button type="submit" class="btn btn-success btn-sm">Gửi</button>
+</form>
+
+        </div>
+    @endif
+</td>
+
+
                                                 <td>
                                                     <form method="POST" action="{{ route('dashboard.comments.update', $comment->id) }}" class="d-inline">
                                                         @csrf
@@ -143,4 +243,14 @@
             }
         }, 3000);
     </script>
+    <script>
+function openReplyBox(id) {
+    document.getElementById('reply-box-' + id).classList.remove('d-none');
+}
+
+function closeReplyBox(id) {
+    document.getElementById('reply-box-' + id).classList.add('d-none');
+}
+</script>
+
 @endsection
