@@ -103,6 +103,20 @@ class ColorController extends Controller
             ], 400);
         }
 
+        // Kiểm tra màu nào đang được sử dụng trong product_variants
+        $colorsInUse = Color::whereIn('id', $ids)
+            ->whereHas('productVariants')
+            ->pluck('color_name')
+            ->toArray();
+
+        if (!empty($colorsInUse)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Không thể xóa các màu đang được sản phẩm sử dụng: ' . implode(', ', $colorsInUse)
+            ], 400);
+        }
+
+        // Nếu tất cả đều không bị dùng thì xóa
         Color::whereIn('id', $ids)->delete();
 
         return response()->json([
