@@ -139,6 +139,7 @@ Route::middleware([CheckUserStatus::class])->group(function () {
     Route::get('/search/trending-categories', [SearchController::class, 'trendingCategories']);
     // Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware(['auth', 'throttle:5,1']);
     Route::get('/reviews/list/{product_id}', [ReviewController::class, 'list'])->name('reviews.list');
+    Route::put('/reviews/{id}', [CommentController::class, 'update'])->name('reviews.update');
 
 
     Route::post('add-to-cart/{id}', [CartController::class, 'add_to_cart'])->middleware('auth');
