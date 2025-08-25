@@ -250,10 +250,10 @@
 @endsection
 
 @push('styles')
-    <link href="{{ asset('assets/css/shop.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/shop.css') . '?v=' . filemtime(public_path('assets/css/shop.css')) }}" rel="stylesheet">
 @endpush
 
 @push('scripts')
-    <script src="{{ asset('assets/js/shop/shop.js') }}"></script>
+    <script src="{{ asset('assets/js/shop/shop.js') . '?v=' . filemtime(public_path('assets/js/shop/shop.js')) }}" defer></script>
    
 @endpush
