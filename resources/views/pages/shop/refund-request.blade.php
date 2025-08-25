@@ -126,12 +126,12 @@
                                         <input type="hidden" name="amount" id="refundAmountReal"
                                             value="{{ $total ?? 0 }}">
 
-                                        <button type="button" class="edit-btn" id="editAmountStk">
+                                        {{-- <button type="button" class="edit-btn" id="editAmountStk">
                                             <i class="fas fa-edit"></i>
-                                        </button>
+                                        </button> --}}
                                     </div>
-                                    <small class="form-hint">Bạn có thể chỉnh sửa số tiền nếu không đúng với đơn
-                                        hàng.</small>
+                                    {{-- <small class="form-hint">Bạn có thể chỉnh sửa số tiền nếu không đúng với đơn
+                                        hàng.</small> --}}
                                     @error('amount')
                                         <div class="error-message">{{ $message }}</div>
                                     @else
@@ -189,17 +189,15 @@
                                         Số tiền hoàn (VNĐ)
                                     </label>
                                     <div class="amount-input-group">
-                                        <input type="number" class="form-input" name="amount" id="refundAmountQr"
-                                            value="{{ $total ?? 0 }}" readonly min="0">
-                                        <button type="button" class="edit-btn" id="editAmountQr">
+                                        <input type="text" id="refundAmountDisplay"
+                                            value="{{ number_format($total ?? 0, 0, ',', '.') }}" readonly>
+                                        <input type="hidden" name="amount" id="refundAmountReal"
+                                            value="{{ $total ?? 0 }}">
+
+                                        {{-- <button type="button" class="edit-btn" id="editAmountStk">
                                             <i class="fas fa-edit"></i>
-                                        </button>
+                                        </button> --}}
                                     </div>
-                                    @if ($errors->has('amount'))
-                                        <span class="text-danger">{{ $errors->first('amount') }}</span>
-                                    @endif
-                                    <small class="form-hint">Bạn có thể chỉnh sửa số tiền nếu không đúng với đơn
-                                        hàng.</small>
                                     @error('amount')
                                         <div class="error-message">{{ $message }}</div>
                                     @else

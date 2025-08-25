@@ -25,6 +25,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card" id="categoryList">
@@ -59,8 +65,16 @@
                                             id="addCategory-btn">
                                             <i class="ri-add-line align-bottom me-1"></i> Thêm danh mục
                                         </a>
+                                        <button type="button" class="btn btn-danger" id="delete-multiple-btn">
+                                            <i class="ri-delete-bin-5-line align-bottom me-1"></i> Xóa các mục đã chọn
+                                        </button>
+                                        @if ($status === 'trashed' || $status === 'all')
+                                            <button type="button" class="btn btn-primary" id="restore-multiple-btn">
+                                                <i class="ri-arrow-go-back-fill align-bottom me-1"></i> Khôi phục các mục đã
+                                                chọn
+                                            </button>
+                                        @endif
 
-                                        {{-- Nút xóa nhiều chưa có logic --}}
                                     </div>
                                 </div>
                             </div>
@@ -112,7 +126,8 @@
                                                     @if ($category->status == 1)
                                                         <span class="badge bg-success text-uppercase">Hoạt động</span>
                                                     @else
-                                                        <span class="badge bg-warning text-uppercase">Không hoạt động</span>
+                                                        <span class="badge bg-warning text-uppercase">Không hoạt
+                                                            động</span>
                                                     @endif
                                                 </td>
                                                 <td>
@@ -130,6 +145,19 @@
                                                                         class="btn btn-link p-0 text-success d-inline-block"
                                                                         style="border:none; background:none;">
                                                                         <i class="ri-arrow-go-back-fill fs-16"></i>
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                            <li class="list-inline-item" title="Xóa vĩnh viễn">
+                                                                <form
+                                                                    action="{{ route('categories.forceDelete', $category->id) }}"
+                                                                    method="POST" class="force-delete-form">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit"
+                                                                        class="btn btn-link p-0 text-danger"
+                                                                        style="border:none; background:none;">
+                                                                        <i class="ri-delete-bin-5-fill fs-16"></i>
                                                                     </button>
                                                                 </form>
                                                             </li>
@@ -243,6 +271,148 @@
                         }
                     });
                 });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteForms = document.querySelectorAll('.delete-form');
+            const forceDeleteForms = document.querySelectorAll('.force-delete-form');
+
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Bạn có chắc chắn?',
+                        text: "Danh mục sẽ được đưa vào thùng rác!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) form.submit();
+                    });
+                });
+            });
+
+            forceDeleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Xóa vĩnh viễn?',
+                        text: "Hành động này sẽ xóa hoàn toàn danh mục, không thể khôi phục!",
+                        icon: 'error',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Xóa vĩnh viễn',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) form.submit();
+                    });
+                });
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tick chọn tất cả
+            document.getElementById('checkAll').addEventListener('change', function() {
+                document.querySelectorAll('input[name="checkAll"]').forEach(cb => {
+                    cb.checked = this.checked;
+                });
+            });
+
+            // Xóa nhiều
+            document.getElementById('delete-multiple-btn').addEventListener('click', function() {
+                let ids = [];
+                document.querySelectorAll('input[name="checkAll"]:checked').forEach(cb => {
+                    ids.push(cb.value);
+                });
+
+                if (ids.length === 0) {
+                    Swal.fire('Thông báo', 'Vui lòng chọn ít nhất 1 danh mục để xóa.', 'warning');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Bạn có chắc chắn?',
+                    text: "Các danh mục đã chọn sẽ được đưa vào thùng rác.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('{{ route('categories.deleteMultiple') }}', {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    ids: ids
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.status === 'success') {
+                                    Swal.fire('Thành công', data.message, 'success').then(() =>
+                                        location.reload());
+                                } else {
+                                    Swal.fire('Lỗi', data.message, 'error');
+                                }
+                            })
+                            .catch(() => Swal.fire('Lỗi', 'Có lỗi xảy ra khi xóa.', 'error'));
+                    }
+                });
+            });
+        });
+        // Khôi phục nhiều
+        document.getElementById('restore-multiple-btn')?.addEventListener('click', function() {
+            let ids = [];
+            document.querySelectorAll('input[name="checkAll"]:checked').forEach(cb => {
+                ids.push(cb.value);
+            });
+
+            if (ids.length === 0) {
+                Swal.fire('Thông báo', 'Vui lòng chọn ít nhất 1 danh mục để khôi phục.', 'warning');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Khôi phục các mục đã chọn?',
+                text: "Các danh mục sẽ được khôi phục về trạng thái hoạt động.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Khôi phục',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('{{ route('categories.restoreMultiple') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                ids: ids
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                Swal.fire('Thành công', data.message, 'success').then(() => location
+                                    .reload());
+                            } else {
+                                Swal.fire('Lỗi', data.message, 'error');
+                            }
+                        })
+                        .catch(() => Swal.fire('Lỗi', 'Có lỗi xảy ra khi khôi phục.', 'error'));
+                }
             });
         });
     </script>

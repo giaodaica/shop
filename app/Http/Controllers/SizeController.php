@@ -78,8 +78,29 @@ class SizeController extends Controller
     public function destroy($id)
     {
         $size = Size::findOrFail($id);
+        if ($size->productVariants()->exists()) {
+            return redirect()->route('sizes.index')->with('error', 'Không thể xóa size vì đang được sử dụng trong sản phẩm.');
+        }
         $size->delete();
 
         return redirect()->route('sizes.index')->with('success', 'Xóa kích cỡ thành công!');
+    }
+    public function deleteMultiple(Request $request)
+    {
+        $ids = $request->ids;
+
+        if (empty($ids) || !is_array($ids)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Không có size nào được chọn.'
+            ], 400);
+        }
+
+        Size::whereIn('id', $ids)->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Đã xóa ' . count($ids) . ' size.'
+        ]);
     }
 }

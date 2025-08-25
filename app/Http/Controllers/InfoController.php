@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Mail\OrderCancelledMail;
 use App\Models\AddressBook;
+use App\Models\FlashSaleItems;
+use App\Models\Product_variants;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +62,7 @@ class InfoController extends Controller
         $successOrders = $orders->where('status', 'success')->values();
         $failedOrders = $orders->where('status', 'failed')->values();
         $cancelledOrders = $orders->where('status', 'cancelled')->values();
+        $deliveredOrders = $orders->where('status', 'delivered')->values();
         // dd($cancelledOrders);
         // dd($shippingOrders, $orders, $confirmedOrders,$successOrders,$pendingOrders,  $failedOrders,   $cancelledOrders);
 
@@ -79,7 +82,7 @@ class InfoController extends Controller
             ];
         });
         // dd($vouchers);
-        return view('pages.shop.account', compact('orders', 'addresses', 'pendingOrders', 'confirmedOrders', 'shippingOrders', 'successOrders', 'cancelledOrders', 'vouchers'));
+        return view('pages.shop.account', compact('orders', 'addresses', 'pendingOrders', 'confirmedOrders', 'shippingOrders', 'successOrders', 'cancelledOrders', 'vouchers','deliveredOrders'));
     }
     public function orderDetail($id)
     {
@@ -109,8 +112,16 @@ class InfoController extends Controller
         $total = $subtotal - $discount + $shipping;
 
         $refund = RefundMoney::where('order_id', $id)
-            ->where('user_id', Auth::user()->id)
-            ->first();
+        ->where('user_id', Auth::user()->id)
+        ->whereIn('status', ['pending', 'admin','approved']) // chỉ tính những request đang được xử lý
+        ->first();
+    
+    // if ($existingRefund) {
+    //     return response()->json(['error' => 'Bạn đã gửi yêu cầu hoàn tiền trước đó']);
+    // }
+    
+    
+    
 
         $provinces = Provinces::orderBy('name')->get();
         return view('pages.shop.partials.order-detail', compact(
@@ -137,9 +148,30 @@ class InfoController extends Controller
         }
         $order->status = 'cancelled';
         if ($order->status == 'cancelled') {
-            OrderItem::where('order_id', $id)->get()->each(function ($item) {
-                $item->productVariant->increment('stock', $item->quantity);
-            });
+              // Lấy toàn bộ item của đơn
+        $items = OrderItem::where('order_id', $id)->get();
+
+        // Hoàn lại stock cho sản phẩm thường
+        $items->whereNull('flash_sale_items_id')->each(function ($item) {
+            $variant = Product_variants::withTrashed()->find($item->product_variant_id);
+            if ($variant) {
+                $variant->increment('stock', $item->quantity);
+                $variant->decrement('sold_quantity', $item->quantity);
+            }
+        });
+
+        // Hoàn lại số lượng cho sản phẩm flash sale
+        $items->whereNotNull('flash_sale_items_id')->each(function ($item) {
+            $flashSaleItem = FlashSaleItems::where('product_variant_id', $item->product_variant_id)
+                ->where('id', $item->flash_sale_items_id)
+                ->first();
+
+            if ($flashSaleItem) {
+                $flashSaleItem->increment('max_quantity', $item->quantity);
+                $flashSaleItem->decrement('sold_quantity', $item->quantity);
+            }
+        });
+
             $voucher = Vouchers::find($order->voucher_id);
             if ($order->voucher_id && $voucher->end_date < now()) {
                 VouchersUsers::updateOrCreate(
@@ -181,8 +213,8 @@ class InfoController extends Controller
 
 
         $order->save();
-         // Lưu lịch sử hủy đơn nếu cần
-         OrderHistories::create([
+        // Lưu lịch sử hủy đơn nếu cần
+        OrderHistories::create([
             'users' => Auth::id(),
             'order_id' => $order->id,
             'from_status' => 'pending',
@@ -209,10 +241,10 @@ class InfoController extends Controller
             if (!$voucher) {
                 $voucher = null;
             }
-       
-        $type = VouchersLog::where('voucher_id', $order->voucher_id)->first();
-        Mail::to($order->user->email)->send(new OrderCancelledMail($order, $voucher, $type,$final_amount));
-    }
+
+            $type = VouchersLog::where('voucher_id', $order->voucher_id)->first();
+            Mail::to($order->user->email)->send(new OrderCancelledMail($order, $voucher, $type, $final_amount));
+        }
         return redirect()->back()->with('success', 'Đã hủy đơn hàng thành công!');
     }
 
@@ -253,44 +285,46 @@ class InfoController extends Controller
 
         // Validate request
         $request->validate([
-            'user_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'user_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'user_comment' => 'nullable|string|max:500',
         ], [
-            'user_image.required' => 'Vui lòng chọn ảnh xác nhận',
             'user_image.image' => 'File phải là hình ảnh',
             'user_image.mimes' => 'Chỉ chấp nhận định dạng: jpeg, png, jpg, gif, svg, webp',
             'user_image.max' => 'Kích thước ảnh không được vượt quá 2MB',
             'user_comment.max' => 'Ghi chú không được vượt quá 500 ký tự',
         ]);
+        
 
         try {
             // Upload ảnh
+            $dataUpdate = [
+                'user_comment' => $request->user_comment,
+                'user_confirm' => true,
+                'status' => 'delivered'
+            ];
+            
             if ($request->hasFile('user_image')) {
                 $file = $request->file('user_image');
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/orders/'), $filename);
-
-                // Cập nhật thông tin vào database
-                $order->update([
-                    'image_user' => 'uploads/orders/' . $filename,
-                    'user_comment' => $request->user_comment,
-                    'user_confirm' => true,
-                ]);
-
-                // Tạo lịch sử đơn hàng
-                OrderHistories::create([
-                    'users' => Auth::id(),
-                    'order_id' => $order->id,
-                    'from_status' => $order->status,
-                    'to_status' => $order->status,
-                    'note' => 'Khách hàng đã xác nhận nhận hàng',
-                    'content' => '',
-                ]);
-
-                return redirect()->back()->with('success', 'Xác nhận nhận hàng thành công!');
+                $dataUpdate['image_user'] = 'uploads/orders/' . $filename;
             }
-
-            return redirect()->back()->with('error', 'Có lỗi xảy ra khi upload ảnh');
+            
+            // Cập nhật thông tin order
+            $order->update($dataUpdate);
+            
+            // Tạo lịch sử
+            OrderHistories::create([
+                'users' => Auth::id(),
+                'order_id' => $order->id,
+                'from_status' => $order->status,
+                'to_status' => 'delivered',
+                'note' => 'Khách hàng đã xác nhận nhận hàng',
+                'content' => '',
+            ]);
+            
+            return redirect()->back()->with('success', 'Xác nhận nhận hàng thành công!');
+            
         } catch (\Exception $e) {
             Log::error('Error submitting user confirmation: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());

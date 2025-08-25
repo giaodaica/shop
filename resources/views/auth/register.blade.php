@@ -35,7 +35,7 @@
                             <input id="name"
                                 class="mb-20px bg-very-light-gray form-control required @error('name') is-invalid @enderror"
                                 name="name" type="text" placeholder="Nhập tên của bạn" value="{{ old('name') }}"
-                                required autocomplete="name" autofocus />
+                                 autocomplete="name" autofocus />
                             @error('name')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -47,7 +47,7 @@
                             <input id="email"
                                 class="mb-20px bg-very-light-gray form-control required @error('email') is-invalid @enderror"
                                 name="email" type="text" placeholder="Nhập email của bạn" value="{{ old('email') }}"
-                                required autocomplete="email" />
+                                autocomplete="email" />
                             @error('email')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -59,7 +59,7 @@
                                     class="text-red">*</span></label>
                             <input id="password"
                                 class="mb-20px bg-very-light-gray form-control required @error('password') is-invalid @enderror"
-                                type="password" name="password" placeholder="Nhập mật khẩu" required
+                                type="password" name="password" placeholder="Nhập mật khẩu"
                                 autocomplete="new-password" />
                             @error('password')
                                 <span class="invalid-feedback" role="alert">
@@ -71,7 +71,7 @@
                         <label for="password-confirm" class="text-dark-gray mb-10px fw-500">Xác nhận mật khẩu<span
                                 class="text-red">*</span></label>
                         <input id="password-confirm" class="mb-20px bg-very-light-gray form-control required"
-                            type="password" name="password_confirmation" placeholder="Nhập lại mật khẩu" required
+                            type="password" name="password_confirmation" placeholder="Nhập lại mật khẩu"
                             autocomplete="new-password" />
 
                         <span class="fs-13 lh-22 w-90 lg-w-100 md-w-90 sm-w-100 d-block mb-30px">Dữ liệu cá nhân của bạn sẽ

@@ -53,9 +53,10 @@
                                             'pending' => ['color' => 'warning', 'label' => 'Chờ xác nhận'],
                                             'confirmed' => ['color' => 'info', 'label' => 'Đã xác nhận'],
                                             'shipping' => ['color' => 'primary', 'label' => 'Đang giao'],
-                                            'success' => ['color' => 'success', 'label' => 'Thành công'],
+                                            'success' => ['color' => 'success', 'label' => 'Đã giao hàng'],
                                             'failed' => ['color' => 'danger', 'label' => 'Thất bại'],
                                             'cancelled' => ['color' => 'secondary', 'label' => 'Đã hủy'],
+                                            'delivered' => ['color' => 'secondary', 'label' => 'Giao hàng thành công'],
                                         ];
                                         $status = $order->status;
                                         $statusColor = $statusMap[$status]['color'] ?? 'secondary';
@@ -64,6 +65,7 @@
                                     <span class="badge bg-{{ $statusColor }}-subtle text-{{ $statusColor }}">
                                         {{ $statusLabel }}
                                     </span>
+                                    {{-- {{ dd($statusLabel) }} --}}
                                 </div>
                                 <div class="col-lg-3 col-6">
                                     <p class="text-muted mb-2 text-uppercase fw-semibold fs-14">Tổng tiền</p>
@@ -131,7 +133,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="ward_code" class="form-label">Xã/Phường</label>
-                                    <select class="form-select" id="ward_code" name="ward_code" disabled>
+                                    <select class="form-select" id="ward_code" name="ward_code" >
                                         <option value="{{ $order->ward_code }}">{{ $order->ward_name }}</option>
                                     </select>
                                 </div>
@@ -156,7 +158,9 @@
                                 <tr>
                                     <th>STT</th>
                                     <th>Chi tiết sản phẩm</th>
+                                    <th>Số lượng</th>
                                     <th>Giá</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -174,8 +178,8 @@
                                                 <div style="font-size: 13px; color: #555;">
                                                     {{ $item->productVariant->color->color_name ?? $item->color_name }},
                                                     {{ $item->productVariant->size->size_name ?? $item->size_name }}
-                                                    <br>
-                                                    x{{ $item->quantity }}
+                                                    {{-- <br> --}}
+                                                    
                                                 </div>
                                                 @php
                                                     $orderStatus = $order->status ?? null;
@@ -201,6 +205,7 @@
                                                 @endif
                                             </div>
                                         </td>
+                                        <td>{{ $item->quantity }}</td>
                                         <td>{{ number_format($item->sale_price) }}đ</td>
                                     </tr>
                                     <div class="modal fade" id="reviewModal-{{ $item->id }}" tabindex="-1"
@@ -359,7 +364,7 @@
                         Thời gian thanh toán: <strong>{{ $order->created_at }}</strong>
                     </div>
 
-                    @if ($order->user_confirm)
+                    @if ($order->user_image)
                         <div class="mb-3">
                             <div class="card border-success">
                                 <div class="card-header bg-success text-white">
@@ -412,7 +417,7 @@
                                 Xem ảnh giao hàng
                             </a>
                         @endif
-                        @if (!empty($order->image_ship) && !$order->user_confirm)
+                        @if ($order->status === 'success')
                             <a href="javascript:void(0)" class="btn btn-success no-hover" data-bs-toggle="modal"
                                 data-bs-target="#userConfirmationModal">Xác nhận nhận hàng</a>
                         @endif
@@ -498,7 +503,7 @@
                                     <label for="user_image" class="form-label">Ảnh xác nhận nhận hàng <span
                                             class="text-danger">*</span></label>
                                     <input type="file" class="form-control" id="user_image" name="user_image"
-                                        accept="image/*" required onchange="handleImageChange(event)"
+                                        accept="image/*"  onchange="handleImageChange(event)"
                                         style="cursor: pointer;">
                                     <div class="form-text">Vui lòng chụp ảnh sản phẩm đã nhận để xác nhận</div>
                                 </div>
@@ -993,18 +998,18 @@
                     }
                 });
         }
-        // Sửa số tiền ở tab STK
-        document.getElementById('editAmountStk').addEventListener('click', function() {
-            var input = document.getElementById('refundAmountStk');
-            input.readOnly = !input.readOnly;
-            if (!input.readOnly) input.focus();
-        });
-        // Sửa số tiền ở tab QR
-        document.getElementById('editAmountQr').addEventListener('click', function() {
-            var input = document.getElementById('refundAmountQr');
-            input.readOnly = !input.readOnly;
-            if (!input.readOnly) input.focus();
-        });
+        // // Sửa số tiền ở tab STK
+        // document.getElementById('editAmountStk').addEventListener('click', function() {
+        //     var input = document.getElementById('refundAmountStk');
+        //     input.readOnly = !input.readOnly;
+        //     if (!input.readOnly) input.focus();
+        // });
+        // // Sửa số tiền ở tab QR
+        // document.getElementById('editAmountQr').addEventListener('click', function() {
+        //     var input = document.getElementById('refundAmountQr');
+        //     input.readOnly = !input.readOnly;
+        //     if (!input.readOnly) input.focus();
+        // });
 
         // Preview ảnh QR khi upload
         var qrImageInput = document.getElementById('qrImageInput');
@@ -1076,30 +1081,36 @@
         document.getElementById('addressForm').style.display = 'none';
     }
     // Lấy phường theo tỉnh
-    document.getElementById('province_code').addEventListener('change', function() {
-        const provinceCode = this.value;
-        const wardSelect = document.getElementById('ward_code');
-
-        if (provinceCode) {
-            fetch(`/addresses/wards?province_code=${provinceCode}`)
-                .then(response => response.json())
-                .then(data => {
+    document.addEventListener('DOMContentLoaded', function() {
+    const provinceSelect = document.getElementById('province_code');
+    if (provinceSelect) { // Kiểm tra xem phần tử có tồn tại không
+        provinceSelect.addEventListener('change', function() {
+            const provinceCode = this.value;
+            const wardSelect = document.getElementById('ward_code');
+            if (wardSelect) {
+                if (provinceCode) {
+                    fetch(`/addresses/wards?province_code=${provinceCode}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
+                            data.forEach(ward => {
+                                wardSelect.innerHTML +=
+                                    `<option value="${ward.ward_code}">${ward.name}</option>`;
+                            });
+                            wardSelect.disabled = false;
+                        })
+                        .catch(error => {
+                            console.error('Lỗi:', error);
+                            wardSelect.innerHTML = '<option value="">Có lỗi xảy ra</option>';
+                        });
+                } else {
                     wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
-                    data.forEach(ward => {
-                        wardSelect.innerHTML +=
-                            `<option value="${ward.ward_code}">${ward.name}</option>`;
-                    });
-                    wardSelect.disabled = false;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    wardSelect.innerHTML = '<option value="">Có lỗi xảy ra</option>';
-                });
-        } else {
-            wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
-            wardSelect.disabled = false;
-        }
-    });
+                    wardSelect.disabled = true;
+                }
+            }
+        });
+    }
+});
 
     function editAddress(id, name, phone, provinceCode, wardCode, address) {
         document.getElementById('formTitle').textContent = 'Sửa địa chỉ';
