@@ -36,11 +36,15 @@
                         <div class="card-header border-0">
                             <div class="row g-4 align-items-center">
                                 <div class="col-sm-3">
-                                    <div class="search-box">
-                                        <input type="text" class="form-control search" placeholder="Tìm kiếm...">
-                                        <i class="ri-search-line search-icon"></i>
-                                    </div>
+                                    <form method="GET" action="{{ route('users.index') }}">
+                                        <div class="search-box">
+                                            <input type="text" name="search" value="{{ request('search') }}"
+                                                class="form-control" placeholder="Tìm kiếm tên hoặc email...">
+                                            <i class="ri-search-line search-icon"></i>
+                                        </div>
+                                    </form>
                                 </div>
+
                                 <div class="col-sm-auto ms-auto">
                                     <div class="hstack gap-2">
                                         {{-- Nút xoá hàng loạt --}}
@@ -145,7 +149,7 @@
                                                     <select
                                                         class="form-select @error('lock_reason_id') is-invalid @enderror"
                                                         name="lock_reason_id">
-                                                   
+
                                                         @foreach ($lockReasons as $reason)
                                                             <option value="{{ $reason->id }}"
                                                                 {{ old('lock_reason_id') == $reason->id ? 'selected' : '' }}>

@@ -29,6 +29,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $status = $request->get('status', 'active'); // active | trashed | all
+        $search = $request->get('search');
         $lockReasons = LockReason::all();
         $roles = Role::all();
         $query = User::query();
@@ -38,9 +39,14 @@ class UserController extends Controller
         } elseif ($status === 'all') {
             $query->withTrashed();
         }
-
-        $users = $query->latest()->paginate(10);
-        return view('dashboard.pages.users.index', compact('users', 'status', 'lockReasons', 'roles'));
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+        $users = $query->latest()->paginate(10)->appends($request->only('status', 'search'));
+        return view('dashboard.pages.users.index', compact('users', 'status', 'lockReasons', 'roles', 'search'));
     }
 
     // Hiển thị form tạo mới
