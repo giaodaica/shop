@@ -190,8 +190,8 @@ class RevenueController extends Controller
         $data_top_5_users = $revenue_top_users->where($timeFilter)->get();
         $sodonhang = $data_order->sodonhang ?? 0;
         $doanhthu = $data_doanhthu->doanhthu ?? 0;
-        $sodonhang_done = $revenue_doanhthu->first()->sodonhang ?? 0;
-        $dtb = $sodonhang > 0 ? $doanhthu / $sodonhang_done : 0;
+        $sodonhang_done = $data_doanhthu->sodonhang ?? 0; 
+        $dtb = $sodonhang_done > 0 ? $doanhthu / $sodonhang_done : 0;
 
         return view('dashboard.pages.revenue.index', compact('dtb', 'start', 'end', 'data_order', 'data_top_5', 'data_doanhthu', 'sodonhang', 'doanhthu', 'data_top_5_users', 'data_loinhan', 'least_sold_variants'));
     }
