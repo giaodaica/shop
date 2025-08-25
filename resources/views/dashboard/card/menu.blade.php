@@ -80,9 +80,6 @@
                             </li>
                         @endforeach
                         <li class="nav-item">
-                            <a href="" class="nav-link">Lịch Sử</a>
-                        </li>
-                        <li class="nav-item">
                             <button type="button" class="btn btn-success add-btn" data-bs-toggle="modal"
                                 id="create-btn" data-bs-target="#showModalAds">Thêm chiến dịch mới</button>
                         </li>
@@ -157,14 +154,15 @@
                 <a class="nav-link menu-link" href="{{ route('users.lock-history') }}" role="button">
                     <i class="fas fa-history"></i> <span>Lịch sử khóa tài khoản</span>
                 </a>
+                <a class="nav-link menu-link" href="{{ route('contact.index') }}" role="button">
+                    <i class="ri-layout-3-line"></i> <span>Liên hệ</span>
+                </a>
                 {{-- Phân quyền --}}
                 <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Phân quyền</span></li>
                 <a class="nav-link menu-link" href="{{ route('dashboard.roles.index') }}" role="button">
                     <i class="ri-layout-3-line"></i> <span>Vai trò người dùng</span>
                 </a>
-                 <a class="nav-link menu-link" href="{{ route('contact.index') }}" role="button">
-                    <i class="ri-layout-3-line"></i> <span>Liên hệ</span>
-                </a>
+                 
                 {{-- <a class="nav-link menu-link" href="{{ route('dashboard.permissions.index') }}" role="button">
                     <i class="ri-layout-3-line"></i> <span>Quyền truy cập</span>
                 </a> --}}
