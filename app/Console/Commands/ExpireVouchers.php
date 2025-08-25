@@ -40,7 +40,7 @@ class ExpireVouchers extends Command
         //3.1 hết hạn voucher user
         $expired1 = DB::table('vouchers_users')
             ->where('end_date', '<', $now)
-            ->where('status', 'active')
+            ->where('status', 'available')
             ->update(['status' => 'expired']);
         // 4. Chuyển voucher về trạng thái save nếu là used_up hoặc expired
         $saved = DB::table('vouchers')
