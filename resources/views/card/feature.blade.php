@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row mb-5 xs-mb-8">
             <div class="col-12 text-center">
-                <h2 class="alt-font text-dark-gray mb-0 ls-minus-2px">Sản phẩm <span class="text-highlight fw-600">tham khảo<span class="bg-base-color h-5px bottom-2px"></span></span></h2>
+                <h2 class="alt-font text-dark-gray mb-0 ls-minus-2px">Sản phẩm <span class="text-highlight fw-600">mới nhất<span class="bg-base-color h-5px bottom-2px"></span></span></h2>
             </div>
         </div>
     </div>
@@ -26,7 +26,7 @@
                                 <div class="price lh-22 fs-16">
                                     @php
                                         $variant = $product->variants->first();
-                                       
+
                                     @endphp
                                     @if ($variant && $variant->sale_price < $variant->listed_price)
                                         {{-- <del class="text-muted">{{ number_format($variant->listed_price, 3) }}đ</del>
@@ -39,7 +39,7 @@
                                         <span class="product-price">{{ number_format($variant->listed_price) }}₫</span>
                                     @endif
                                 </div>
-                                
+
                             </div>
                         </div>
                     </li>

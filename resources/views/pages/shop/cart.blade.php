@@ -90,10 +90,10 @@
                                       <td class="product-quantity" data-title="Quantity">
                                         <div class="quantity" data-id="{{ $item->id }}">
                                             <button type="button" class="qty-minus">-</button>
-                                            <input 
-                                                class="qty-text" 
-                                                type="text" 
-                                                value="{{ $item->quantity }}" 
+                                            <input
+                                                class="qty-text"
+                                                type="text"
+                                                value="{{ $item->quantity }}"
                                                 data-max="{{ $item->productVariant->stock_quantity }}"
                                                 readonly>
                                             <button type="button" class="qty-plus">+</button>
@@ -129,7 +129,7 @@
                                 </select>
                             </div>
                             <div class="col-4">
-                                <button type="submit" class="btn btn-dark w-100">Áp dụng</button>
+                                <button type="submit" class="btn btn-dark-gray w-100">Áp dụng</button>
                             </div>
                         </form>
                     </div>
@@ -185,7 +185,7 @@
         </div>
     </div>
 
-    
+
 </section>
 
     <!-- end section -->
@@ -519,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function () {
         overflow: hidden;
         text-overflow: ellipsis;
         display: block;
-        max-width: 200px; 
+        max-width: 200px;
     }
 
 
