@@ -84,8 +84,8 @@ class RefundMoneyController extends Controller
         // Nếu đã có record thì update, chưa có thì tạo mới
         if ($refund) {
             $refund->update($data);
-        } else {
-            RefundMoney::create($data);
+        }else{
+            return back()->with('error', 'Không thể thực hiện thao tác này');
         }
 
         return redirect()->route('home.orderDetail', $id)
@@ -111,7 +111,9 @@ class RefundMoneyController extends Controller
         $refund = \App\Models\RefundMoney::where('order_id', $id)
         ->where('user_id', $user->id)->
         where('status','admin')->first();
-
+        if(!$refund){
+            return redirect()->route('home.orderDetail', $id)->with('error', 'Không thể thực hiện thao tác này');
+        }
 
 
         // Nếu đã gửi yêu cầu hoàn tiền và chưa bị admin từ chối, chặn truy cập
