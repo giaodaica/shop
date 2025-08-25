@@ -54,9 +54,9 @@
                                             'confirmed' => ['color' => 'info', 'label' => 'Đã xác nhận'],
                                             'shipping' => ['color' => 'primary', 'label' => 'Đang giao'],
                                             'success' => ['color' => 'success', 'label' => 'Đã giao hàng'],
-                                            'failed' => ['color' => 'danger', 'label' => 'Thất bại'],
+                                            'failed' => ['color' => 'danger', 'label' => 'Giao hàng thất bại'],
                                             'cancelled' => ['color' => 'secondary', 'label' => 'Đã hủy'],
-                                            'delivered' => ['color' => 'secondary', 'label' => 'Giao hàng thành công'],
+                                            'delivered' => ['color' => 'success', 'label' => 'Giao hàng thành công'],
                                         ];
                                         $status = $order->status;
                                         $statusColor = $statusMap[$status]['color'] ?? 'secondary';
@@ -133,7 +133,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="ward_code" class="form-label">Xã/Phường</label>
-                                    <select class="form-select" id="ward_code" name="ward_code" >
+                                    <select class="form-select" id="ward_code" name="ward_code">
                                         <option value="{{ $order->ward_code }}">{{ $order->ward_name }}</option>
                                     </select>
                                 </div>
@@ -179,24 +179,23 @@
                                                     {{ $item->productVariant->color->color_name ?? $item->color_name }},
                                                     {{ $item->productVariant->size->size_name ?? $item->size_name }}
                                                     {{-- <br> --}}
-                                                    
+
                                                 </div>
                                                 @php
                                                     $orderStatus = $order->status ?? null;
 
                                                     $data_item = null;
-                                                    if ($orderStatus === 'success') {
+                                                    if ($orderStatus === 'success' || $orderStatus === 'delivered') {
                                                         $data_item = App\Models\Review::where('order_id', $order->id)
                                                             ->where('product_variant_id', $item->product_variant_id)
                                                             ->first();
                                                     }
                                                 @endphp
-
-                                                @if ($orderStatus === 'success' && $data_item)
+                                                @if (($orderStatus === 'success' || $orderStatus === 'delivered') && $data_item)
                                                     <span class="badge bg-success px-3 py-2">
                                                         <i class="bi bi-check-circle-fill me-1"></i> Đã đánh giá
                                                     </span>
-                                                @elseif ($orderStatus === 'success')
+                                                @elseif ($orderStatus === 'success' || $orderStatus === 'delivered')
                                                     <button type="button" class="btn btn-sm shadow-sm hover-scale"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#reviewModal-{{ $item->id }}">
@@ -503,8 +502,7 @@
                                     <label for="user_image" class="form-label">Ảnh xác nhận nhận hàng <span
                                             class="text-danger">*</span></label>
                                     <input type="file" class="form-control" id="user_image" name="user_image"
-                                        accept="image/*"  onchange="handleImageChange(event)"
-                                        style="cursor: pointer;">
+                                        accept="image/*" onchange="handleImageChange(event)" style="cursor: pointer;">
                                     <div class="form-text">Vui lòng chụp ảnh sản phẩm đã nhận để xác nhận</div>
                                 </div>
                                 <div class="mb-3">
@@ -1082,35 +1080,35 @@
     }
     // Lấy phường theo tỉnh
     document.addEventListener('DOMContentLoaded', function() {
-    const provinceSelect = document.getElementById('province_code');
-    if (provinceSelect) { // Kiểm tra xem phần tử có tồn tại không
-        provinceSelect.addEventListener('change', function() {
-            const provinceCode = this.value;
-            const wardSelect = document.getElementById('ward_code');
-            if (wardSelect) {
-                if (provinceCode) {
-                    fetch(`/addresses/wards?province_code=${provinceCode}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
-                            data.forEach(ward => {
-                                wardSelect.innerHTML +=
-                                    `<option value="${ward.ward_code}">${ward.name}</option>`;
+        const provinceSelect = document.getElementById('province_code');
+        if (provinceSelect) { // Kiểm tra xem phần tử có tồn tại không
+            provinceSelect.addEventListener('change', function() {
+                const provinceCode = this.value;
+                const wardSelect = document.getElementById('ward_code');
+                if (wardSelect) {
+                    if (provinceCode) {
+                        fetch(`/addresses/wards?province_code=${provinceCode}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
+                                data.forEach(ward => {
+                                    wardSelect.innerHTML +=
+                                        `<option value="${ward.ward_code}">${ward.name}</option>`;
+                                });
+                                wardSelect.disabled = false;
+                            })
+                            .catch(error => {
+                                console.error('Lỗi:', error);
+                                wardSelect.innerHTML = '<option value="">Có lỗi xảy ra</option>';
                             });
-                            wardSelect.disabled = false;
-                        })
-                        .catch(error => {
-                            console.error('Lỗi:', error);
-                            wardSelect.innerHTML = '<option value="">Có lỗi xảy ra</option>';
-                        });
-                } else {
-                    wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
-                    wardSelect.disabled = true;
+                    } else {
+                        wardSelect.innerHTML = '<option value="">Chọn xã/phường</option>';
+                        wardSelect.disabled = true;
+                    }
                 }
-            }
-        });
-    }
-});
+            });
+        }
+    });
 
     function editAddress(id, name, phone, provinceCode, wardCode, address) {
         document.getElementById('formTitle').textContent = 'Sửa địa chỉ';

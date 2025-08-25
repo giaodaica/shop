@@ -1,4 +1,4 @@
-<div class="modal fade" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-light p-3">
@@ -64,33 +64,23 @@
                             @enderror
                         </div>
 
-                        {{-- Vai trò mặc định là admin --}}
-                        <input type="hidden" name="role" value="admin">
-
-                        {{-- Chọn Roles --}}
+                        {{-- Chọn Role --}}
                         @if (isset($roles) && $roles->count() > 0)
                             <div class="col-lg-12">
-                                <label class="form-label">Phân quyền</label>
-                                <div class="row">
+                                <label for="user-role" class="form-label">Vai trò</label>
+                                <select id="user-role" name="role_id" class="form-select @error('role_id') is-invalid @enderror">
+                                    <option value="">-- Chọn vai trò --</option>
                                     @foreach ($roles as $role)
-                                        <div class="col-lg-6">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="roles[]"
-                                                    value="{{ $role->id }}" id="role_{{ $role->id }}"
-                                                    {{ in_array($role->id, old('roles', [])) ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="role_{{ $role->id }}">
-                                                    {{ $role->name }}
-                                                    @if ($role->description)
-                                                        <small
-                                                            class="text-muted d-block">{{ $role->description }}</small>
-                                                    @endif
-                                                </label>
-                                            </div>
-                                        </div>
+                                        <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                                            {{ $role->name }}
+                                            @if ($role->description)
+                                                - {{ $role->description }}
+                                            @endif
+                                        </option>
                                     @endforeach
-                                </div>
-                                <small class="text-muted">Chọn các vai trò cho người dùng này</small>
-                                @error('roles')
+                                </select>
+                                <small class="text-muted">Chọn vai trò cho người dùng này</small>
+                                @error('role_id')
                                     <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -114,11 +104,205 @@
     </div>
 </div>
 
+<style>
+/* Đảm bảo modal hiển thị đúng cách */
+.modal-backdrop {
+    z-index: 1040;
+}
+
+.modal {
+    z-index: 1050;
+}
+
+/* Xóa backdrop khi modal bị ẩn */
+.modal:not(.show) + .modal-backdrop {
+    display: none !important;
+}
+
+/* Đảm bảo body không bị khóa */
+body:not(.modal-open) {
+    overflow: auto !important;
+    padding-right: 0 !important;
+}
+</style>
+
 @if ($errors->any())
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const modal = new bootstrap.Modal(document.getElementById('showModal'));
-            modal.show();
+            const modalElement = document.getElementById('showModal');
+            let modal = null;
+            
+            // Function để cleanup modal hoàn toàn
+            function cleanupModal() {
+                // Xóa backdrop thủ công nếu cần
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                
+                // Xóa class modal-open khỏi body
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                // Reset form
+                const form = modalElement.querySelector('form');
+                if (form) {
+                    form.reset();
+                    // Xóa tất cả class is-invalid
+                    form.querySelectorAll('.is-invalid').forEach(input => {
+                        input.classList.remove('is-invalid');
+                    });
+                    // Xóa tất cả error messages
+                    form.querySelectorAll('.invalid-feedback, .text-danger').forEach(error => {
+                        error.remove();
+                    });
+                }
+                
+                // Xóa tất cả class show và fade
+                modalElement.classList.remove('show', 'fade');
+                modalElement.style.display = 'none';
+                modalElement.setAttribute('aria-hidden', 'true');
+            }
+            
+            // Function để đóng modal an toàn
+            function closeModal() {
+                if (modal) {
+                    modal.hide();
+                } else {
+                    cleanupModal();
+                }
+            }
+            
+            // Khởi tạo modal
+            try {
+                modal = new bootstrap.Modal(modalElement, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                
+                // Hiển thị modal
+                modal.show();
+            } catch (error) {
+                console.error('Error initializing modal:', error);
+                // Fallback: hiển thị modal thủ công
+                modalElement.style.display = 'block';
+                modalElement.classList.add('show');
+                modalElement.setAttribute('aria-hidden', 'false');
+            }
+            
+            // Xử lý khi modal bị ẩn
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                cleanupModal();
+            });
+            
+            // Xử lý khi đóng modal bằng nút đóng
+            const closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"]');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    closeModal();
+                });
+            });
+            
+            // Xử lý khi click bên ngoài modal
+            modalElement.addEventListener('click', function(e) {
+                if (e.target === modalElement) {
+                    closeModal();
+                }
+            });
+            
+            // Xử lý ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modalElement.classList.contains('show')) {
+                    closeModal();
+                }
+            });
+            
+            // Xử lý khi submit form thành công
+            const form = modalElement.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    // Ẩn modal khi submit
+                    setTimeout(() => {
+                        closeModal();
+                    }, 100);
+                });
+            }
+        });
+    </script>
+@else
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modalElement = document.getElementById('showModal');
+            let modal = null;
+            
+            // Function để cleanup modal hoàn toàn
+            function cleanupModal() {
+                // Xóa backdrop thủ công nếu cần
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                
+                // Xóa class modal-open khỏi body
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                // Reset form
+                const form = modalElement.querySelector('form');
+                if (form) {
+                    form.reset();
+                }
+            }
+            
+            // Function để đóng modal an toàn
+            function closeModal() {
+                if (modal) {
+                    modal.hide();
+                } else {
+                    cleanupModal();
+                }
+            }
+            
+            // Khởi tạo modal
+            try {
+                modal = new bootstrap.Modal(modalElement, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            } catch (error) {
+                console.error('Error initializing modal:', error);
+            }
+            
+            // Xử lý khi modal bị ẩn
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                cleanupModal();
+            });
+            
+            // Xử lý khi đóng modal bằng nút đóng
+            const closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"]');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    closeModal();
+                });
+            });
+            
+            // Xử lý khi click bên ngoài modal
+            modalElement.addEventListener('click', function(e) {
+                if (e.target === modalElement) {
+                    closeModal();
+                }
+            });
+            
+            // Xử lý ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modalElement.classList.contains('show')) {
+                    closeModal();
+                }
+            });
         });
     </script>
 @endif

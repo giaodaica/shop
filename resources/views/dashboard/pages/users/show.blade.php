@@ -73,7 +73,15 @@
                         <i class="ri-ticket-line me-1 align-bottom"></i> Voucher
                     </a>
                 </li>
+                {{-- 🔹 Thêm tab mới --}}
+                <li class="nav-item">
+                    <a class="nav-link fw-semibold {{ $activeTab == 'lock-history' ? 'active text-white border-bottom border-white' : 'text-muted' }}"
+                        href="{{ route('users.show', ['id' => $user->id, 'tab' => 'lock-history']) }}">
+                        <i class="ri-lock-line me-1 align-bottom"></i> Lịch sử khóa
+                    </a>
+                </li>
             </ul>
+
 
             {{-- Tab nội dung --}}
             <div class="tab-content pt-4 text-muted">
@@ -519,9 +527,53 @@
                             </div>
                         </div>
                     </div>
+                @elseif ($activeTab == 'lock-history')
+                    <div class="tab-pane fade show active" id="lock-history-tab" role="tabpanel">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Lịch sử khóa tài khoản</h5>
 
+                                @if ($user->lockHistory->isEmpty())
+                                    <div class="alert alert-info">
+                                        <i class="ri-information-line me-1 align-middle"></i>
+                                        Người dùng chưa từng bị khóa.
+                                    </div>
+                                @else
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Thời gian</th>
+                                                    <th>Người khóa</th>
+                                                    <th>Lý do</th>
+                                                    <th>Ghi chú</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($user->lockHistory as $lock)
+                                                    <tr>
+                                                        <td>{{ $lock->created_at->format('d/m/Y H:i') }}</td>
+                                                        <td>{{ $lock->lockedByUser->name ?? '---' }}</td>
+                                                        <td>{{ $lock->reason->name ?? '---' }}</td>
+                                                        <td>{{ $lock->note ?? '---' }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
+
+                            </div>
+                        </div>
+                    </div>
                 @endif
+
+          
+
+
+
             </div>
+
 
             {{-- Nút quay lại --}}
             <div class="mt-3">

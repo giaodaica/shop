@@ -38,7 +38,7 @@
                                 'confirmed' => ['color' => 'info', 'label' => 'Đã xác nhận'],
                                 'shipping' => ['color' => 'primary', 'label' => 'Đang giao'],
                                 'success' => ['color' => 'success', 'label' => 'Đã giao hàng'],
-                                'failed' => ['color' => 'danger', 'label' => 'Thất bại'],
+                                'failed' => ['color' => 'danger', 'label' => 'Giao hàng thất bại'],
                                 'cancelled' => ['color' => 'secondary', 'label' => 'Đã hủy'],
                                 'delivered' => ['color' => 'success', 'label' => 'Giao hàng thành công'],
                             ];

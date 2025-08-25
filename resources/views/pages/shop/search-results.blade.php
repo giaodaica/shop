@@ -184,9 +184,7 @@
                                     <span class="product-price">{{ number_format($variant->listed_price) }}₫</span>
                                 @endif
                             </div>
-                            <div class="rating">
-                                <span class="text-warning">★★★★★</span> {{ number_format($rating, 1) }}
-                            </div>
+                           
                             <div class="product-sizes" style="display: none;">
                                 @foreach($product->variants as $variant)
                                     @if($variant->size && !$variant->is_out_of_stock)
