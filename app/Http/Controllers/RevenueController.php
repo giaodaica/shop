@@ -85,7 +85,8 @@ class RevenueController extends Controller
         $revenue_order = Order::selectRaw('
         COUNT(orders.id) as sodonhang,
         COUNT(CASE WHEN orders.status = "pending" THEN 1 END) as donhang_dangcho,
-       COUNT(CASE WHEN orders.status IN ("success", "delivered") THEN 1 END) as donhang_thanhcong,
+        COUNT(CASE WHEN orders.status = "success" THEN 1 END) as don_dagiao,
+        COUNT(CASE WHEN orders.status = "delivered" THEN 1 END) as don_thanhcong,
         COUNT(CASE WHEN orders.status = "cancelled" THEN 1 END) as donhang_huy,
         COUNT(CASE WHEN orders.status = "failed" THEN 1 END) as donhang_thatbai,
         COUNT(CASE WHEN orders.status = "shipping" THEN 1 END) as donhang_dangvanchuyen');

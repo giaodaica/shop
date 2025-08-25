@@ -103,7 +103,7 @@
 
         {{-- Thống kê nhanh --}}
        <div class="row mb-3 align-items-stretch">
-    <div class="col-md-2">
+    <div class="col">
         <div class="card text-center border-primary h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-primary" style="font-size: 1.5rem;">
@@ -118,7 +118,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col">
         <div class="card text-center border-warning h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-warning" style="font-size: 1.5rem;">
@@ -133,7 +133,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col">
         <div class="card text-center border-info h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-info" style="font-size: 1.5rem;">
@@ -148,13 +148,13 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col">
         <div class="card text-center border-success h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-success" style="font-size: 1.5rem;">
-                    {{ $data_order->donhang_thanhcong ?? 0 }}
+                    {{ $data_order->don_dagiao ?? 0 }}
                 </div>
-                <div class="text-muted">Đơn đã hoàn thành</div>
+                <div class="text-muted">Đã giao hàng</div>
             </div>
             <div class="card-footer bg-transparent border-top-0">
                 <a target="_blank" rel="noopener noreferrer" href="{{ route('dashboard.order', ['type' => 'success']) }}" class="btn btn-sm btn-outline-success w-100">
@@ -163,7 +163,22 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col">
+        <div class="card text-center border-success h-100 d-flex flex-column">
+            <div class="card-body flex-grow-1">
+                <div class="fw-bold text-success" style="font-size: 1.5rem;">
+                    {{ $data_order->don_thanhcong ?? 0 }}
+                </div>
+                <div class="text-muted">Giao hàng thành công</div>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+                <a target="_blank" rel="noopener noreferrer" href="{{ route('dashboard.order', ['type' => 'delivered']) }}" class="btn btn-sm btn-outline-success w-100">
+                    Xem chi tiết
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
         <div class="card text-center border-danger h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-danger" style="font-size: 1.5rem;">
@@ -178,7 +193,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col">
         <div class="card text-center border-danger h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-danger" style="font-size: 1.5rem;">
