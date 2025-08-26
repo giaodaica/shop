@@ -246,7 +246,16 @@
         <div class="card mb-4 border-danger">
             <div class="card-header bg-danger text-white fw-bold">Top sản phẩm bán ế</div>
             <div class="card-body">
-                <canvas id="leastSoldProductsChart" height="120"></canvas>
+                <ul class="list-group list-group-flush">
+                    @forelse($least_sold_variants as $item)
+                        <li class="list-group-item d-flex align-items-center">
+                            <span class="badge bg-danger me-2" style="width:18px;height:18px;">!</span>
+                            <span class="fw-semibold">{{ $item->variant_name }}</span>
+                        </li>
+                    @empty
+                        <li class="list-group-item text-muted">Không có sản phẩm nào.</li>
+                    @endforelse
+                </ul>
             </div>
         </div>
 
