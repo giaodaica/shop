@@ -122,6 +122,7 @@ public function update(VoucherRequest $request, $id)
         if ($data->status !== 'active') {
             abort(403, 'Không thể làm hành động này');
         }
+        $data_voucher_user = VouchersUsers::where('voucher_id', $id)->update(['status'=> 'expired']);
         $data->update(['status' => 'disabled']);
         return redirect()->back();
     }
