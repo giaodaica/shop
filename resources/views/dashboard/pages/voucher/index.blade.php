@@ -180,7 +180,7 @@
                                                                 name="checkAll" value="option1">
                                                         </div>
                                                     </th>
-                                                    <td class="id"><a href="apps-ecommerce-order-details.html"
+                                                    <td class="id"><a href="{{ url("dashboard/voucher/$id/$render_voucher->id") }}"
                                                             class="fw-medium link-primary">{{ $render_voucher->code }}</a>
                                                     </td>
                                                     <td class="date">{{ $render_voucher->start_date }}</td>
