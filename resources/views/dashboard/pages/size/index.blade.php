@@ -25,7 +25,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
-             @if (session('error'))
+            @if (session('error'))
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -63,7 +63,7 @@
                                                         value="option">
                                                 </div>
                                             </th>
-                                            <th class="sort" data-sort="id">Mã</th>
+                                            <th class="sort" data-sort="id">STT</th>
                                             <th class="sort" data-sort="size_name">Tên size</th>
                                             <th class="sort" data-sort="created_at">Ngày tạo</th>
                                             <th class="sort" data-sort="action">Hành động</th>
@@ -80,8 +80,8 @@
                                                     </div>
                                                 </th>
                                                 <td class="id">
-                                                    <a href="{{ route('sizes.show', $size->id) }}"
-                                                        class="fw-medium link-primary">SIZE{{ $size->id }}</a>
+
+                                                    SIZE{{ $size->id }}
                                                 </td>
                                                 <td class="size_name">{{ $size->size_name }}</td>
                                                 <td class="created_at">{{ $size->created_at->format('d/m/Y') }}</td>
@@ -119,7 +119,8 @@
                                                             trigger="loop" colors="primary:#405189,secondary:#0ab39c"
                                                             style="width:75px;height:75px"></lord-icon>
                                                         <h5 class="mt-2">Rất tiếc! Không tìm thấy kết quả</h5>
-                                                        <p class="text-muted">Chúng tôi đã tìm nhưng không thấy size nào phù
+                                                        <p class="text-muted">Chúng tôi đã tìm nhưng không thấy size nào
+                                                            phù
                                                             hợp.</p>
                                                     </div>
                                                 </td>
@@ -242,7 +243,7 @@
                                 .then(data => {
                                     if (data.status === 'success') {
                                         Swal.fire('Thành công', data.message, 'success').then(
-                                        () => {
+                                            () => {
                                                 location.reload();
                                             });
                                     } else {
@@ -251,7 +252,7 @@
                                 })
                                 .catch(() => {
                                     Swal.fire('Lỗi', 'Không thể xóa các size đã chọn.',
-                                    'error');
+                                        'error');
                                 });
                         }
                     });
