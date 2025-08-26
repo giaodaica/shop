@@ -80,20 +80,15 @@ class VouchersController extends Controller
         }
         return view('dashboard.pages.voucher.detail', compact('data_voucher', 'action', 'categories'));
     }
-    public function update(VoucherRequest $request, $id)
+
+public function update(VoucherRequest $request, $id)
 {
     $data_voucher = Vouchers::findOrFail($id);
 
     if ($data_voucher->status === 'active') {
-        // Chỉ cho phép sửa ngày kết thúc và số lượt dùng
-        $data = $request->validate([
-            'end_date' => 'required|date|after:today',
-            'max_used' => 'required|integer|min:1',
-        ]);
+        $data = Arr::only($request->validated(), ['end_date', 'max_used']);
     } else {
-        // Các trạng thái khác (draft, pending, ...) thì sửa đầy đủ
         $data = $request->validated();
-
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '.' . $file->getClientOriginalExtension();
@@ -112,6 +107,7 @@ class VouchersController extends Controller
 
     return redirect()->back()->with('success', 'Cập nhật thành công');
 }
+
 
 
     public function ads(AdsRequest $request)
@@ -205,17 +201,17 @@ class VouchersController extends Controller
     }
     public function restore($id)
     {
-       $voucher = Vouchers::where('id',$id)->first();
+        $voucher = Vouchers::where('id', $id)->first();
         if (!$voucher) {
             return redirect()->back()->with('error', 'Voucher không tồn tại');
         }
         if ($voucher->status != 'save') {
             return redirect()->back()->with('error', 'Voucher này không thể phát hành lại');
         }
-        if($voucher->created_at > now()->subDays(30)) {
+        if ($voucher->created_at > now()->subDays(30)) {
             return redirect()->back()->with('error', 'Chỉ có thể khôi phục lại sau 30 ngày');
         }
-        VouchersUsers::where('voucher_id',$id)->delete();
+        VouchersUsers::where('voucher_id', $id)->delete();
         $voucher->update(['status' => 'draft']);
         return redirect()->back()->with('success', 'Phát hành lại voucher thành công');
     }
