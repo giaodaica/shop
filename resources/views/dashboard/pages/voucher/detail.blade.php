@@ -261,7 +261,11 @@
                                         <input type="datetime-local" id="start_date" name="start_date"
                                             class="form-control" data-provider="flatpickr" data-date-format="d M, Y"
                                             data-enable-time placeholder="chọn thời gian"
-                                            value="{{ $data_voucher->start_date }}" />
+                                            value="{{ $data_voucher->start_date }}"  @if($data_voucher->status == 'active')
+                                                readonly
+                                            @else
+
+                                            @endif/>
                                         <div class="text-danger">
                                             @error('start_date')
                                                 {{ $message }}
