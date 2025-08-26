@@ -198,22 +198,17 @@ class VouchersController extends Controller
     }
     public function restore($id)
     {
-        $voucher = Vouchers::where('id', $id)->first();
+       $voucher = Vouchers::where('id',$id)->first();
         if (!$voucher) {
             return redirect()->back()->with('error', 'Voucher không tồn tại');
         }
         if ($voucher->status != 'save') {
             return redirect()->back()->with('error', 'Voucher này không thể phát hành lại');
         }
-        $daysPassed = now()->diffInDays($voucher->created_at); // luôn trả về int
-        if ($daysPassed < 30) {
-            $daysLeft = 30 - $daysPassed; // số ngày còn lại
-            return redirect()->back()->with(
-                'error',
-                "Chỉ có thể khôi phục lại sau {$daysLeft} ngày nữa."
-            );
+        if($voucher->created_at > now()->subDays(30)) {
+            return redirect()->back()->with('error', 'Chỉ có thể khôi phục lại sau 30 ngày');
         }
-        VouchersUsers::where('voucher_id', $id)->delete();
+        VouchersUsers::where('voucher_id',$id)->delete();
         $voucher->update(['status' => 'draft']);
         return redirect()->back()->with('success', 'Phát hành lại voucher thành công');
     }
