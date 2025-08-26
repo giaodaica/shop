@@ -341,7 +341,7 @@ class ProductsController extends Controller
             'variants.*.listed_price.required' => 'Giá niêm yết không được để trống.',
             'variants.*.listed_price.numeric' => 'Giá niêm yết phải là số.',
             'variants.*.listed_price.min' => 'Giá niêm yết không được nhỏ hơn 0.',
-            
+
             'variants.*.sale_price.required' => 'Giá bán không được để trống.',
             'variants.*.sale_price.numeric' => 'Giá bán phải là số.',
             'variants.*.sale_price.min' => 'Giá bán không được nhỏ hơn 0.',
