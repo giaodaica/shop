@@ -106,15 +106,27 @@
                                     </div>
                                     <div class="card-body">
                                         <div id="variant-container">
-                                            @foreach ($product->variants as $index => $variant)
-                                                @include('dashboard.pages.product.partials.variant', [
-                                                    'index' => $index,
-                                                    'variant' => $variant,
-                                                    'editMode' => true,
-                                                    'sizes' => $sizes,
-                                                    'colors' => $colors,
-                                                ])
-                                            @endforeach
+                                            @if (old('variants'))
+                                                @foreach (old('variants') as $index => $variant)
+                                                    @include('dashboard.pages.product.partials.variant', [
+                                                        'index' => $index,
+                                                        'variant' => $variant,
+                                                        'editMode' => false,
+                                                        'sizes' => $sizes,
+                                                        'colors' => $colors,
+                                                    ])
+                                                @endforeach
+                                            @else
+                                                @foreach ($product->variants as $index => $variant)
+                                                    @include('dashboard.pages.product.partials.variant', [
+                                                        'index' => $index,
+                                                        'variant' => $variant->toArray(),
+                                                        'editMode' => true,
+                                                        'sizes' => $sizes,
+                                                        'colors' => $colors,
+                                                    ])
+                                                @endforeach
+                                            @endif
                                         </div>
                                         <div id="variant-message"
                                             class="alert alert-danger alert-dismissible fade show d-none" role="alert">
