@@ -104,7 +104,7 @@ class VouchersController extends Controller
             }
         }
         $data_voucher->update($data);
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Cập nhật thành công');
     }
 
     public function ads(AdsRequest $request)
