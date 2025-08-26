@@ -63,7 +63,7 @@
                                                         value="option">
                                                 </div>
                                             </th>
-                                            <th class="sort" data-sort="id">STT</th>
+                                            <th class="sort" data-sort="id">Mã</th>
                                             <th class="sort" data-sort="size_name">Tên size</th>
                                             <th class="sort" data-sort="created_at">Ngày tạo</th>
                                             <th class="sort" data-sort="action">Hành động</th>
