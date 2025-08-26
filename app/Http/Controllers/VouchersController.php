@@ -81,31 +81,38 @@ class VouchersController extends Controller
         return view('dashboard.pages.voucher.detail', compact('data_voucher', 'action', 'categories'));
     }
     public function update(VoucherRequest $request, $id)
-    {
-        // dd($_POST);
-        $data_voucher = Vouchers::findOrFail($id);
+{
+    $data_voucher = Vouchers::findOrFail($id);
+
+    if ($data_voucher->status === 'active') {
+        // Chỉ cho phép sửa ngày kết thúc và số lượt dùng
+        $data = $request->validate([
+            'end_date' => 'required|date|after:today',
+            'max_used' => 'required|integer|min:1',
+        ]);
+    } else {
+        // Các trạng thái khác (draft, pending, ...) thì sửa đầy đủ
         $data = $request->validated();
 
-        if ($data_voucher->status == 'active' || $data_voucher->status == 'used_up' || $data_voucher->status == 'expired') {
-            // dd('chayj vafho day');
-            $data = Arr::only($data, ['end_date', 'max_used']);
-            // dd($data);
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/vouchers'), $filename);
+            $data['image'] = 'uploads/vouchers/' . $filename;
         } else {
-            if ($request->hasFile('image')) {
-                $file = $request->file('image');
-                $filename = time() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('uploads/vouchers'), $filename);
-                $data['image'] = 'uploads/vouchers/' . $filename;
-            } else {
-                $data['image'] = $data_voucher->image;
-            }
-            if (isset($data['type_discount']) && $data['type_discount'] == "value") {
-                $data['max_discount'] = 0;
-            }
+            $data['image'] = $data_voucher->image;
         }
-        $data_voucher->update($data);
-        return redirect()->back()->with('success', 'Cập nhật thành công');
+
+        if (isset($data['type_discount']) && $data['type_discount'] === "value") {
+            $data['max_discount'] = 0;
+        }
     }
+
+    $data_voucher->update($data);
+
+    return redirect()->back()->with('success', 'Cập nhật thành công');
+}
+
 
     public function ads(AdsRequest $request)
     {
