@@ -88,7 +88,7 @@ class VouchersController extends Controller
 
         if ($data_voucher->status == 'active' || $data_voucher->status == 'used_up' || $data_voucher->status == 'expired') {
             // dd('chayj vafho day');
-            $data = Arr::only($data, ['start_date', 'end_date', 'max_used']);
+            $data = Arr::only($data, ['end_date', 'max_used']);
             // dd($data);
         } else {
             if ($request->hasFile('image')) {
