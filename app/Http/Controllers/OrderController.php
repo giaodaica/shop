@@ -97,6 +97,10 @@ class OrderController extends Controller
         if (session('voucher_code')) {
             $appliedVoucher = Vouchers::where('code', session('voucher_code'))->first();
         }
+        if ($appliedVoucher && $appliedVoucher->status == 'disabled') {
+            return back()->with('error', 'Voucher đã bị vô hiệu hóa');
+        }
+
         // dd($voucherDiscount);
         return view('pages.shop.checkout', compact(
             'cartItems',
