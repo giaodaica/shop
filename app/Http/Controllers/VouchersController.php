@@ -189,6 +189,9 @@ public function update(VoucherRequest $request, $id)
         if (!$data_voucher) {
             return redirect()->back()->with('error', 'Không tìm thấy voucher này');
         }
+        if($data_voucher->status != 'save' && $data_voucher->status != 'draft'){
+            return redirect()->back()->with('error', 'Bạn chỉ có thể xóa voucher này khi nó chưa phát hành hoặc đã lưu trữ');
+        }
         if (!$data) {
             return abort(403, 'Không hợp lệ');
         }
