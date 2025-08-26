@@ -20,11 +20,25 @@ class ExpireVouchers extends Command
         $expired = 0;
 
         // 1. Kích hoạt voucher khi đến hạn
-        $activated = DB::table('vouchers')
+        $vouchers = DB::table('vouchers')
             ->where('start_date', '<=', $now)
             ->where('status', 'draft')
             ->whereNotNull('block')
-            ->update(['status' => 'active']);
+            ->get();
+
+        foreach ($vouchers as $voucher) {
+            $exists = DB::table('vouchers')
+                ->where('block', $voucher->block)
+                ->where('status', 'active')
+                ->exists();
+
+            if (!$exists) {
+                DB::table('vouchers')
+                    ->where('id', $voucher->id)
+                    ->update(['status' => 'active']);
+            }
+        }
+
 
         // 2. Tự kết thúc nếu số lượng đã hết
         $finished = DB::table('vouchers')
