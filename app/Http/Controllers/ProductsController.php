@@ -137,7 +137,7 @@ class ProductsController extends Controller
             'variants.*.color_id' => 'required|exists:colors,id',
             'variants.*.import_price' => 'required|numeric|min:0',
             'variants.*.listed_price' => 'required|numeric|min:0',
-            'variants.*.sale_price' => 'nullable|numeric|min:0|lte:variants.*.listed_price',
+            'variants.*.sale_price' => 'required|numeric|min:0|lte:variants.*.listed_price',
             'variants.*.stock' => 'required|integer|min:0',
             'variants.*.temp_variant_image_url' => 'required|string',
         ], [
@@ -159,6 +159,7 @@ class ProductsController extends Controller
             'variants.*.listed_price.numeric' => 'Giá niêm yết phải là số.',
             'variants.*.listed_price.min' => 'Giá niêm yết không được nhỏ hơn 0.',
 
+            'variants.*.sale_price.required' => 'Giá bán không được để trống.',
             'variants.*.sale_price.numeric' => 'Giá bán phải là số.',
             'variants.*.sale_price.min' => 'Giá bán không được nhỏ hơn 0.',
             'variants.*.sale_price.lte' => 'Giá bán phải nhỏ hơn hoặc bằng giá niêm yết.',
@@ -169,7 +170,7 @@ class ProductsController extends Controller
 
             'variants.*.temp_variant_image_url.required' => 'Vui lòng chọn ảnh cho biến thể.',
         ]);
-
+     
         // ==== Check trùng ảnh ====
         $productImage = $request->temp_image_url;
         $variantImages = collect($request->variants)->pluck('temp_variant_image_url');
