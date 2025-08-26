@@ -205,10 +205,13 @@ class VouchersController extends Controller
         if ($voucher->status != 'save') {
             return redirect()->back()->with('error', 'Voucher này không thể phát hành lại');
         }
-        $daysPassed = now()->diffInDays($voucher->created_at);
+        $daysPassed = now()->diffInDays($voucher->created_at); // luôn trả về int
         if ($daysPassed < 30) {
-            $daysLeft = 30 - $daysPassed;
-            return redirect()->back()->with('error', "Chỉ có thể khôi phục lại sau {$daysLeft} ngày nữa.");
+            $daysLeft = 30 - $daysPassed; // số ngày còn lại
+            return redirect()->back()->with(
+                'error',
+                "Chỉ có thể khôi phục lại sau {$daysLeft} ngày nữa."
+            );
         }
         VouchersUsers::where('voucher_id', $id)->delete();
         $voucher->update(['status' => 'draft']);
