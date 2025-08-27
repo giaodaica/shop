@@ -112,8 +112,9 @@ class ProductController extends Controller
         //         break;
         // }
 
-        return $query->paginate(10);
+
+        return $query->paginate(20);
     }
 
-  
+
 }

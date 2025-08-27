@@ -34,10 +34,7 @@
                         <div class="card-header border-0">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mb-0">Danh sách lịch sử khóa</h5>
-                                <form class="d-flex" method="GET">
-                                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Tìm theo tên, email..." />
-                                    <button class="btn btn-primary ms-2" type="submit">Tìm</button>
-                                </form>
+                              
                             </div>
                         </div>
 

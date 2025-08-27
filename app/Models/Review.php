@@ -32,7 +32,7 @@ class Review extends Model
     {
         return $this->belongsTo(Products::class);
     }
-    public function variants()
+    public function productVariant()
     {
         return $this->belongsTo(Product_variants::class);
     }
@@ -44,6 +44,11 @@ class Review extends Model
     public function replies()
 {
     return $this->hasMany(ReviewReply::class);
+}
+// App\Models\Review.php
+public function admin()
+{
+    return $this->belongsTo(User::class, 'admin_id');
 }
 
 protected $a = 2;

@@ -80,32 +80,35 @@ class VouchersController extends Controller
         }
         return view('dashboard.pages.voucher.detail', compact('data_voucher', 'action', 'categories'));
     }
-    public function update(VoucherRequest $request, $id)
-    {
-        // dd($_POST);
-        $data_voucher = Vouchers::findOrFail($id);
-        $data = $request->validated();
 
-        if ($data_voucher->status == 'active' || $data_voucher->status == 'used_up' || $data_voucher->status == 'expired') {
-            // dd('chayj vafho day');
-            $data = Arr::only($data, ['start_date', 'end_date', 'max_used']);
-            // dd($data);
+public function update(VoucherRequest $request, $id)
+{
+    $data_voucher = Vouchers::findOrFail($id);
+
+    if ($data_voucher->status === 'active') {
+        $data = Arr::only($request->validated(), ['end_date', 'max_used']);
+    } else {
+        $data = $request->validated();
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/vouchers'), $filename);
+            $data['image'] = 'uploads/vouchers/' . $filename;
         } else {
-            if ($request->hasFile('image')) {
-                $file = $request->file('image');
-                $filename = time() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('uploads/vouchers'), $filename);
-                $data['image'] = 'uploads/vouchers/' . $filename;
-            } else {
-                $data['image'] = $data_voucher->image;
-            }
-            if (isset($data['type_discount']) && $data['type_discount'] == "value") {
-                $data['max_discount'] = 0;
-            }
+            $data['image'] = $data_voucher->image;
         }
-        $data_voucher->update($data);
-        return redirect()->back();
+
+        if (isset($data['type_discount']) && $data['type_discount'] === "value") {
+            $data['max_discount'] = 0;
+        }
     }
+
+    $data_voucher->update($data);
+
+    return redirect()->back()->with('success', 'Cập nhật thành công');
+}
+
+
 
     public function ads(AdsRequest $request)
     {
@@ -119,6 +122,7 @@ class VouchersController extends Controller
         if ($data->status !== 'active') {
             abort(403, 'Không thể làm hành động này');
         }
+        $data_voucher_user = VouchersUsers::where('voucher_id', $id)->update(['status'=> 'expired']);
         $data->update(['status' => 'disabled']);
         return redirect()->back();
     }
@@ -186,6 +190,9 @@ class VouchersController extends Controller
         if (!$data_voucher) {
             return redirect()->back()->with('error', 'Không tìm thấy voucher này');
         }
+        if($data_voucher->status != 'save' && $data_voucher->status != 'draft'){
+            return redirect()->back()->with('error', 'Bạn chỉ có thể xóa voucher này khi nó chưa phát hành hoặc đã lưu trữ');
+        }
         if (!$data) {
             return abort(403, 'Không hợp lệ');
         }
@@ -198,17 +205,17 @@ class VouchersController extends Controller
     }
     public function restore($id)
     {
-       $voucher = Vouchers::where('id',$id)->first();
+        $voucher = Vouchers::where('id', $id)->first();
         if (!$voucher) {
             return redirect()->back()->with('error', 'Voucher không tồn tại');
         }
         if ($voucher->status != 'save') {
             return redirect()->back()->with('error', 'Voucher này không thể phát hành lại');
         }
-        if($voucher->created_at > now()->subDays(30)) {
+        if ($voucher->created_at > now()->subDays(30)) {
             return redirect()->back()->with('error', 'Chỉ có thể khôi phục lại sau 30 ngày');
         }
-        VouchersUsers::where('voucher_id',$id)->delete();
+        VouchersUsers::where('voucher_id', $id)->delete();
         $voucher->update(['status' => 'draft']);
         return redirect()->back()->with('success', 'Phát hành lại voucher thành công');
     }

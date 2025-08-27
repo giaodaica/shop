@@ -73,30 +73,66 @@
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
+
+                                        {{-- Mật khẩu --}}
+                                        <div class="mb-3">
+                                            <label for="user-password" class="form-label">Mật khẩu mới</label>
+                                            <input type="password" id="user-password" name="password"
+                                                class="form-control @error('password') is-invalid @enderror"
+                                                {{ $user->id !== auth()->id() ? 'disabled' : '' }}
+                                                placeholder="{{ $user->id === auth()->id() ? 'Nhập mật khẩu mới (để trống nếu không đổi)' : 'Không thể thay đổi mật khẩu người khác' }}">
+                                            @if ($user->id !== auth()->id())
+                                                <small class="text-warning">
+                                                    <i class="ri-information-line me-1"></i>
+                                                    Bạn không thể thay đổi mật khẩu của người khác
+                                                </small>
+                                            @else
+                                                <small class="text-muted">Để trống nếu không muốn thay đổi mật khẩu</small>
+                                            @endif
+                                            @error('password')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        {{-- Xác nhận mật khẩu --}}
+                                        <div class="mb-3">
+                                            <label for="user-password-confirmation" class="form-label">Xác nhận mật khẩu mới</label>
+                                            <input type="password" id="user-password-confirmation" name="password_confirmation"
+                                                class="form-control"
+                                                {{ $user->id !== auth()->id() ? 'disabled' : '' }}
+                                                placeholder="{{ $user->id === auth()->id() ? 'Nhập lại mật khẩu mới' : 'Không thể thay đổi mật khẩu người khác' }}">
+                                        </div>
                                     </div>
 
                                     <div class="col-lg-6">
-                                        {{-- Chọn Roles --}}
+                                        {{-- Chọn Role --}}
                                         @if (isset($roles) && $roles->count() > 0)
                                             <div class="mb-3">
-                                                <label class="form-label">Phân quyền</label>
-                                                <div class="border rounded p-3">
+                                                <label for="user-role" class="form-label">Vai trò</label>
+                                                <select id="user-role" name="role_id" class="form-select @error('role_id') is-invalid @enderror" 
+                                                    {{ $user->id === auth()->id() ? 'disabled' : '' }}>
+                                                    <option value="">-- Chọn vai trò --</option>
                                                     @foreach ($roles as $role)
-                                                        <div class="form-check mb-2">
-                                                            <input class="form-check-input" type="checkbox" name="roles[]"
-                                                                value="{{ $role->id }}" id="role_{{ $role->id }}"
-                                                                @if ($user->hasRole($role)) checked @endif>
-                                                            <label class="form-check-label" for="role_{{ $role->id }}">
-                                                                <strong>{{ $role->name }}</strong>
-                                                                @if ($role->description)
-                                                                    <small
-                                                                        class="text-muted d-block">{{ $role->description }}</small>
-                                                                @endif
-                                                            </label>
-                                                        </div>
+                                                        <option value="{{ $role->id }}" 
+                                                            {{ old('role_id', $user->roles->first() ? $user->roles->first()->id : '') == $role->id ? 'selected' : '' }}>
+                                                            {{ $role->name }}
+                                                            @if ($role->description)
+                                                                - {{ $role->description }}
+                                                            @endif
+                                                        </option>
                                                     @endforeach
-                                                </div>
-                                                <small class="text-muted">Chọn các vai trò cho người dùng này</small>
+                                                </select>
+                                                @if ($user->id === auth()->id())
+                                                    <small class="text-warning">
+                                                        <i class="ri-information-line me-1"></i>
+                                                        Bạn không thể thay đổi vai trò của chính mình
+                                                    </small>
+                                                @else
+                                                    <small class="text-muted">Chọn vai trò cho người dùng này</small>
+                                                @endif
+                                                @error('role_id')
+                                                    <div class="text-danger mt-1">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         @else
                                             <div class="mb-3">
@@ -107,50 +143,20 @@
                                             </div>
                                         @endif
 
-                                        {{-- Hiển thị permissions hiện tại --}}
-                                        <div class="mb-3">
-                                            <label class="form-label">Quyền hạn hiện tại</label>
-                                            <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
-                                                @php
-                                                    $userPermissions = $user->getAllPermissions()->groupBy('parent_id');
-                                                @endphp
-                                                @if ($userPermissions->count() > 0)
-                                                    @foreach ($userPermissions as $parentId => $permissions)
-                                                        @if ($parentId === null)
-                                                            <div class="mb-2">
-                                                                <strong class="text-primary">Permissions chính:</strong>
-                                                            </div>
-                                                        @else
-                                                            @php
-                                                                $parentPermission = \Spatie\Permission\Models\Permission::find(
-                                                                    $parentId,
-                                                                );
-                                                            @endphp
-                                                            <div class="mb-2">
-                                                                <strong
-                                                                    class="text-success">{{ $parentPermission ? $parentPermission->name : 'Unknown' }}:</strong>
-                                                            </div>
-                                                        @endif
-                                                        <div class="ms-3 mb-2">
-                                                            @foreach ($permissions as $permission)
-                                                                <span
-                                                                    class="badge bg-light text-dark me-1 mb-1">{{ $permission->name }}</span>
-                                                            @endforeach
-                                                        </div>
-                                                    @endforeach
-                                                @else
-                                                    <div class="text-muted">
-                                                        <i class="ri-information-line me-1"></i>
-                                                        Không có quyền hạn nào được gán.
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
+                                        {{-- Hidden field để gửi vai trò hiện tại khi select bị disable --}}
+                                        @if ($user->id === auth()->id())
+                                            <input type="hidden" name="role_id" value="{{ $user->roles->first() ? $user->roles->first()->id : '' }}">
+                                        @endif
+
+                                        {{-- Hidden field để gửi mật khẩu hiện tại khi input bị disable --}}
+                                        @if ($user->id !== auth()->id())
+                                            <input type="hidden" name="password" value="">
+                                            <input type="hidden" name="password_confirmation" value="">
+                                        @endif
                                     </div>
                                 </div>
 
                                 {{-- Hidden fields --}}
-                                <input type="hidden" name="role" value="{{ $user->role }}">
                                 <input type="hidden" name="rank" value="">
                                 <input type="hidden" name="point" value="">
                                 <input type="hidden" name="total_spent" value="">

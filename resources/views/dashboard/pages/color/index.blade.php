@@ -82,8 +82,7 @@
                                                     </div>
                                                 </th>
                                                 <td class="id">
-                                                    <a href="{{ route('colors.show', $color->id) }}"
-                                                        class="fw-medium link-primary">COLOR{{ $color->id }}</a>
+                                                  COLOR{{ $color->id }}
                                                 </td>
                                                 <td class="color_name">{{ $color->color_name }}</td>
                                                 <td class="created_at">{{ $color->created_at->format('d/m/Y') }}</td>

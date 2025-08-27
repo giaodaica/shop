@@ -103,7 +103,7 @@
 
         {{-- Thống kê nhanh --}}
        <div class="row mb-3 align-items-stretch">
-    <div class="col-md-2">
+    <div class="col">
         <div class="card text-center border-primary h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-primary" style="font-size: 1.5rem;">
@@ -118,7 +118,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col">
         <div class="card text-center border-warning h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-warning" style="font-size: 1.5rem;">
@@ -133,7 +133,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col">
         <div class="card text-center border-info h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-info" style="font-size: 1.5rem;">
@@ -148,13 +148,13 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col">
         <div class="card text-center border-success h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-success" style="font-size: 1.5rem;">
-                    {{ $data_order->donhang_thanhcong ?? 0 }}
+                    {{ $data_order->don_dagiao ?? 0 }}
                 </div>
-                <div class="text-muted">Đơn đã hoàn thành</div>
+                <div class="text-muted">Đã giao hàng</div>
             </div>
             <div class="card-footer bg-transparent border-top-0">
                 <a target="_blank" rel="noopener noreferrer" href="{{ route('dashboard.order', ['type' => 'success']) }}" class="btn btn-sm btn-outline-success w-100">
@@ -163,7 +163,22 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col">
+        <div class="card text-center border-success h-100 d-flex flex-column">
+            <div class="card-body flex-grow-1">
+                <div class="fw-bold text-success" style="font-size: 1.5rem;">
+                    {{ $data_order->don_thanhcong ?? 0 }}
+                </div>
+                <div class="text-muted">Giao hàng thành công</div>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+                <a target="_blank" rel="noopener noreferrer" href="{{ route('dashboard.order', ['type' => 'delivered']) }}" class="btn btn-sm btn-outline-success w-100">
+                    Xem chi tiết
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
         <div class="card text-center border-danger h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-danger" style="font-size: 1.5rem;">
@@ -178,7 +193,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col">
         <div class="card text-center border-danger h-100 d-flex flex-column">
             <div class="card-body flex-grow-1">
                 <div class="fw-bold text-danger" style="font-size: 1.5rem;">
@@ -205,8 +220,16 @@
 
         {{-- Biểu đồ Top sản phẩm bán chạy --}}
         <div class="card mb-4 border-info">
-            <div class="card-header bg-info text-white fw-bold">Top sản phẩm bán chạy</div>
+            <div class="card-header bg-info text-white fw-bold">
+                Top sản phẩm bán chạy
+            </div>
             <div class="card-body" style="max-width:400px; margin:auto;">
+                <div class="mb-2 text-center" style="font-size:16px;">
+                    <span class="fw-bold">Tổng số sản phẩm bán được:</span>
+                    <span class="text-primary fw-bold">
+                        {{ number_format($data_loinhan->tongsanpham) }}
+                    </span>
+                </div>
                 <canvas id="topProductsChart" width="350" height="350" style="max-width:100%;"></canvas>
             </div>
         </div>
@@ -223,7 +246,16 @@
         <div class="card mb-4 border-danger">
             <div class="card-header bg-danger text-white fw-bold">Top sản phẩm bán ế</div>
             <div class="card-body">
-                <canvas id="leastSoldProductsChart" height="120"></canvas>
+                <ul class="list-group list-group-flush">
+                    @forelse($least_sold_variants as $item)
+                        <li class="list-group-item d-flex align-items-center">
+                            <span class="badge bg-danger me-2" style="width:18px;height:18px;">!</span>
+                            <span class="fw-semibold">{{ $item->variant_name }}</span>
+                        </li>
+                    @empty
+                        <li class="list-group-item text-muted">Không có sản phẩm nào.</li>
+                    @endforelse
+                </ul>
             </div>
         </div>
 
@@ -251,12 +283,11 @@ document.addEventListener('DOMContentLoaded', showFilterInput);
 new Chart(document.getElementById('revenueChart'), {
     type: 'bar',
     data: {
-        labels: ['Doanh thu', 'Số SP bán', 'Doanh thu TB/đơn', 'Tổng giảm giá'],
+        labels: ['Doanh thu', 'Doanh thu TB/đơn', 'Tổng giảm giá'],
         datasets: [{
             label: 'Giá trị',
             data: [
                 {{ $data_doanhthu->doanhthu }},
-                {{ $data_loinhan->tongsanpham }},
                 {{ $dtb }},
                 {{ $data_doanhthu->tong_giam_gia }},
                 {{ $data_loinhan->loinhuan }}

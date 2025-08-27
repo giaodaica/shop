@@ -174,7 +174,11 @@
                                     <div class="mb-3">
                                         <label for="customername-field" class="form-label">Mã voucher</label>
                                         <input type="text" id="code" name="code" class="form-control"
-                                            placeholder="Nhập mã code" required value="{{ $data_voucher->code }}" />
+                                            placeholder="Nhập mã code" required value="{{ $data_voucher->code }}" @if($data_voucher->status == 'active')
+                                            readonly
+                                            @else
+
+                                            @endif />
                                         <div class="text-danger">
                                             @error('code')
                                                 {{ $message }}
@@ -183,8 +187,11 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="" class="form-label">Kiểu giảm giá</label>
-                                        <select name="type_discount" id="type_discount" class="form-control">
-                                            <option value="">Chọn phương thức</option>
+                                        <select name="type_discount" id="type_discount" class="form-control" @if($data_voucher->status == 'active')
+                                            readonly
+                                        @else
+                                        @endif>
+                                            <option value="" >Chọn phương thức</option>
                                             <option
                                                 value="percent"{{ $data_voucher->type_discount === 'percent' ? 'selected' : '' }}>
                                                 Giảm theo phần trăm</option>
@@ -203,7 +210,10 @@
                                             giảm
                                             ({{ $data_voucher->type_discount == 'percent' ? '%' : 'Nghìn đồng' }})</label>
                                         <input type="text" id="value" name="value" class="form-control"
-                                            placeholder="5% hoặc 50000" required value="{{ $data_voucher->value }}" />
+                                            placeholder="5% hoặc 50000" required value="{{ $data_voucher->value }}" @if($data_voucher->status == 'active')
+                                            readonly
+                                        @else
+                                        @endif />
                                         <div class="text-danger">
                                             @error('value')
                                                 {{ $message }}
@@ -214,7 +224,10 @@
                                         <label for="max_discount" class="form-label">Giá trị giảm giá tối đa</label>
                                         <input type="text" id="max_discount" name="max_discount" class="form-control"
                                             placeholder="bỏ qua nếu không có hoặc kiểu giảm giá là phần trăm"
-                                            value="{{ $data_voucher->max_discount }}" />
+                                            value="{{ $data_voucher->max_discount }}" @if($data_voucher->status == 'active')
+                                            readonly
+                                        @else
+                                        @endif />
                                         <div class="text-danger">
                                             @error('max_discount')
                                                 {{ $message }}
@@ -224,7 +237,10 @@
                                     <div class="mb-3">
                                         <label for="category_id" class="form-label">Danh Mục</label>
                                         <select class="form-control" data-trigger name="category_id" id="category_id"
-                                            required>
+                                            required @if($data_voucher->status == 'active')
+                                            readonly
+                                        @else
+                                        @endif>
                                             <option value="">Loại giảm giá</option>
                                             @foreach ($categories as $render_name)
                                                 <option value="{{ $render_name->id }}"
@@ -245,7 +261,11 @@
                                         <input type="datetime-local" id="start_date" name="start_date"
                                             class="form-control" data-provider="flatpickr" data-date-format="d M, Y"
                                             data-enable-time placeholder="chọn thời gian"
-                                            value="{{ $data_voucher->start_date }}" />
+                                            value="{{ $data_voucher->start_date }}"  @if($data_voucher->status == 'active')
+                                                readonly
+                                            @else
+
+                                            @endif/>
                                         <div class="text-danger">
                                             @error('start_date')
                                                 {{ $message }}
@@ -265,7 +285,10 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="block-field" class="form-label">Vị trí hiển thị</label>
-                                        <select id="block" name="block" class="form-select">
+                                        <select id="block" name="block" class="form-select" @if($data_voucher->status == 'active')
+                                            readonly
+                                        @else
+                                        @endif>
                                             <option value="">Chọn vị trí</option>
                                             <option value="1" {{ $data_voucher->block == 1 ? 'selected' : '' }}>1</option>
                                             <option value="2" {{ $data_voucher->block == 2 ? 'selected' : '' }}>2</option>
@@ -280,7 +303,10 @@
                                     <div class="mb-3">
                                         <label for="image-field" class="form-label">Ảnh đại diện</label>
                                         <input type="file" id="image" name="image" class="form-control"
-                                            accept=".jpg,.jpeg,.png" />
+                                            accept=".jpg,.jpeg,.png" @if($data_voucher->status == 'active')
+                                            readonly
+                                        @else
+                                        @endif />
                                         <div class="text-danger">
                                             @error('image')
                                                 {{ $message }}
@@ -317,7 +343,10 @@
                                                     tối thiểu</label>
                                                 <input type="text" id="min_order_value" name="min_order_value"
                                                     class="form-control" placeholder="Đơn tối thiểu"
-                                                    value="{{ $data_voucher->min_order_value }}" />
+                                                    value="{{ $data_voucher->min_order_value }}" @if($data_voucher->status == 'active')
+                                                    readonly
+                                                @else
+                                                @endif />
                                                 <div class="text-danger">
                                                     @error('min_order_value')
                                                         {{ $message }}

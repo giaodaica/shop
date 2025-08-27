@@ -11,6 +11,8 @@
                     </div>
                 </div>
             </div>
+
+
             @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
@@ -31,8 +33,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Tên sản phẩm</label>
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                        id="product-name" name="name" value="{{ old('name') !== null ? old('name') : $product->name }}" 
-                                        maxlength="255">
+                                        id="product-name" name="name"
+                                        value="{{ old('name') !== null ? old('name') : $product->name }}" maxlength="255">
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -42,8 +44,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Slug</label>
                                     <input type="text" class="form-control @error('slug') is-invalid @enderror"
-                                        id="product-slug" name="slug" value="{{ old('slug') !== null ? old('slug') : $product->slug }}" readonly
-                                        >
+                                        id="product-slug" name="slug"
+                                        value="{{ old('slug') !== null ? old('slug') : $product->slug }}" readonly>
                                     @error('slug')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -63,7 +65,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">Danh mục</label>
                                     <select class="form-select @error('category_id') is-invalid @enderror"
-                                        name="category_id" >
+                                        name="category_id">
                                         <option value="">-- Chọn danh mục --</option>
                                         @foreach ($categories as $category)
                                             <option value="{{ $category->id }}"
@@ -94,7 +96,7 @@
                                         <label class="input-group-text" for="product-image">Thêm ảnh</label>
                                     </div>
                                     <input type="hidden" name="temp_image_url" id="temp_image_url"
-                                        value="{{ old('temp_image_url') }}" >
+                                        value="{{ old('temp_image_url') }}">
                                 </div>
 
                                 <!-- Biến thể -->
@@ -104,17 +106,34 @@
                                     </div>
                                     <div class="card-body">
                                         <div id="variant-container">
-                                            @foreach ($product->variants as $index => $variant)
-                                                @include('dashboard.pages.product.partials.variant', [
-                                                    'index' => $index,
-                                                    'variant' => $variant,
-                                                    'editMode' => true,
-                                                    'sizes' => $sizes,
-                                                    'colors' => $colors,
-                                                ])
-                                            @endforeach
+                                            @if (old('variants'))
+                                                @foreach (old('variants') as $index => $variant)
+                                                    @include('dashboard.pages.product.partials.variant', [
+                                                        'index' => $index,
+                                                        'variant' => $variant,
+                                                        'editMode' => false,
+                                                        'sizes' => $sizes,
+                                                        'colors' => $colors,
+                                                    ])
+                                                @endforeach
+                                            @else
+                                                @foreach ($product->variants as $index => $variant)
+                                                    @include('dashboard.pages.product.partials.variant', [
+                                                        'index' => $index,
+                                                        'variant' => $variant->toArray(),
+                                                        'editMode' => true,
+                                                        'sizes' => $sizes,
+                                                        'colors' => $colors,
+                                                    ])
+                                                @endforeach
+                                            @endif
                                         </div>
-
+                                        <div id="variant-message"
+                                            class="alert alert-danger alert-dismissible fade show d-none" role="alert">
+                                            <span id="variant-text"></span>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                        </div>
                                         <p class="text-muted fst-italic">(*) Mỗi tổ hợp Màu + Size tạo ra biến thể với tên:
                                             <strong>Tên + Màu + Size</strong>
                                         </p>
@@ -208,8 +227,17 @@
         });
 
         $(document).on('click', '.remove-variant', function() {
-            $(this).closest('.variant-item').remove();
+            if ($('.variant-item').length > 1) {
+                $(this).closest('.variant-item').remove();
+                $('#variant-message').addClass('d-none'); // ẩn alert
+            } else {
+                $('#variant-text').text('Sản phẩm phải có ít nhất một biến thể.');
+                $('#variant-message').removeClass('d-none'); // hiện alert lại
+            }
         });
+
+
+
 
         ClassicEditor.create(document.querySelector('#description-editor')).catch(error => console.error(error));
 
@@ -227,6 +255,5 @@
         });
 
         // Validate form before submit
-       
     </script>
 @endsection
