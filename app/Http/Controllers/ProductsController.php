@@ -517,7 +517,7 @@ class ProductsController extends Controller
 
     public function show($id)
     {
-        $product = Products::with(['category', 'variants.color', 'variants.size'])->findOrFail($id);
+        $product = Products::withTrashed()->with(['category', 'variants.color', 'variants.size'])->findOrFail($id);
         return view('dashboard.pages.product.show', compact('product'));
     }
     public function forceDelete($id)
