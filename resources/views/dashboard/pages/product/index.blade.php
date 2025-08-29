@@ -162,11 +162,12 @@
                                                             </div>
                                                             <div class="flex-grow-1">
                                                                 <h5 class="fs-14 mb-1">
-                                                                    <span class="text-body text-truncate d-inline-block"
+                                                                    <a href="{{ route('products.show', $product->id) }}"
+                                                                        class="text-body text-truncate d-inline-block"
                                                                         style="max-width: 200px;"
                                                                         title="{{ $product->name }}">
                                                                         {{ $product->name }}
-                                                                    </span>
+                                                                    </a>
                                                                 </h5>
                                                                 <p class="text-muted mb-0">Danh mục: <span
                                                                         class="fw-medium">{{ $product->category->name ?? 'Chưa có' }}</span>
