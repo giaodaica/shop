@@ -284,9 +284,7 @@
         <!-- container-fluid -->
     </div>
     <!-- End Page-content -->
-    <div class="d-flex justify-content-center mt-4">
-        {{ $products->appends(request()->query())->links() }}
-    </div>
+ 
     <footer class="footer">
         <div class="container-fluid">
             <div class="row">
