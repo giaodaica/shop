@@ -229,7 +229,7 @@
     </section>
     <!-- end section -->
     <!-- start section -->
-    @include('card.blog')
+    {{-- @include('card.blog') --}}
     <!-- end section -->
     <!-- start footer -->
     @include('card.footer')

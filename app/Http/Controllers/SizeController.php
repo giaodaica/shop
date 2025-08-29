@@ -96,6 +96,20 @@ class SizeController extends Controller
             ], 400);
         }
 
+        // Lấy danh sách size có liên kết sản phẩm
+        $sizesInUse = Size::whereIn('id', $ids)
+            ->whereHas('productVariants')
+            ->pluck('size_name')
+            ->toArray();
+
+        if (!empty($sizesInUse)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Không thể xóa các size đang được sản phẩm sử dụng: ' . implode(', ', $sizesInUse)
+            ], 400);
+        }
+
+        // Nếu không có size nào đang dùng thì mới xóa
         Size::whereIn('id', $ids)->delete();
 
         return response()->json([

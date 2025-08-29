@@ -265,7 +265,7 @@
                                 <label>
                                     <input type="checkbox" name="terms_condition" value="1"
                                         class="check-box align-middle" required>
-                                    <span class="box fs-14 lh-28">Tôi đồng ý với <a href="{{route('verify')}}"
+                                    <span class="box fs-14 lh-28">Tôi đồng ý với <a href="{{route('verify')}}" target="_blank" rel="noopener noreferrer"
                                             class="text-decoration-line-bottom text-dark-gray fw-500">điều khoản và điều
                                             kiện</a> của website.</span>
                                 </label>
