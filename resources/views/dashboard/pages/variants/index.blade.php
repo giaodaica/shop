@@ -129,7 +129,7 @@
                                                     <td>{{ $index + 1 }}</td>
                                                     <td class="fw-semibold text-break"
                                                         style="max-width: 150px; word-break: break-all; overflow-wrap: break-word;">
-                                                        {{ $variant->name }}
+                                                       <a href="{{ route('variants.show', $variant->id) }}">{{ $variant->name }}</a>
                                                     </td>
                                                     <td>
                                                         <div class="avatar-sm bg-light rounded p-1 mb-3">

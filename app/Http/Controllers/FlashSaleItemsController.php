@@ -17,8 +17,7 @@ class FlashSaleItemsController extends Controller
     }
     public function create($flash_sale_id)
     {
-        $products = Product_variants::where('is_show', 1)
-            ->where('use_flash_sale', 1)
+        $products = Product_variants::where('use_flash_sale', 1)
             ->join('colors', 'product_variants.color_id', 'colors.id')
             ->join('sizes', 'product_variants.size_id', 'sizes.id')
             ->select(
