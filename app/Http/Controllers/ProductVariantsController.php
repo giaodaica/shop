@@ -183,7 +183,11 @@ class ProductVariantsController extends Controller
     // Hiển thị chi tiết biến thể
     public function show($id)
     {
-        $variant = Product_variants::with('product', 'color', 'size')->findOrFail($id);
+        $variant = Product_variants::with('product', 'color', 'size')->withTrashed()
+            ->where('id', $id)->first();
+        if (!$variant) {
+            return redirect()->route('variants.index')->with('error', 'Biến thể không tồn tại.');
+        }
         return view('dashboard.pages.variants.show', compact('variant'));
     }
 
