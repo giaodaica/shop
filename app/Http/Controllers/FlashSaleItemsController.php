@@ -37,20 +37,28 @@ class FlashSaleItemsController extends Controller
         // dd($_POST);
         $flash_sale = $request->input('flash_sale');
         $checkAll = $request->input('checkall');
-        $flashsale = FlashSale::where('id',$id)->where('status','upcoming')->first();
+        $flashsale = FlashSale::where('id', $id)->where('status', 'upcoming')->first();
 
-        if(!$flashsale){
-            return redirect()->back()->with('error','Bạn chỉ được thay đổi khi chương trình này chưa khởi động');
+        if (!$flashsale) {
+            return redirect()->back()->with('error', 'Bạn chỉ được thay đổi khi chương trình này chưa khởi động');
         }
-        if(!$flash_sale){
-            return redirect()->back()->with('error','chưa có sản phẩm');
+        if (!$flash_sale) {
+            return redirect()->back()->with('error', 'chưa có sản phẩm');
         }
         foreach ($flash_sale as $product_id => $data) {
-         if (($checkAll == 1 || isset($data['selected']) || !isset($checkAll)) && isset($data['quantity']) && $data['quantity'] > 0) {
+            if (($checkAll == 1 || isset($data['selected']) || !isset($checkAll)) && isset($data['quantity']) && $data['quantity'] > 0) {
                 $quantity = $data['quantity'];
-                $data_product_variant = Product_variants::findOrFail($product_id);
-                $data_product = Products::findOrFail($data_product_variant->product_id);
-                if( $quantity <= 0){
+                $data_product_variant = Product_variants::where('id', $product_id)->first();
+                if (!$data_product_variant) {
+                    $errors[] = "Không tìm thấy biến thể sản phẩm hoặc sản phẩm đã bị xóa";
+                    continue;
+                }
+                $data_product = Products::where('id', $data_product_variant->product_id)->first();
+                if (!$data_product) {
+                    $errors[] = "Không tìm thấy biến thể sản phẩm hoặc sản phẩm đã bị xóa";
+                    continue;
+                }
+                if ($quantity <= 0) {
                     $errors[] = "Số lượng cho sản phẩm {$data_product_variant->name} không hợp lệ";
                     continue;
                 }
@@ -63,8 +71,10 @@ class FlashSaleItemsController extends Controller
                 if ($data_flash_sale_item) {
                     // dd($data_product_variant);
                     $data_flash_sale_item->update(
-                        ['max_quantity' => $data_flash_sale_item->max_quantity + $quantity,
-                                        'stock_quantity' => $data_flash_sale_item->stock_quantity + $quantity]
+                        [
+                            'max_quantity' => $data_flash_sale_item->max_quantity + $quantity,
+                            'stock_quantity' => $data_flash_sale_item->stock_quantity + $quantity
+                        ]
                     );
                     $data_product_variant->update([
                         'stock' => $data_product_variant->stock - $quantity
@@ -85,10 +95,10 @@ class FlashSaleItemsController extends Controller
                         'import_price' => $data_product_variant->import_price,
                         'listed_price' => $data_product_variant->listed_price,
                         'sale_price' => $data_product_variant->sale_price,
-                        'stock_quantity'=> $quantity,
+                        'stock_quantity' => $quantity,
                         'slug' => $data_product->slug,
                     ]);
-                     $data_product_variant->update([
+                    $data_product_variant->update([
                         'stock' => $data_product_variant->stock - $quantity
                     ]);
                 }
@@ -98,26 +108,27 @@ class FlashSaleItemsController extends Controller
             // dd($errors);
             return redirect()->back()->with('error', implode('<br>', $errors));
         }
-           return redirect()->back()->with('success', 'Thành công.');
+        return redirect()->back()->with('success', 'Thành công.');
     }
-    public function remove_flash_sale_items($id){
+    public function remove_flash_sale_items($id)
+    {
         // dd($id);
-        $data_item = FlashSaleItems::where('id',$id)->first();
+        $data_item = FlashSaleItems::where('id', $id)->first();
         $data_flash_sale = FlashSale::findOrFail($_POST['flash_sale']);
-        if($data_flash_sale->status != 'upcoming' ){
-            return redirect()->back()->with('error','Bạn chỉ được thay đổi khi chương trình này chưa khởi động');
+        if ($data_flash_sale->status != 'upcoming') {
+            return redirect()->back()->with('error', 'Bạn chỉ được thay đổi khi chương trình này chưa khởi động');
         }
-        if(!$data_item){
-            return redirect()->back()->with('error','Không tìm thấy sản phẩm này');
+        if (!$data_item) {
+            return redirect()->back()->with('error', 'Không tìm thấy sản phẩm này');
         }
 
-         $data_product_variant = Product_variants::findOrFail($data_item->product_variant_id);
+        $data_product_variant = Product_variants::findOrFail($data_item->product_variant_id);
         $data_product_variant->update([
-            'stock' => $data_product_variant->stock+$data_item->max_quantity
+            'stock' => $data_product_variant->stock + $data_item->max_quantity
         ]);
         $data_item->delete();
 
-            return redirect()->back()->with('success','Thành công');
+        return redirect()->back()->with('success', 'Thành công');
         // dd($data_item);
     }
 }
