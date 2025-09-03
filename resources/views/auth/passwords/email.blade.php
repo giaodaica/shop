@@ -2,6 +2,23 @@
 
 @section('content')
 <section class="pt-0">
+    <!-- start section -->
+    <section class="top-space-margin half-section bg-gradient-very-light-gray">
+        <div class="container">
+            <div class="row align-items-center justify-content-center"
+                data-anime='{ "el": "childs", "translateY": [-15, 0], "opacity": [0,1], "duration": 300, "delay": 0, "staggervalue": 200, "easing": "easeOutQuad" }'>
+                <div class="col-12 col-xl-8 col-lg-10 text-center position-relative page-title-extra-large">
+                </div>
+                <div class="col-12 breadcrumb breadcrumb-style-01 d-flex justify-content-center">
+                    <ul>
+                        <li><a href="{{ route('home') }}">Trang chủ</a></li>
+                        <li>Quên mật khẩu</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end section -->
     <div class="container">
         <div class="row g-0 justify-content-center">
             <div class="col-xl-4 col-lg-5 col-md-10 contact-form-style-04 md-mb-50px">
