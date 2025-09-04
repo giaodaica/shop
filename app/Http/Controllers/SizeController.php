@@ -18,7 +18,7 @@ class SizeController extends Controller
     // Hiển thị danh sách size
     public function index()
     {
-        $sizes = Size::orderBy('id', 'desc')->paginate(10);
+        $sizes = Size::orderBy('created_at', 'desc')->paginate(10);
         return view('dashboard.pages.size.index', compact('sizes'));
     }
 

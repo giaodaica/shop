@@ -21,11 +21,11 @@ class CategoriesController extends Controller
         $status = $request->get('status', 'active'); // mặc định là active
 
         if ($status === 'trashed') {
-            $categories = Categories::onlyTrashed()->paginate(10);
+            $categories = Categories::onlyTrashed()->orderBy('created_at', 'desc')->paginate(10);
         } elseif ($status === 'all') {
-            $categories = Categories::withTrashed()->paginate(10);
+            $categories = Categories::withTrashed()->orderBy('created_at', 'desc')->paginate(10);
         } else {
-            $categories = Categories::paginate(10); // chỉ lấy active
+            $categories = Categories::orderBy('created_at', 'desc')->paginate(10); // chỉ lấy active
         }
 
         // Đếm số lượng
