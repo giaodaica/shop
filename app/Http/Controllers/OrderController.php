@@ -886,7 +886,7 @@ class OrderController extends Controller
         ]);
 
         if ($count >= 2 && $present->status == 'failed') {
-            $refund = 1;
+            $refund = 0;
             $present->status = 'cancelled';
             $present->save();
             OrderHistories::create([

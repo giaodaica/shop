@@ -46,7 +46,7 @@
                                 </div>
                                 <div class="summary-row">
                                     <span>Tổng tiền:</span>
-                                    <span class="fw-bold text-primary">{{ number_format($total ?? 0) }} VNĐ</span>
+                                    <span class="fw-bold text-primary">{{ number_format($refund->amount ?? 0) }} VNĐ</span>
                                 </div>
                             </div>
                         </div>
@@ -122,9 +122,9 @@
                                     </label>
                                     <div class="amount-input-group">
                                         <input type="text" id="refundAmountDisplay"
-                                            value="{{ number_format($total ?? 0, 0, ',', '.') }}" readonly>
+                                            value="{{ number_format($refund->amount ?? 0, 0, ',', '.') }}" readonly>
                                         <input type="hidden" name="amount" id="refundAmountReal"
-                                            value="{{ $total ?? 0 }}">
+                                            value="{{ $refund->amount ?? 0 }}">
 
                                         {{-- <button type="button" class="edit-btn" id="editAmountStk">
                                             <i class="fas fa-edit"></i>
@@ -190,9 +190,9 @@
                                     </label>
                                     <div class="amount-input-group">
                                         <input type="text" id="refundAmountDisplay"
-                                            value="{{ number_format($total ?? 0, 0, ',', '.') }}" readonly>
+                                            value="{{ number_format($refund->amount ?? 0, 0, ',', '.') }}" readonly>
                                         <input type="hidden" name="amount" id="refundAmountReal"
-                                            value="{{ $total ?? 0 }}">
+                                            value="{{ $refund->amount ?? 0 }}">
 
                                         {{-- <button type="button" class="edit-btn" id="editAmountStk">
                                             <i class="fas fa-edit"></i>
@@ -228,9 +228,9 @@
 
 @push('scripts')
     <script src="{{ asset('assets/js/refund/refund.js') }}"></script>
-  
+
 @endpush
 
 <script>
-    window.orderTotal = {{ $total ?? 0 }};
+    window.orderTotal = {{ $refund->amount ?? 0 }};
 </script>
