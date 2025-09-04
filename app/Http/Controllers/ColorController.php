@@ -18,7 +18,7 @@ class ColorController extends Controller
     // Hiển thị danh sách màu
     public function index()
     {
-        $colors = Color::orderBy('id', 'desc')->paginate(10);
+        $colors = Color::orderBy('created_at', 'desc')->paginate(10);
         return view('dashboard.pages.color.index', compact('colors'));
     }
 

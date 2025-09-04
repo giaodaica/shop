@@ -51,7 +51,7 @@ class ProductsController extends Controller
             $query->where('category_id', $categoryId);
         }
 
-        $products = $query->paginate(10)->appends(request()->query());
+        $products = $query->orderBy('created_at', 'desc')->paginate(10)->appends(request()->query());
 
         $totalActive = Products::count();
         $totalTrashed = Products::onlyTrashed()->count();

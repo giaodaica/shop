@@ -32,7 +32,7 @@ class ProductVariantsController extends Controller
         $colorId = $request->query('color_id');
         $sizeId = $request->query('size_id');
 
-        $query = Product_variants::query()
+        $query = Product_variants::query()->orderBy('created_at', 'desc')
             ->with(['product', 'size', 'color']);
 
         // Lọc theo product_id nếu có
