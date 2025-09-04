@@ -5,12 +5,12 @@
             <div class="row align-items-center justify-content-center"
                 data-anime='{ "el": "childs", "translateY": [-15, 0], "opacity": [0,1], "duration": 300, "delay": 0, "staggervalue": 100, "easing": "easeOutQuad" }'>
                 <div class="col-12 col-xl-8 col-lg-10 text-center position-relative page-title-extra-large">
-                    <h1 class="alt-font fw-600 text-dark-gray mb-10px">Shop</h1>
+                    <h1 class="alt-font fw-600 text-dark-gray mb-10px">Cửa hàng</h1>
                 </div>
                 <div class="col-12 breadcrumb breadcrumb-style-01 d-flex justify-content-center">
                     <ul>
-                        <li><a href="demo-fashion-store.html">Home</a></li>
-                        <li>Shop</li>
+                        <li><a href="{{route('home')}}">Trang chủ</a></li>
+                        <li>Cửa hàng</li>
                     </ul>
                 </div>
             </div>
@@ -27,7 +27,7 @@
                             <div id="search-summary" class="text-muted fs-15 mb-0"></div>
                         </div>
 
-                      
+
                     </div>
 
                     @if ($products->isEmpty())
@@ -68,7 +68,7 @@
                                                     <a href="{{ route('home.show', $product->slug) }}"
                                                         class="alt-font text-dark-gray fs-19 fw-500 product-name-truncate">{{ $product->name }}</a>
                                                     <div class="price lh-22 fs-16">
-                                                       
+
                                                         @if ($variant && $variant->sale_price < $variant->listed_price)
                                                             <div class="product-price">
                                                                 {{ number_format($variant->sale_price) }} ₫
@@ -82,7 +82,7 @@
                                                                 ₫</span>
                                                         @endif
                                                     </div>
-                                                    
+
                                                 </div>
                                             </div>
                                         </li>
@@ -120,7 +120,7 @@
                             </ul>
                         </div>
                     @endif
-                       
+
                     @endif
                 </div>
                 <div class="col-xxl-2 col-lg-3 shop-sidebar"
@@ -255,5 +255,5 @@
 
 @push('scripts')
     <script src="{{ asset('assets/js/shop/shop.js') . '?v=' . filemtime(public_path('assets/js/shop/shop.js')) }}" defer></script>
-   
+
 @endpush

@@ -5,7 +5,7 @@
                 <div class="product-card">
                     <a href="{{ route('home.show', ['slug' => $item->slug, 'flash_item_id' => $item->id]) }}"
                         class="text-decoration-none text-dark">
-                        <div class="product-image">
+                        <div class="shop-image">
                             <img src="{{ $item->variant_image_url }}" alt="{{ $item->name }}"
                                  style="width:100%;height:150px;object-fit:contain;">
                         </div>
