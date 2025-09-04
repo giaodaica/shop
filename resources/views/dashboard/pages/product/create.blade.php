@@ -12,7 +12,12 @@
                     </div>
                 </div>
             </div>
-
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
             <!-- Form -->
             <form id="createproduct-form" autocomplete="off" class="needs-validation" novalidate method="POST"
                 action="{{ route('products.store') }}">
@@ -150,10 +155,11 @@
 
 @section('js-content')
     <style>
-          .invalid-feedback {
+        .invalid-feedback {
             min-height: 18px;
             font-size: 13px;
         }
+
         .variant-item {
             border-bottom: 1px dashed #ccc;
             padding-bottom: 20px;
@@ -185,7 +191,6 @@
             padding-left: 1rem;
             margin: 0;
         }
-        
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/35.3.2/classic/ckeditor.js"></script>

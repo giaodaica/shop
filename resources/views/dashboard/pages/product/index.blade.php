@@ -281,7 +281,7 @@
             <!-- end row -->
 
         </div>
-        <!-- container-fluid -->
+        <!-- container-fluid -->                
     </div>
     <!-- End Page-content -->
  
