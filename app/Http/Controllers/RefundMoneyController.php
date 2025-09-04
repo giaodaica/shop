@@ -46,8 +46,8 @@ class RefundMoneyController extends Controller
         ]);
 
         // Kiểm tra số tiền hoàn phải đúng bằng giá trị đơn hàng
-        if ($request->amount != $order->final_amount) {
-            return back()->withErrors(['amount' => 'Sai giá trị đơn hàng'])->withInput();
+        if ($request->amount != $refund->amount) {
+            return back()->withErrors(['amount' => 'Sai giá trị đơn hàng '])->withInput();
         }
         $data['amount'] = $request->amount;
 
