@@ -148,7 +148,7 @@
                         </a>
 
                         <ul class="cart-item-list">
-                            @forelse($cartItems as $item)
+                            @forelse($cartItems->take(4) as $item)
                                 <li class="cart-item align-items-center">
                                     {{-- <a href="#" class="alt-font close">×</a> --}}
                                         <div class="product-image">
