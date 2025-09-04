@@ -225,6 +225,11 @@ class ProductsController extends Controller
             }
 
             $slug = Str::slug($request->slug ?: $request->name, '-');
+            $category = Categories::where('id', $request->category_id)->first();
+            if (!$category || $category->deleted_at != null) {
+              
+                return redirect()->back()->with('success', 'Danh mục đã bị xóa hoặc không tồn tại');
+            }
             $product = Products::create([
                 'name' => $request->name,
                 'description' => $request->description,
